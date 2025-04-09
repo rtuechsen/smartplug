@@ -40,5 +40,3 @@ sudo systemctl restart gunicorn
 sudo systemctl reload nginx
 
 cd ..
-
-# sudo systemctl start nginx -c /path/to/your/project/nginx.conf
