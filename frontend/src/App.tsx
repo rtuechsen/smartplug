@@ -1,0 +1,68 @@
+
+import { Component } from 'react';
+
+
+const API_HOST = '/api';
+let _csrfToken: any = null;
+
+// tutorial: https://fractalideas.com/blog/making-react-and-django-play-well-together-single-page-app-model/
+
+async function getCsrfToken() {
+	if (_csrfToken === null) {
+		const response = await fetch(`${API_HOST}/csrf/`, {
+			credentials: 'include',
+		});
+		const data = await response.json();
+		_csrfToken = data.csrfToken;
+	}
+	console.log(_csrfToken);
+	return _csrfToken;
+}
+
+
+async function testRequest(method: any) {
+	const response = await fetch(`${API_HOST}/ping/`, {
+		method: method,
+		headers: (
+			method === 'POST'
+				? { 'X-CSRFToken': await getCsrfToken() }
+				: {}
+		),
+		credentials: 'include',
+	});
+	const data = await response.json();
+	return data.result;
+}
+
+type MyState = { testGet: string, testPost: string };
+
+class App extends Component<{}, MyState> {
+
+	constructor(props: any) {
+		super(props);
+
+		this.state = {
+			testGet: 'Nope',
+			testPost: 'Nope',
+		};
+	}
+
+	async componentDidMount() {
+		this.setState({
+			testGet: await testRequest('GET'),
+			testPost: await testRequest('POST'),
+		});
+	}
+
+	render() {
+		return (
+			<div>
+				<p>Test GET request: {this.state.testGet}</p>
+				<p>Test POST request: {this.state.testPost}</p>
+			</div>
+		);
+	}
+}
+
+
+export default App

@@ -1,0 +1,5 @@
+/django-env/
+
+src/static/
+__pycache__/
+
