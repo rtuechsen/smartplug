@@ -16,4 +16,5 @@
 	"[json]": {
 		"editor.defaultFormatter": "vscode.json-language-features"
 	},
+	"python.defaultInterpreterPath": "./backend/django-env/bin/python3.12",
 }
