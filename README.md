@@ -10,7 +10,7 @@ To store your git password (AS PLAINTEXT):
 `git config --global user.password YOUR_PASSWORD`  
 Note that there are no Quotes around the password in contrast to user name or email.  
 
-Clone this repo using `git clone `.  
+Clone this repo using `git clone https://gitlab.com/proi3/shelly-dirigent.git`.  
 
 Run `sudo bash install.sh` to install the project.  
 Run `sudo bash develop_backend.sh` and `sudo bash develop_frontend.sh` (in separate terminals) to run without deployment.  
