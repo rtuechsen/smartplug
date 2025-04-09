@@ -12,9 +12,9 @@ Note that there are no Quotes around the password in contrast to user name or em
 
 Clone this repo using `git clone https://gitlab.com/proi3/shelly-dirigent.git`.  
 
-Run `sudo bash install.sh` to install the project.  
-Run `sudo bash develop_backend.sh` and `sudo bash develop_frontend.sh` (in separate terminals) to run without deployment.  
-Run `sudo bash deploy.sh` to deploy using nginx.  
+Run `bash install.sh` to install the project.  
+Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
+Run `bash deploy.sh` to deploy using nginx.  
 
 ## Backend
 
