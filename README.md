@@ -13,7 +13,7 @@ Note that there are no Quotes around the password in contrast to user name or em
 Clone this repo using `git clone `.  
 
 Run `sudo bash install.sh` to install the project.  
-Run `sudo bash develop.sh` to run without deployment.  
+Run `sudo bash develop_backend.sh` and `sudo bash develop_frontend.sh` (in separate terminals) to run without deployment.  
 Run `sudo bash deploy.sh` to deploy using nginx.  
 
 ## Backend
