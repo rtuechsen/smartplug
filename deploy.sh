@@ -3,7 +3,7 @@ export DJANGO_PIPELINE=production
 
 sudo systemctl stop nginx
 
-sudo systemctl start nginx
+
 
 # frontend
 
@@ -11,16 +11,26 @@ cd frontend
 
 npm run build
 
-cd ..
+sudo rm -r /var/www/html/*
+sudo cp -r -p ./dist/* /var/www/html/
 
+cd ..
 
 # backend
 
-python3 ./backend/manage.py makemigrations
+cd backend
 
-python3 ./backend/manage.py migrate
+python3 ./manage.py makemigrations
 
-python3 ./backend/manage.py collectstatic --noinput
+python3 ./manage.py migrate
+
+# python3 ./manage.py collectstatic --noinput
+
+cd ..
+
+# http server
+
+sudo systemctl start nginx
 
 cd backend
 gunicorn --bind 127.0.0.1:8000 src.wsgi
