@@ -18,6 +18,8 @@ Run `bash install.sh` to install the project.
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
 Run `bash deploy.sh` to deploy using nginx.  
 
+When using WSL the machine can be reset instead of reinstalled via Windows Settings > Apps > Installed apps > search for "Ubuntu" > "..." > Advanced options > Reset.  
+
 ## Backend
 
 
