@@ -5,7 +5,6 @@ import { Component } from 'react';
 const API_HOST = '/api';
 let _csrfToken: any = null;
 
-// tutorial: https://fractalideas.com/blog/making-react-and-django-play-well-together-single-page-app-model/
 
 async function getCsrfToken() {
 	if (_csrfToken === null) {

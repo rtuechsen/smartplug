@@ -1,4 +1,6 @@
 
+# Instructions
+
 Install Ubuntu 24.04 as virtual machine or WSL.  
 Set a user name and a password.  
 
