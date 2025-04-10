@@ -11,7 +11,7 @@ export default defineConfig([
 	{ files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"], plugins: { js }, extends: ["js/recommended"] },
 	{
 		rules: {
-		"react/react-in-jsx-scope": "off"
+			"react/react-in-jsx-scope": "off"
 		}
 	},
 	tseslint.configs.recommended,

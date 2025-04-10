@@ -15,7 +15,7 @@ Note that there are no Quotes around the password in contrast to user name or em
 Clone this repo using `git clone https://gitlab.com/proi3/shelly-dirigent.git`.  
 
 Run `bash install.sh` to install the project.  
-Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
+Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment. Then go to the debug tab in VSCode and launch `Frontend Debug (Chrome)` (instead of simply opening the browser).  
 Run `bash deploy.sh` to deploy using nginx. Currently one has to open http://localhost:80 (note the lack of https).  
 
 When using WSL the machine can be reset instead of reinstalled via Windows Settings > Apps > Installed apps > search for "Ubuntu" > "..." > Advanced options > Reset.  
