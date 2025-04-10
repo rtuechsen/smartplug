@@ -16,9 +16,11 @@ Clone this repo using `git clone https://gitlab.com/proi3/shelly-dirigent.git`.
 
 Run `bash install.sh` to install the project.  
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
-Run `bash deploy.sh` to deploy using nginx.  
+Run `bash deploy.sh` to deploy using nginx. Currently one has to open http://localhost:80 (note the lack of https).  
 
 When using WSL the machine can be reset instead of reinstalled via Windows Settings > Apps > Installed apps > search for "Ubuntu" > "..." > Advanced options > Reset.  
+
+You can verify the syntax of `nginx.conf` by calling `sudo nginx -t` __AFTER__ deploying the configuration file to its proper location.  
 
 ## Backend
 
