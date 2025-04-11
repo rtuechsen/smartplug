@@ -33,6 +33,7 @@ cd ..
 
 cd frontend
 
+sudo apt -y install npm
 sudo apt -y install nodejs
 
 npm install
