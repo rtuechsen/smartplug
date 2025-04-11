@@ -5,6 +5,7 @@ Install Ubuntu 24.04 as virtual machine or WSL.
 Set a user name and a password.  
 
 Configure git:  
+Install git using `sudo apt -y install git`.  
 `git config --global user.name "YOUR_NAME"`  
 `git config --global user.email "YOUR_EMAIL"`  
 To store your git password (AS PLAINTEXT - DO NOT USE A PASSWORD USED SOMEWHERE ELSE !!!):  
