@@ -21,6 +21,6 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),	# TODO: remove ???
-    path('csrf/', views.csrf),
-    path('ping/', views.ping),
+    path('api/csrf/', views.csrf),
+    path('api/ping/', views.ping),
 ]
