@@ -24,6 +24,7 @@ Run `bash deploy.sh` to deploy using nginx. Currently one has to open http://loc
 ## WSL
 
 WSL can installed either from the Microsoft Store or via `wsl --install -d Ubuntu-24.04`.  
+When installing via command line it can be removed using `wsl --unregister Ubuntu-24.04`.  
 
 When using WSL the machine can be reset instead of reinstalled via Windows Settings > Apps > Installed apps > search for "Ubuntu" > "..." > Advanced options > Reset (only works if installed from the Microsoft Store).  
 
