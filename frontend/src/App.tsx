@@ -21,6 +21,7 @@ async function getCsrfToken() {
 async function testRequest(method: any) {
 	const response = await fetch(`${API_HOST}/ping/`, {
 		method: method,
+		// don't send CSRF token for GET requests, only for modifying requests
 		headers: (
 			method === 'POST'
 				? { 'X-CSRFToken': await getCsrfToken() }
