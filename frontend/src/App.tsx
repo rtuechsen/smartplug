@@ -18,7 +18,7 @@ async function getCsrfToken() {
 }
 
 
-async function testRequest(method: any) {
+async function testRequest(method: string) {
 	const response = await fetch(`${API_HOST}/ping/`, {
 		method: method,
 		// don't send CSRF token for GET requests, only for modifying requests
@@ -38,7 +38,7 @@ type MyState = { testGet: string, testPost: string };
 
 class App extends Component<{}, MyState> {
 
-	constructor(props: any) {
+	constructor(props: MyState) {
 		super(props);
 
 		this.state = {
