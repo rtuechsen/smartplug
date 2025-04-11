@@ -34,18 +34,14 @@ async function testRequest(method: string) {
 	return data.result;
 }
 
-type MyState = { testGet: string, testPost: string };
+type AppState = { testGet: string, testPost: string };
 
-class App extends Component<{}, MyState> {
+class App extends Component<{}, AppState> {
 
-	constructor(props: MyState) {
-		super(props);
-
-		this.state = {
-			testGet: 'Nope',
-			testPost: 'Nope',
-		};
-	}
+	state: AppState = {
+		testGet: 'Nope',
+		testPost: 'Nope',
+	};
 
 	async componentDidMount() {
 		this.setState({
