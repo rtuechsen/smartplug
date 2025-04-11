@@ -3,18 +3,18 @@ import { Component } from 'react';
 
 
 const API_HOST = '/api';
-let _csrfToken: any = null;
+let csrfToken: string = "";
 
 
 async function getCsrfToken() {
-	if (_csrfToken === null) {
+	if (csrfToken === "") {
 		const response = await fetch(`${API_HOST}/csrf/`, {
 			credentials: 'include',
 		});
 		const data = await response.json();
-		_csrfToken = data.csrfToken;
+		csrfToken = data.csrfToken;
 	}
-	return _csrfToken;
+	return csrfToken;
 }
 
 
