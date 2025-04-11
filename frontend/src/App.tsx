@@ -14,7 +14,6 @@ async function getCsrfToken() {
 		const data = await response.json();
 		_csrfToken = data.csrfToken;
 	}
-	console.log(_csrfToken);
 	return _csrfToken;
 }
 
@@ -28,6 +27,7 @@ async function testRequest(method: any) {
 				: {}
 		),
 		credentials: 'include',
+		mode: 'same-origin',	// prevents sending token to another website
 	});
 	const data = await response.json();
 	return data.result;
