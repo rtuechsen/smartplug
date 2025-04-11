@@ -16,6 +16,7 @@ Clone this repo using: `git clone https://gitlab.com/proi3/shelly-dirigent.git`
 
 Enter project folder with `cd shelly-dirigent`.  
 Run `bash install.sh` to install the project.  
+VSCode should find the python virtual environment automatically ONCE you have opened a python file. For existing terminals VSCode will ask you to reload them.  
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment. Then go to the debug tab in VSCode and launch `Frontend Debug (Chrome)` (instead of simply opening the browser).  
 Run `bash deploy.sh` to deploy using nginx. Currently one has to open http://localhost:80 (note the lack of https).  
 
