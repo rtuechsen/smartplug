@@ -19,7 +19,8 @@ Enter project folder with `cd shelly-dirigent`.
 Run `bash install.sh` to install the project.  
 VSCode should find the python virtual environment automatically ONCE you have opened a python file. For existing terminals VSCode will ask you to reload them.  
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
-When using breakpoints in VSCode, instead of simply opening the browser, go to the debug tab in VSCode and launch `Frontend Debug (Chrome)`.  
+When using breakpoints in VSCode, instead of simply opening the browser, go to the debug tab and launch `Frontend Debug (Chrome)`.  
+For Debugging React Components in a browser the [React Developer Tools](https://react.dev/learn/react-developer-tools) might be helpful.  
 Run `bash deploy.sh` to deploy using nginx. Currently one has to open http://localhost:80 (note the lack of https).  
 
 
