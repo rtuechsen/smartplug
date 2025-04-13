@@ -41,6 +41,7 @@ You can verify the syntax of `nginx.conf` by calling `sudo nginx -t` __AFTER__ d
 
 After adding dependencies to the backend via pip, run `pip freeze > requirements.txt` from within `./backend` to add those dependencies to the installation.  
 
+
 ## Frontend
 
 Requires the extension `ESLint` for in-code-linting in VSCode.  
