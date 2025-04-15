@@ -3,6 +3,9 @@ from django.middleware.csrf import get_token
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view # We use @api_view to restrict REST methods
+from .serverside_processes.session_manager import SessionManager
+
+session_manager = SessionManager()
 
 @api_view(['GET'])
 def csrf(request):
@@ -19,4 +22,4 @@ def csrf(request):
 
 @api_view(['POST', 'GET']) # Ping is being called with both methods.
 def ping(request):
-    return Response({'result': 'Worked!'}, status=status.HTTP_200_OK)
+    return Response({'result': session_manager.login('a', 'b')}, status=status.HTTP_200_OK)
