@@ -1,8 +1,10 @@
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
-#from rest_framework.response import Response
-#from rest_framework.response import status
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import api_view # We use @api_view to restrict REST methods
 
+@api_view(['GET'])
 def csrf(request):
     """
     Generates a CSRF token.
@@ -13,8 +15,8 @@ def csrf(request):
     Returns:
         JSON: The CSRF token.
     """
-    return JsonResponse({'csrfToken': get_token(request)})
-    #return Response({'csrfToken': get_token(request)}, status=status.HTTP_200_OK)
+    return Response({'csrfToken': get_token(request)}, status=status.HTTP_200_OK)
 
+@api_view(['POST', 'GET']) # Ping is being called with both methods.
 def ping(request):
-    return JsonResponse({'result': 'Worked!'})
+    return Response({'result': 'Worked!'}, status=status.HTTP_200_OK)
