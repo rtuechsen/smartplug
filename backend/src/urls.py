@@ -23,4 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),	# TODO: remove ???
     path('api/csrf/', views.csrf),
     path('api/ping/', views.ping),
+    path('api/login/', views.login),
 ]

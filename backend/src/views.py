@@ -16,3 +16,6 @@ def csrf(request):
 
 def ping(request):
     return JsonResponse({'result': 'Worked!'})
+
+def login(request):
+    return JsonResponse({'response': 1})

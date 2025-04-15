@@ -1,5 +1,6 @@
 
 import { Component } from 'react';
+import Login from './components/Login.tsx';
 
 
 const API_HOST = '/api';
@@ -34,6 +35,23 @@ async function testRequest(method: string) {
 	return data.result;
 }
 
+async function signIn(username: string, password: string) {
+	const response = await fetch(`${API_HOST}/login/`, {
+		method: 'POST',
+		// don't send CSRF token for GET requests, only for modifying requests
+		headers: (
+			{ 'X-CSRFToken': await getCsrfToken() }
+		),
+		body: JSON.stringify({ username: username, password: password }),
+		credentials: 'include',
+		mode: 'same-origin',	// prevents sending token to another website
+	});
+	const data = await response.json();
+	return data.result;
+}
+
+
+
 type AppState = { testGet: string, testPost: string };
 
 class App extends Component<{}, AppState> {
@@ -55,6 +73,7 @@ class App extends Component<{}, AppState> {
 			<div>
 				<p>Test GET request: {this.state.testGet}</p>
 				<p>Test POST request: {this.state.testPost}</p>
+				<Login signIn={signIn}/>
 			</div>
 		);
 	}
