@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'django_eventstream',
     'django.contrib.staticfiles',
     'corsheaders',
-
     'rest_framework',
 	'shelly_dirigent.apps.InternalApp',
 ]
