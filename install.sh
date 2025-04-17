@@ -38,6 +38,8 @@ sudo apt -y install nodejs
 
 npm install
 
+npm audit fix
+
 cd ..
 
 sudo mkdir /etc/nginx/ssl/
