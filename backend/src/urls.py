@@ -1,4 +1,5 @@
-from django.urls import path, include
+from django.urls import path
+from . import views
 
 """
 URL configuration for src project.
@@ -21,6 +22,7 @@ from django.contrib import admin
 from django.urls import path
 
 urlpatterns = [
-    path('admin/', admin.site.urls),	# TODO: remove ???
-    path('', include('shelly_dirigent.urls')) # Import the urls from the app "shelly_dirigent"
+    path("admin/", admin.site.urls),  # TODO: remove ???
+    path("api/csrf/", views.csrf),
+    path("api/ping/", views.ping),
 ]

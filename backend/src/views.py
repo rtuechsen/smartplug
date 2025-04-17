@@ -27,5 +27,12 @@ def csrf(request):
 @api_view(["POST", "GET"])  # Ping is being called with both methods.
 def ping(request):
     #
+    Class.logic()
     #
     return Response({"result": "worked!"}, status=status.HTTP_200_OK)
+
+
+# adadfafaf
+
+
+# afafafawfa
