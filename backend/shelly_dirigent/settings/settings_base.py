@@ -28,10 +28,10 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'daphne',
     'django_eventstream',
     'django.contrib.staticfiles',
     'corsheaders',
+
     'rest_framework',
 	'shelly_dirigent.apps.InternalApp',
 ]
