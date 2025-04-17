@@ -6,6 +6,15 @@ const API_HOST = '/api';
 let csrfToken: string = "";
 
 
+const eventSource = new EventSource(`${API_HOST}/events/`, {
+	withCredentials: true
+});
+
+eventSource.onmessage = function (event) {
+	console.log('Received SSE:', event.data);
+};
+
+
 async function getCsrfToken() {
 	if (csrfToken === "") {
 		const response = await fetch(`${API_HOST}/csrf/`, {
