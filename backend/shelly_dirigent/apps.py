@@ -1,9 +1,8 @@
+
 from django.apps import AppConfig
 
-
-class SrcConfig(AppConfig):
-    default_auto_field = "django.db.models.BigAutoField"
+class InternalApp(AppConfig):
     name = "shelly_dirigent"
 
     def ready(self):
-        print("SRC")
+        print("\n\n -> Starting internal app ...\n\n")
