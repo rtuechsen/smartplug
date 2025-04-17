@@ -32,7 +32,7 @@ cd ..
 sudo systemctl start nginx
 
 cd backend
-gunicorn --bind 127.0.0.1:8000 src.wsgi
+gunicorn --bind 127.0.0.1:8000 shelly_dirigent.wsgi
 
 sudo systemctl restart gunicorn
 

@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 """
-URL configuration for src project.
+URL configuration for shelly_dirigent project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
