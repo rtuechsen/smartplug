@@ -25,7 +25,7 @@ source django-env/bin/activate
 
 sudo apt -y install python3-pip
 
-pip install -r ./requirements.txt
+python -m pip install -r ./requirements.txt
 
 cd ..
 
