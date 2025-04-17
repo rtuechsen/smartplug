@@ -25,7 +25,7 @@ source django-env/bin/activate
 
 sudo apt -y install python3-pip
 
-pip install -r ./requirements.txt
+python -m pip install -r ./requirements.txt
 
 cd ..
 
@@ -40,4 +40,13 @@ npm install
 
 cd ..
 
+sudo mkdir /etc/nginx/ssl/
+
+sudo openssl genpkey -algorithm RSA -out /etc/nginx/ssl/selfsigned.key
+
+sudo openssl req -new -x509 \
+  -key /etc/nginx/ssl/selfsigned.key \
+  -out /etc/nginx/ssl/selfsigned.crt \
+  -days 365 \
+  -subj "/C=DE/CN=localhost"
 
