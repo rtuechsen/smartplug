@@ -1,12 +1,30 @@
+from django.urls import path
+from . import views
 
-from .views import RequestManager
+"""
+URL configuration for shelly_dirigent project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/5.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+
 from django.contrib import admin
 from django.urls import path, include
 import django_eventstream
 
 urlpatterns = [
     path("admin/", admin.site.urls),  # TODO: remove ???
-    path("api/csrf/", RequestManager.csrf),
-    path("api/ping/", RequestManager.ping),
+    path("api/csrf/", views.csrf),
+    path("api/ping/", views.ping),
 	path("api/events/", include(django_eventstream.urls), {"channels": ["test"]}),
 ]
