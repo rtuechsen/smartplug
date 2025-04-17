@@ -28,7 +28,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-	'django_eventstream',
+    'daphne',
+    'django_eventstream',
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
@@ -69,7 +70,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'shelly_dirigent.wsgi.application'
-
+ASGI_APPLICATION = 'shelly_dirigent.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
