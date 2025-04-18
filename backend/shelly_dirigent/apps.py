@@ -21,5 +21,5 @@ class InternalApp(AppConfig):
     def loop(self):
         while True:
             print('\n\n -> Running background task ...\n\n')
-            send_event("test", "message", {"text": "hello world"})
+            send_event("labor_config", "message", {"text": "hello world"})
             time.sleep(5)

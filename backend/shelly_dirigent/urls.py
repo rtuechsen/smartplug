@@ -1,11 +1,15 @@
+
+
 from django.urls import path, include
-from . import views
-from django.contrib import admin
 import django_eventstream
+from . import views
 
 urlpatterns = [
-    path("admin/", admin.site.urls),  # TODO: remove ???
-    path("api/csrf/", views.csrf),
     path("api/ping/", views.ping),
-	path("api/events/", include(django_eventstream.urls), {"channels": ["test"]}),
+    path("api/csrf/", views.csrf),
+    path("api/csrf/", views.login),
+    path("api/csrf/", views.logout),
+    path("api/csrf/", views.gettree),
+    path("api/csrf/", views.switch),
+    path("api/events/", include(django_eventstream.urls), {"channels": ["labor_config"]}),
 ]
