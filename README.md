@@ -39,7 +39,7 @@ You can verify the syntax of `nginx.conf` by calling `sudo nginx -t` __AFTER__ d
 
 ## Backend
 
-After adding dependencies to the backend via pip, run `pip freeze > requirements.txt` from within `./backend` to add those dependencies to the installation.  
+After adding dependencies to the backend via pip, one has to manually add them to `/backend/requirements.txt` to include them in future installations. The dependency should allow patches (`>=`) but not switch to higher feature versions (`,<`).  
 
 
 ## Frontend
