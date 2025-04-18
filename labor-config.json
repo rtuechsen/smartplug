@@ -1,0 +1,76 @@
+[
+	{
+		"label": "Labor 1",
+		"children": [
+			{
+				"label": "Sensor 1",
+				"deviceId": "12345"
+			},
+			{
+				"label": "PC 1",
+				"deviceId": "12345"
+			},
+			{
+				"label": "Anlage 1",
+				"children": [
+					{
+						"label": "Konsolen",
+						"children": [
+							{
+								"label": "Konsole 1",
+								"children": [
+									{
+										"label": "PC 2",
+										"deviceId": "12345"
+									},
+									{
+										"label": "Monitor 1",
+										"deviceId": "12345"
+									},
+									{
+										"label": "Monitor 2",
+										"deviceId": "12345"
+									}
+								]
+							},
+							{
+								"label": "Konsole 2",
+								"children": [
+									{
+										"label": "PC 3",
+										"deviceId": "12345"
+									},
+									{
+										"label": "Monitor 3",
+										"deviceId": "12345"
+									}
+								]
+							}
+						]
+					},
+					{
+						"label": "Switches",
+						"children": [
+							{
+								"label": "Switch 1",
+								"deviceId": "12345"
+							},
+							{
+								"label": "Switch 2",
+								"deviceId": "12345"
+							}
+						]
+					}
+				]
+			},
+			{
+				"label": "Anlage 2",
+				"children": []
+			}
+		]
+	},
+	{
+		"label": "Labor 2",
+		"children": []
+	}
+]
