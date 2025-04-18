@@ -10,6 +10,22 @@
 			"trace": true,
 			"sourceMaps": true,
 			"perScriptSourcemaps": "yes"
+		},
+		{
+			"name": "Backend Debug (Django ASGI Uvicorn)",
+			"type": "debugpy",
+			"request": "launch",
+			"module": "uvicorn",
+			"args": [
+				"shelly_dirigent.asgi:application",
+			],
+			"django": true,
+			"subProcess": true,
+			"justMyCode": true,
+			"env": {
+				"DJANGO_SETTINGS_MODULE": "shelly_dirigent.settings.settings_development"
+			},
+			"cwd": "${workspaceFolder}/backend",
 		}
 	]
 }
