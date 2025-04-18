@@ -1,0 +1,98 @@
+openapi: 3.0.3
+info:
+  title: Shelly Dirigent
+  version: 0.1.0
+  description: A web app to remotely controll Shelly plugs
+paths:
+  /api/csrf/:
+    get:
+      operationId: csrf_retrieve
+      tags:
+      - csrf
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/gettree/:
+    get:
+      operationId: gettree_retrieve
+      tags:
+      - gettree
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/login/:
+    post:
+      operationId: login_create
+      tags:
+      - login
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/logout/:
+    post:
+      operationId: logout_create
+      tags:
+      - logout
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/ping/:
+    get:
+      operationId: ping_retrieve
+      tags:
+      - ping
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: ping_create
+      tags:
+      - ping
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/switch/:
+    post:
+      operationId: switch_create
+      tags:
+      - switch
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

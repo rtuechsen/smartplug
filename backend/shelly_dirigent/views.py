@@ -12,6 +12,9 @@ def ping(request):
     return Response({"result": "worked!"}, status=status.HTTP_200_OK)
 
 
+# TODO: add serializers: https://www.django-rest-framework.org/api-guide/serializers/
+
+
 @api_view(["GET"])
 def csrf(request):
     return Response({"csrfToken": get_token(request)}, status=status.HTTP_200_OK)
