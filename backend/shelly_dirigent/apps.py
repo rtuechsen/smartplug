@@ -64,7 +64,7 @@ class TreeItemGroup(TreeItem):
 # TODO: better name for class
 class InternalApp(AppConfig):
     
-    name: str = 'shelly_dirigent'
+    name: str = 'shelly_dirigent'   # TODO: consider renaming as well
     background_task_started: bool = False
     device_tree: list[TreeItemDevice|TreeItemGroup]
     device_tree_mutex = threading.Lock()
