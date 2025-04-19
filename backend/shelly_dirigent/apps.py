@@ -4,13 +4,14 @@ import threading
 import time
 import json
 import random
+import hashlib
 from pathlib import Path
 from django_eventstream import send_event
 
 
 class TreeItem:
     label: str
-    id: int
+    id: str
 
 
 class TreeItemDevice(TreeItem):
@@ -78,10 +79,6 @@ class InternalApp(AppConfig):
         with self.device_tree_mutex:
             self.device_tree = self.object_list_to_tree_item_list(lab_config_python_obj)
 
-        # TODO: creating mappings for fast access:
-        #   - id -> TreeItem
-        #   - deviceId -> TreeItem ???
-
         # TODO: get values (isOn, ...) from devices
 
         # TODO: remove, used for debugging only
@@ -101,7 +98,6 @@ class InternalApp(AppConfig):
         if 'label' not in obj.keys():
             raise RuntimeError(f'Error: object {obj} is missing \'label\'!')
         
-        # TODO: use (cryptographic) hash of deviceId for id to keep the sma id across executions
         if 'deviceId' in obj.keys():
             if obj['deviceId'] in self.device_id_to_tree_item_mapping:
                 raise RuntimeError(f'Error: deviceId of {obj} is not unique!')
@@ -121,9 +117,12 @@ class InternalApp(AppConfig):
         
         tree_item.label = obj['label']
         
-        tree_item.id = random.randint(1, 65536)
+        # use (cryptographic) hash of label for id in order to keep the same id across runs
+        hash_source: str = tree_item.label
+        tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
         while tree_item.id in self.id_to_tree_item_mapping:
-            tree_item.id = random.randint(1, 65536)
+            hash_source += '0'
+            tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
         
         self.id_to_tree_item_mapping[tree_item.id] = tree_item
 
