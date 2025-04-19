@@ -1,5 +1,4 @@
 
-from django.apps import AppConfig
 import threading
 import time
 import json
@@ -7,6 +6,7 @@ import random
 import hashlib
 from pathlib import Path
 from functools import reduce
+from django.apps import AppConfig
 from django_eventstream import send_event
 
 
@@ -89,7 +89,7 @@ class InternalApp(AppConfig):
             # TODO: remove, used for debugging only
             self.change_device_tree_randomly()
 
-            send_event('labor_config', 'message', {'text': 'hello world'})
+            send_event('labor_config', 'message', self.get_device_tree_dicts())
             time.sleep(3)
 
 
@@ -186,8 +186,11 @@ class InternalApp(AppConfig):
     def get_device_tree_dicts(self) -> list[dict]:
 
         device_tree_dict: list[dict] = []
-        for tree_item in self.device_tree:
-            tree_item_dict = tree_item.to_dict()
-            device_tree_dict.append(tree_item_dict)
+
+        with self.device_tree_mutex:
+            for tree_item in self.device_tree:
+                tree_item_dict = tree_item.to_dict()
+                device_tree_dict.append(tree_item_dict)
 
         return device_tree_dict
+
