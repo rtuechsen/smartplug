@@ -1,5 +1,6 @@
 
-import { Component } from 'react';
+import * as React from 'react';
+import Button from '@mui/material/Button';
 
 
 const API_HOST = '/api';
@@ -57,7 +58,7 @@ async function getDeviceTree() {
 
 type AppState = { testGet: string, testPost: string, testGetTree: string };
 
-class App extends Component<{}, AppState> {
+class App extends React.Component<{}, AppState> {
 
 	state: AppState = {
 		testGet: 'Nope',
@@ -79,6 +80,27 @@ class App extends Component<{}, AppState> {
 				<p>Test GET request: {this.state.testGet}</p>
 				<p>Test POST request: {this.state.testPost}</p>
 				<p>Test gettree request: {this.state.testGetTree}</p>
+				<Button
+					onClick={async () => {
+						const id: string = 'f7f7a115bea9310b163934fb414de46009662610454c78a3a9bb2b823cc4aafb';
+						fetch(`${API_HOST}/switch/`, {
+							method: 'POST',
+							headers: {
+								'X-CSRFToken': await getCsrfToken(),
+								'Content-type': 'application/json; charset=UTF-8'
+							},
+							credentials: 'include',
+							mode: 'same-origin',	// prevents sending token to another website
+							body: JSON.stringify({
+								id: id,
+								isOn: true
+							}),
+						});
+					}}
+				>
+					Switch On
+				</Button>
+
 			</div>
 		);
 	}
