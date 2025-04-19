@@ -3,16 +3,21 @@ from django.apps import AppConfig
 import threading
 import time
 import json
+import random
 from pathlib import Path
 from django_eventstream import send_event
 
 
 class TreeItem:
     label: str
+    id: int
 
 
 class TreeItemDevice(TreeItem):
     deviceId: str
+    isOn: bool
+    isAvailable: bool
+    # some variables in the device tree do not match the naming convention, but match the naming of this data across the project, e.g. REST API, frontend
 
 
 class TreeItemGroup(TreeItem):
@@ -24,6 +29,10 @@ class InternalApp(AppConfig):
     
     name: str = "shelly_dirigent"
     background_task_started: bool = False
+    device_tree: list[TreeItemDevice|TreeItemGroup]
+    device_tree_mutex = threading.Lock()
+    id_to_tree_item_mapping: dict = {}
+    device_id_to_tree_item_mapping: dict = {}
     
     def ready(self):
         print("\n\n -> Starting internal app ...\n\n")
@@ -39,27 +48,44 @@ class InternalApp(AppConfig):
     def loop(self):
         while True:
             print('\n\n -> Running background task ...\n\n')
+
+            # TODO: remove, used for debugging only
+            self.change_device_tree_randomly()
+
             send_event("labor_config", "message", {"text": "hello world"})
-            time.sleep(5)
+            time.sleep(3)
 
 
     def load_labor_config(self) -> list[TreeItemDevice|TreeItemGroup]:
 
         LABOR_CONFIG_FILE_PATH : str = './labor-config.json'
 
-        path = Path(__file__).parent.parent.parent / LABOR_CONFIG_FILE_PATH
-
-        with open(path, "r", encoding="utf8") as file:
-            json_string = file.read()
+        lab_config_path = Path(__file__).parent.parent.parent / LABOR_CONFIG_FILE_PATH
 
         try:
-            python_obj = json.loads(json_string)
+            with open(lab_config_path, "r", encoding="utf8") as file:
+                lab_config_json_string = file.read()
+        except FileNotFoundError:
+            print(f'Error: Could not find the file {lab_config_path}')
+        except IOError:
+            print(f'Error: while reading the file {lab_config_path}')
+
+        try:
+            lab_config_python_obj = json.loads(lab_config_json_string)
         except ValueError as e:
-            print("Error:", e)
+            print(f'Error: Could not parse JSON {lab_config_json_string} because {e}')
 
-        tree_item_list = self.object_list_to_tree_item_list(python_obj)
+        with self.device_tree_mutex:
+            self.device_tree = self.object_list_to_tree_item_list(lab_config_python_obj)
 
-        print(tree_item_list)
+        # TODO: creating mappings for fast access:
+        #   - id -> TreeItem
+        #   - deviceId -> TreeItem ???
+
+        # TODO: get values (isOn, ...) from devices
+
+        # TODO: remove, used for debugging only
+        self.change_device_tree_randomly(len(self.device_id_to_tree_item_mapping.keys())*2)
 
 
 
@@ -75,18 +101,49 @@ class InternalApp(AppConfig):
         if 'label' not in obj.keys():
             raise RuntimeError(f'Error: object {obj} is missing \'label\'!')
         
+        # TODO: use (cryptographic) hash of deviceId for id to keep the sma id across executions
         if 'deviceId' in obj.keys():
+            if obj['deviceId'] in self.device_id_to_tree_item_mapping:
+                raise RuntimeError(f'Error: deviceId of {obj} is not unique!')
             tree_item = TreeItemDevice()
-            tree_item.label = obj['label']
             tree_item.deviceId = obj['deviceId']
+            tree_item.isOn = False
+            tree_item.isAvailable = False
+            self.device_id_to_tree_item_mapping[tree_item.deviceId] = tree_item
+            
 
         elif 'children' in obj.keys():
             tree_item = TreeItemGroup()
-            tree_item.label = obj['label']
             tree_item.children = self.object_list_to_tree_item_list(obj['children'])
 
         else:
             raise RuntimeError(f'Error: object {obj} is missing both \'deviceId\' and \'children\'!')
         
+        tree_item.label = obj['label']
+        
+        tree_item.id = random.randint(1, 65536)
+        while tree_item.id in self.id_to_tree_item_mapping:
+            tree_item.id = random.randint(1, 65536)
+        
+        self.id_to_tree_item_mapping[tree_item.id] = tree_item
+
         return tree_item
+
+
+    # TODO: remove, used for debugging only
+    def change_device_tree_randomly(self, number_of_changes=1):
+
+        for _ in range(number_of_changes):
+
+            device_id: str = random.choice(list(self.device_id_to_tree_item_mapping.keys()))
+            tree_item: TreeItemDevice = self.device_id_to_tree_item_mapping[device_id]
+
+            toggle_availability: bool = random.choice([True, False])
+
+            with self.device_tree_mutex:
+                
+                if toggle_availability:
+                    tree_item.isAvailable = not tree_item.isAvailable
+                else:
+                    tree_item.isOn = not tree_item.isOn
 
