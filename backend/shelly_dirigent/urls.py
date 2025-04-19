@@ -11,5 +11,6 @@ urlpatterns = [
     path("api/logout/", views.logout),
     path("api/gettree/", views.gettree),
     path("api/switch/", views.switch),
+    # TODO: how to require authentification for events endpoint ???
     path("api/events/", include(django_eventstream.urls), {"channels": ["labor_config"]}),
 ]
