@@ -1,5 +1,6 @@
 
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework import status
 from rest_framework.decorators import api_view
 from .RequestManager import RequestManager
@@ -15,27 +16,27 @@ def ping(request):
 
 
 @api_view(["GET"])
-def csrf(request):
+def csrf(request: Request) -> Response:
     return request_manager.csrf(request)
 
 
 @api_view(["POST"])
-def login(request):
+def login(request: Request) -> Response:
     return request_manager.login(request)
 
 
 @api_view(["POST"])
-def logout(request):
+def logout(request: Request) -> Response:
     return request_manager.logout(request)
 
 
 @api_view(["GET"])
-def gettree(request):
+def gettree(request: Request) -> Response:
     return request_manager.gettree(request)
 
 
 @api_view(["POST"])
-def switch(request):
+def switch(request: Request) -> Response:
     return request_manager.switch(request)
 
 

@@ -2,6 +2,7 @@
 from django.middleware.csrf import get_token
 from django.apps import apps
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework import status
 from .apps import InternalApp   # for type hints
 
@@ -17,25 +18,26 @@ from .apps import InternalApp   # for type hints
 
 class RequestManager:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.my_internal_app: InternalApp = apps.get_app_config('shelly_dirigent')
 
-    def csrf(self, request):
+    def csrf(self, request: Request) -> Response:
         return Response({"csrfToken": get_token(request)}, status=status.HTTP_200_OK)
 
 
-    def login(self, request):
+    def login(self, request: Request) -> Response:
         return Response({}, status=status.HTTP_200_OK)
 
 
-    def logout(self, request):
+    def logout(self, request: Request) -> Response:
         return Response({}, status=status.HTTP_200_OK)
 
 
-    def gettree(self, request):
+    def gettree(self, request: Request) -> Response:
         device_tree = self.my_internal_app.get_device_tree_dicts()
         return Response(device_tree, status=status.HTTP_200_OK)
 
 
-    def switch(self, request):
+    def switch(self, request: Request) -> Response:
+        # request.data
         return Response({}, status=status.HTTP_200_OK)
