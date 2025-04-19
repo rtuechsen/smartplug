@@ -4,6 +4,7 @@ import time
 import json
 import random
 import hashlib
+import warnings
 from pathlib import Path
 from functools import reduce
 from django.apps import AppConfig
@@ -147,6 +148,8 @@ class InternalApp(AppConfig):
         elif 'children' in obj.keys():
             tree_item = TreeItemGroup()
             tree_item.children = self.object_list_to_tree_item_list(obj['children'])
+            if len(tree_item.children) == 0:
+                warnings.warn(f'Warning: object {obj} is a group without children!')
 
         else:
             raise RuntimeError(f'Error: object {obj} is missing both \'deviceId\' and \'children\'!')
