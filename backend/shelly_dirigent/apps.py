@@ -69,8 +69,8 @@ class InternalApp(AppConfig):
     background_task_started: bool = False
     device_tree: list[TreeItemDevice|TreeItemGroup]
     device_tree_mutex = threading.Lock()
-    id_to_tree_item_mapping: dict = {}
-    device_id_to_tree_item_mapping: dict = {}
+    id_to_tree_item_mapping: dict[str,TreeItem] = {}
+    device_id_to_tree_item_mapping: dict[str,TreeItem] = {}
     
     def ready(self):
         print('\n\n -> Starting internal app ...\n\n')
@@ -198,6 +198,21 @@ class InternalApp(AppConfig):
         return device_tree_dict
     
 
-    def switch(self) -> None:
-        pass
+    def switch(self, id: str, isOn: bool) -> None:
+        
+        def switch_recursive(id: str, isOn: bool):
+            tree_item = self.id_to_tree_item_mapping[id]
+            if isinstance( tree_item, TreeItemDevice):
+                tree_item.isOn = isOn
+            elif isinstance( tree_item, TreeItemGroup):
+                for child in tree_item.children:
+                    switch_recursive(child.id, isOn)
+            else:
+                raise RuntimeError(f'Error: object {tree_item} has unexpected type {type(tree_item)}!')
+        
+        with self.device_tree_mutex:
+            switch_recursive(id, isOn)
+
+        return True
+
 

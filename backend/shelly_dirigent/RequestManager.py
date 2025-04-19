@@ -26,11 +26,11 @@ class RequestManager:
 
 
     def login(self, request: Request) -> Response:
-        return Response({}, status=status.HTTP_200_OK)
+        return Response(None, status=status.HTTP_200_OK)
 
 
     def logout(self, request: Request) -> Response:
-        return Response({}, status=status.HTTP_200_OK)
+        return Response(None, status=status.HTTP_200_OK)
 
 
     def gettree(self, request: Request) -> Response:
@@ -39,5 +39,7 @@ class RequestManager:
 
 
     def switch(self, request: Request) -> Response:
-        # request.data
-        return Response({}, status=status.HTTP_200_OK)
+        # TODO: validate input
+        success: bool = self.my_internal_app.switch(request.data['id'], request.data['isOn'])
+        # TODO: return proper response for all cases (also failure)
+        return Response(None, status=status.HTTP_200_OK)
