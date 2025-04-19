@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from .RequestManager import RequestManager
 
-
+# unfortunately it is not possible to receive all requests in class directly, thus we have to redirect them
 request_manager = RequestManager()
 
 # TODO: remove test endpoint
