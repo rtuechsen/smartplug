@@ -3,6 +3,15 @@ from django.middleware.csrf import get_token
 from rest_framework.response import Response
 from rest_framework import status
 
+# input validation:
+# - use schema: https://pypi.org/project/jsonschema/
+# - verify range of numbers
+# - verify string length
+# - regex patterns in strings
+#     - allow only certain characters
+#     - avoid: https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
+#     - use: https://owasp.org/www-community/OWASP_Validation_Regex_Repository
+
 class RequestManager:
 
     def csrf(self, request):
