@@ -43,19 +43,33 @@ async function testRequest(method: string) {
 	return data.result;
 }
 
-type AppState = { testGet: string, testPost: string };
+
+async function getDeviceTree() {
+	const response = await fetch(`${API_HOST}/gettree/`, {
+		method: 'GET',
+		credentials: 'include',
+		mode: 'same-origin',	// prevents sending token to another website
+	});
+	const data = await response.json();
+	return data;
+}
+
+
+type AppState = { testGet: string, testPost: string, testGetTree: string };
 
 class App extends Component<{}, AppState> {
 
 	state: AppState = {
 		testGet: 'Nope',
 		testPost: 'Nope',
+		testGetTree: 'no tree received yet'
 	};
 
 	async componentDidMount() {
 		this.setState({
 			testGet: await testRequest('GET'),
 			testPost: await testRequest('POST'),
+			testGetTree: JSON.stringify(await getDeviceTree()),
 		});
 	}
 
@@ -64,6 +78,7 @@ class App extends Component<{}, AppState> {
 			<div>
 				<p>Test GET request: {this.state.testGet}</p>
 				<p>Test POST request: {this.state.testPost}</p>
+				<p>Test gettree request: {this.state.testGetTree}</p>
 			</div>
 		);
 	}
