@@ -6,6 +6,7 @@ import json
 import random
 import hashlib
 from pathlib import Path
+from functools import reduce
 from django_eventstream import send_event
 
 
@@ -19,16 +20,51 @@ class TreeItemDevice(TreeItem):
     isOn: bool
     isAvailable: bool
     # some variables in the device tree do not match the naming convention, but match the naming of this data across the project, e.g. REST API, frontend
+    
+    def to_dict(self) -> dict:
+        return {'label':self.label,'id':self.id,'isOn':self.isOn,'isAvailable':self.isAvailable}
 
 
 class TreeItemGroup(TreeItem):
     children: 'list[TreeItemDevice|TreeItemGroup]'
+    
+    def to_dict(self) -> dict:
+        children_dict: list[dict] = []
+        children_isOn: list[bool] = []
+        children_isAvailable: list[bool] = []
+
+        for child in self.children:
+            child_dict = child.to_dict()
+            children_dict.append(child_dict)
+            children_isOn.append(child_dict['isOn'])
+            children_isAvailable.append(child_dict['isAvailable'])
+
+        def combine_bools(a: bool, b: bool) -> bool | None:
+            if a is True and b is True:
+                return True
+            elif a is False and b is False:
+                return False
+            else:
+                return None
+
+        if len(children_isOn) != 0:
+            # no initial value passed because needed behavior cannot be achieved using reduce
+            isOn: bool = reduce(combine_bools, children_isOn)
+        else:
+            isOn: bool = None
+
+        if len(children_isAvailable) != 0:
+            isAvailable: bool = reduce(combine_bools, children_isAvailable)
+        else:
+            isAvailable: bool = None
+
+        return {'label':self.label,'id':self.id,'isOn':isOn,'isAvailable':isAvailable,'children':children_dict}
 
 
 # TODO: better name for class
 class InternalApp(AppConfig):
     
-    name: str = "shelly_dirigent"
+    name: str = 'shelly_dirigent'
     background_task_started: bool = False
     device_tree: list[TreeItemDevice|TreeItemGroup]
     device_tree_mutex = threading.Lock()
@@ -36,7 +72,7 @@ class InternalApp(AppConfig):
     device_id_to_tree_item_mapping: dict = {}
     
     def ready(self):
-        print("\n\n -> Starting internal app ...\n\n")
+        print('\n\n -> Starting internal app ...\n\n')
         
         self.load_labor_config()
 
@@ -46,14 +82,14 @@ class InternalApp(AppConfig):
             thread.start()
 
 
-    def loop(self):
+    def loop(self) -> None:
         while True:
             print('\n\n -> Running background task ...\n\n')
 
             # TODO: remove, used for debugging only
             self.change_device_tree_randomly()
 
-            send_event("labor_config", "message", {"text": "hello world"})
+            send_event('labor_config', 'message', {'text': 'hello world'})
             time.sleep(3)
 
 
@@ -64,7 +100,7 @@ class InternalApp(AppConfig):
         lab_config_path = Path(__file__).parent.parent.parent / LABOR_CONFIG_FILE_PATH
 
         try:
-            with open(lab_config_path, "r", encoding="utf8") as file:
+            with open(lab_config_path, 'r', encoding='utf8') as file:
                 lab_config_json_string = file.read()
         except FileNotFoundError:
             print(f'Error: Could not find the file {lab_config_path}')
@@ -82,16 +118,16 @@ class InternalApp(AppConfig):
         # TODO: get values (isOn, ...) from devices
 
         # TODO: remove, used for debugging only
+        random.seed(42)     # make the changes reproducible
         self.change_device_tree_randomly(len(self.device_id_to_tree_item_mapping.keys())*2)
 
 
-
-    def object_list_to_tree_item_list(self, object_list: list[dict]):
+    def object_list_to_tree_item_list(self, object_list: list[dict]) -> list[TreeItem]:
         
         return list(map(self.object_to_tree_item, object_list))
     
     
-    def object_to_tree_item(self, obj: dict):
+    def object_to_tree_item(self, obj: dict) -> TreeItem:
         
         if len(obj.keys()) != 2:
             raise RuntimeError(f'Error: object {obj} has not exactly two keys!')
@@ -130,7 +166,7 @@ class InternalApp(AppConfig):
 
 
     # TODO: remove, used for debugging only
-    def change_device_tree_randomly(self, number_of_changes=1):
+    def change_device_tree_randomly(self, number_of_changes=1) -> None:
 
         for _ in range(number_of_changes):
 
@@ -146,3 +182,12 @@ class InternalApp(AppConfig):
                 else:
                     tree_item.isOn = not tree_item.isOn
 
+
+    def get_device_tree_dicts(self) -> list[dict]:
+
+        device_tree_dict: list[dict] = []
+        for tree_item in self.device_tree:
+            tree_item_dict = tree_item.to_dict()
+            device_tree_dict.append(tree_item_dict)
+
+        return device_tree_dict
