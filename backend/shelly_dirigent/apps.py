@@ -88,7 +88,7 @@ class InternalApp(AppConfig):
             print('\n\n -> Running background task ...\n\n')
 
             # TODO: remove, used for debugging only
-            self.change_device_tree_randomly()
+            # self.change_device_tree_randomly()
 
             send_event('labor_config', 'message', self.get_device_tree_dicts())
             time.sleep(3)
@@ -196,4 +196,8 @@ class InternalApp(AppConfig):
                 device_tree_dict.append(tree_item_dict)
 
         return device_tree_dict
+    
+
+    def switch(self) -> None:
+        pass
 
