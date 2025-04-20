@@ -33,8 +33,6 @@ class RequestManager:
         with open(openapi_abs_path, 'r', encoding='utf8') as file:
             self.openapi = yaml.safe_load(file)
 
-        pass
-
 
     def csrf(self, request: Request) -> Response:
         return Response({"csrfToken": get_token(request)}, status=status.HTTP_200_OK)
