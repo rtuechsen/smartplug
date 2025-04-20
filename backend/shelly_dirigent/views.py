@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view
 from .RequestManager import RequestManager
 
 # unfortunately it is not possible to receive all requests in class directly, thus we have to redirect them
+# TODO: let django create request manager instance as an app?
 request_manager = RequestManager()
 
 # TODO: remove test endpoint
