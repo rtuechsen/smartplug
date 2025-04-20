@@ -1,0 +1,56 @@
+openapi: 3.0.0
+info:
+  title: Shelly Dirigent
+  description: |
+    This API allows to view and control shelly plugs.
+  version: 0.1.0
+paths:
+  /:
+    get:
+      summary: Get the frontend (html and javascript)
+      description: Some text # TODO
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            text/html:
+              schema:
+                type: string
+                format: html
+  /api/switch:
+    post:
+      summary: Control the state of an item
+      requestBody:
+        description: JSON object # TODO
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  maxLength: 1000
+                  pattern: ^[a-f0-9]+$
+                  description: The unique id of the item.
+                isOn:
+                  type: boolean
+                  description: Whether the goal is to turn the item ON (true) or OFF (false).
+              required:
+                - id
+                - isOn
+              additionalProperties: false
+            example:
+              id: f7f7a115bea9310b163934fb414de46009662610454c8a3a9bb2b823cc4aafb
+              isOn: true
+      responses:
+        '200':
+          description: 200 response
+        '300':
+          description: 400 response
+          content:
+            application/json:
+              examples:
+                invalid id:
+                  value:
+                    - Specified id f7f7a115bea9310b163934fb414de46009662610454c8a3a9bb2b823cc4aafb does not exist.
