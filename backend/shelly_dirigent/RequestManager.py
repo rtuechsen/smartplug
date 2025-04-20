@@ -55,6 +55,7 @@ class RequestManager:
 
     def switch(self, request: Request) -> Response:
         # TODO: validate input
+        # TODO: dont retrieve schema every time
         schema = self.openapi['paths']['/api/switch']['post']['requestBody']['content']['application/json']['schema']
         jsonschema.validate(instance=request.data, schema=schema)
 
