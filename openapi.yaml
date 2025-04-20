@@ -46,7 +46,7 @@ paths:
       responses:
         '200':
           description: 200 response
-        '300':
+        '400':
           description: 400 response
           content:
             application/json:
