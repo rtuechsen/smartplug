@@ -15,6 +15,7 @@ import rest_framework.exceptions as drf_exceptions
 class TreeItem:
     label: str
     id: str
+    # TODO: add more specific type aliases for e.g. id ??? https://stackoverflow.com/questions/33045222/how-do-you-alias-a-type-in-python
 
 
 class TreeItemDevice(TreeItem):
