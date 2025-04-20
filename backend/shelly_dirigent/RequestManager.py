@@ -1,5 +1,4 @@
 
-import json
 from pathlib import Path
 from django.middleware.csrf import get_token
 from django.apps import apps
