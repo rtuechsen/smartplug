@@ -9,7 +9,7 @@ from pathlib import Path
 from functools import reduce
 from django.apps import AppConfig
 from django_eventstream import send_event
-from rest_framework.exceptions import ValidationError
+import rest_framework.exceptions as drf_exceptions
 
 
 class TreeItem:
@@ -204,7 +204,7 @@ class InternalApp(AppConfig):
         def switch_recursive(id: str, isOn: bool):
 
             if id not in self.id_to_tree_item_mapping:
-                raise ValidationError(detail=f'Specified id {id} does not exist.')
+                raise drf_exceptions.ValidationError(detail=f'Specified id {id} does not exist.')
 
             tree_item = self.id_to_tree_item_mapping[id]
             
