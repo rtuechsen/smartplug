@@ -40,6 +40,6 @@ class RequestManager:
 
     def switch(self, request: Request) -> Response:
         # TODO: validate input
-        success: bool = self.my_internal_app.switch(request.data['id'], request.data['isOn'])
+        self.my_internal_app.switch(request.data['id'], request.data['isOn'])
         # TODO: return proper response for all cases (also failure)
         return Response(None, status=status.HTTP_200_OK)

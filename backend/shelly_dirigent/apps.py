@@ -9,6 +9,7 @@ from pathlib import Path
 from functools import reduce
 from django.apps import AppConfig
 from django_eventstream import send_event
+from rest_framework.exceptions import ValidationError
 
 
 class TreeItem:
@@ -201,7 +202,12 @@ class InternalApp(AppConfig):
     def switch(self, id: str, isOn: bool) -> None:
         
         def switch_recursive(id: str, isOn: bool):
+
+            if id not in self.id_to_tree_item_mapping:
+                raise ValidationError(detail=f'Specified id {id} does not exist.')
+
             tree_item = self.id_to_tree_item_mapping[id]
+            
             if isinstance( tree_item, TreeItemDevice):
                 tree_item.isOn = isOn
             elif isinstance( tree_item, TreeItemGroup):
@@ -213,6 +219,5 @@ class InternalApp(AppConfig):
         with self.device_tree_mutex:
             switch_recursive(id, isOn)
 
-        return True
 
 
