@@ -22,7 +22,7 @@ Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate termin
 When using breakpoints in VSCode for the __frontend__, instead of simply opening the browser, go to the debug tab in VSCode (on the left) and launch `Frontend Debug (Chrome)`.  
 When using breakpoints in VSCode for the __backend__, instead of running `develop_backend.sh`, go to the debug tab in VSCode (on the left) and launch `Backend Debug (Django ASGI Uvicorn)`.  
 For Debugging React Components in a browser the [React Developer Tools](https://react.dev/learn/react-developer-tools) might be helpful.  
-Run `bash deploy.sh` to deploy using nginx. Currently one has to open http://localhost:80 (note the lack of https).  
+Run `bash deploy.sh` to deploy using nginx. Currently one has to open [](https://localhost:80).  
 
 
 ## WSL
