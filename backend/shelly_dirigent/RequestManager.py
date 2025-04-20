@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
 import jsonschema
+import yaml
 from .apps import InternalApp   # for type hints
 
 
@@ -26,22 +27,14 @@ class RequestManager:
         self.my_internal_app: InternalApp = apps.get_app_config('shelly_dirigent')
         
         # TODO: combine schemas for validation with those for documentation
-        SCHEMAS_FILE_PATH : str = './schemas.json'
+        openapi_rel_path : str = './openapi.yaml'
 
-        schemas_path = Path(__file__).parent / SCHEMAS_FILE_PATH
+        openapi_abs_path = Path(__file__).parent.parent.parent / openapi_rel_path
 
-        try:
-            with open(schemas_path, 'r', encoding='utf8') as file:
-                schemas_json_string = file.read()
-        except FileNotFoundError:
-            print(f'Error: Could not find the file {schemas_path}')
-        except IOError:
-            print(f'Error: while reading the file {schemas_path}')
+        with open(openapi_abs_path, 'r', encoding='utf8') as file:
+            self.openapi = yaml.safe_load(file)
 
-        try:
-            self.schemas = json.loads(schemas_json_string)
-        except ValueError as e:
-            print(f'Error: Could not parse JSON {schemas_json_string} because {e}')
+        pass
 
 
     def csrf(self, request: Request) -> Response:
@@ -63,7 +56,7 @@ class RequestManager:
 
     def switch(self, request: Request) -> Response:
         # TODO: validate input
-        schema = self.schemas['switch']
+        schema = self.openapi['paths']['/api/switch']['post']['requestBody']['content']['application/json']['schema']
         jsonschema.validate(instance=request.data, schema=schema)
 
         self.my_internal_app.switch(request.data['id'], request.data['isOn'])
