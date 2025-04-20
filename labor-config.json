@@ -65,12 +65,176 @@
 			},
 			{
 				"label": "Anlage 2",
-				"children": []
+				"children": [
+					{
+						"label": "Konsolen",
+						"children": [
+							{
+								"label": "Konsole 3",
+								"children": [
+									{
+										"label": "PC 4",
+										"deviceId": "10010"
+									},
+									{
+										"label": "Monitor 4",
+										"deviceId": "10011"
+									},
+									{
+										"label": "Monitor 5",
+										"deviceId": "10012"
+									}
+								]
+							},
+							{
+								"label": "Konsole 4",
+								"children": [
+									{
+										"label": "PC 5",
+										"deviceId": "10013"
+									},
+									{
+										"label": "Monitor 6",
+										"deviceId": "10014"
+									}
+								]
+							}
+						]
+					},
+					{
+						"label": "Switches",
+						"children": [
+							{
+								"label": "Switch 3",
+								"deviceId": "10015"
+							},
+							{
+								"label": "Switch 4",
+								"deviceId": "10016"
+							}
+						]
+					}
+				]
 			}
 		]
 	},
 	{
 		"label": "Labor 2",
-		"children": []
+		"children": [
+			{
+				"label": "Sensor 2",
+				"deviceId": "20001"
+			},
+			{
+				"label": "PC 6",
+				"deviceId": "20002"
+			},
+			{
+				"label": "Anlage 3",
+				"children": [
+					{
+						"label": "Konsolen",
+						"children": [
+							{
+								"label": "Konsole 5",
+								"children": [
+									{
+										"label": "PC 7",
+										"deviceId": "20003"
+									},
+									{
+										"label": "Monitor 7",
+										"deviceId": "20004"
+									},
+									{
+										"label": "Monitor 8",
+										"deviceId": "20005"
+									}
+								]
+							},
+							{
+								"label": "Konsole 6",
+								"children": [
+									{
+										"label": "PC 8",
+										"deviceId": "20006"
+									},
+									{
+										"label": "Monitor 9",
+										"deviceId": "20007"
+									}
+								]
+							}
+						]
+					},
+					{
+						"label": "Switches",
+						"children": [
+							{
+								"label": "Switch 5",
+								"deviceId": "20008"
+							},
+							{
+								"label": "Switch 6",
+								"deviceId": "20009"
+							}
+						]
+					}
+				]
+			},
+			{
+				"label": "Anlage 4",
+				"children": [
+					{
+						"label": "Konsolen",
+						"children": [
+							{
+								"label": "Konsole 7",
+								"children": [
+									{
+										"label": "PC 9",
+										"deviceId": "20010"
+									},
+									{
+										"label": "Monitor 10",
+										"deviceId": "20011"
+									},
+									{
+										"label": "Monitor 11",
+										"deviceId": "20012"
+									}
+								]
+							},
+							{
+								"label": "Konsole 8",
+								"children": [
+									{
+										"label": "PC 10",
+										"deviceId": "20013"
+									},
+									{
+										"label": "Monitor 12",
+										"deviceId": "20014"
+									}
+								]
+							}
+						]
+					},
+					{
+						"label": "Switches",
+						"children": [
+							{
+								"label": "Switch 7",
+								"deviceId": "20015"
+							},
+							{
+								"label": "Switch 8",
+								"deviceId": "20016"
+							}
+						]
+					}
+				]
+			}
+		]
 	}
 ]
