@@ -208,7 +208,7 @@ class InternalApp(AppConfig):
                 raise drf_exceptions.ValidationError(detail=f'Specified id {id} does not exist.')
 
             tree_item = self.id_to_tree_item_mapping[id]
-            
+        
             if isinstance( tree_item, TreeItemDevice):
                 # TODO: actually (try to) switch the plug
                 tree_item.isOn = isOn
