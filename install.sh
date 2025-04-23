@@ -42,6 +42,8 @@ npm audit fix
 
 cd ..
 
+# ssl key
+
 sudo mkdir /etc/nginx/ssl/
 
 sudo openssl genpkey -algorithm RSA -out /etc/nginx/ssl/selfsigned.key
@@ -51,4 +53,8 @@ sudo openssl req -new -x509 \
   -out /etc/nginx/ssl/selfsigned.crt \
   -days 365 \
   -subj "/C=DE/CN=localhost"
+
+# doxygen
+
+sudo apt -y install doxygen
 

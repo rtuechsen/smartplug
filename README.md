@@ -48,3 +48,7 @@ After adding dependencies to the backend via pip, one has to manually add them t
 Requires the extension `ESLint` for in-code-linting in VSCode.  
 
 
+## Documentation
+
+- Python: [Doxygen](https://www.doxygen.nl/manual/docblocks.html#pythonblocks)
+- Typescript: [TypeDoc](https://typedoc.org/documents/Overview.html)

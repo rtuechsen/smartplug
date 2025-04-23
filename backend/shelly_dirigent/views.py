@@ -1,19 +1,14 @@
+# TODO: use correct fromat for python documentation: https://www.doxygen.nl/manual/docblocks.html#pythonblocks
 
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework import status
 from rest_framework.decorators import api_view
 from .RequestManager import RequestManager
 
-# unfortunately it is not possible to receive all requests in class directly, thus we have to redirect them
-# TODO: let django create request manager instance as an app?
+# The instance of the RequestManager of the API. All requests are forwarded to it.
+# Django requires all functions for the API endpoints to be defined in this file at file level.
+# So to combine the handling of requests in a class we have to forward each of them.
 request_manager = RequestManager()
-
-# TODO: remove test endpoint
-@api_view(["POST", "GET"])  # Ping is being called with both methods.
-def ping(request):
-    return Response({"result": "worked!"}, status=status.HTTP_200_OK)
-
 
 
 @api_view(["GET"])
@@ -39,6 +34,3 @@ def gettree(request: Request) -> Response:
 @api_view(["POST"])
 def switch(request: Request) -> Response:
     return request_manager.switch(request)
-
-
-

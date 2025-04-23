@@ -3,3 +3,5 @@
 shelly_dirigent/static/
 __pycache__/
 
+/docs/
+
