@@ -1,83 +1,54 @@
 
-import { Component } from 'react';
-import Login from './components/Login.tsx';
+/******************************************************************************************
+ * @packageDocumentation  App.tsx
+ * 
+ * # TODO
+ ******************************************************************************************/
+
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import CssBaseline from '@mui/material/CssBaseline';	// used to remove default padding of html body
+import Box from '@mui/material/Box';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { JSX } from '@emotion/react/jsx-runtime';
+import DeviceTreeView from './DeviceTreeView';
 
 
-const API_HOST = '/api';
-let csrfToken: string = "";
+/**
+ * Main App component.
+ *
+ * The app function component for this website that includes all other components.  
+ * It Contains the header area and the device tree.  
+ * Also contains the color mode / theme.  
+ * 
+ * @return the react component of the main app
+ */
+function App(): JSX.Element {
 
-
-async function getCsrfToken() {
-	if (csrfToken === "") {
-		const response = await fetch(`${API_HOST}/csrf/`, {
-			credentials: 'include',
-		});
-		const data = await response.json();
-		csrfToken = data.csrfToken;
-	}
-	return csrfToken;
-}
-
-
-async function testRequest(method: string) {
-	const response = await fetch(`${API_HOST}/ping/`, {
-		method: method,
-		// don't send CSRF token for GET requests, only for modifying requests
-		headers: (
-			method === 'POST'
-				? { 'X-CSRFToken': await getCsrfToken() }
-				: {}
-		),
-		credentials: 'include',
-		mode: 'same-origin',	// prevents sending token to another website
+	const theme = createTheme({
+		// even though only the dark theme is mentioned here, this will use the system preference of the user
+		colorSchemes: {
+			dark: true,
+		},
 	});
-	const data = await response.json();
-	return data.result;
-}
 
-async function signIn(username: string, password: string) {
-	const response = await fetch(`${API_HOST}/login/`, {
-		method: 'POST',
-		// don't send CSRF token for GET requests, only for modifying requests
-		headers: (
-			{ 'X-CSRFToken': await getCsrfToken() }
-		),
-		body: JSON.stringify({ username: username, password: password }),
-		credentials: 'include',
-		mode: 'same-origin',	// prevents sending token to another website
-	});
-	const data = await response.json();
-	return data.result;
-}
-
-
-
-type AppState = { testGet: string, testPost: string };
-
-class App extends Component<{}, AppState> {
-
-	state: AppState = {
-		testGet: 'Nope',
-		testPost: 'Nope',
-	};
-
-	async componentDidMount() {
-		this.setState({
-			testGet: await testRequest('GET'),
-			testPost: await testRequest('POST'),
-		});
-	}
-
-	render() {
-		return (
-			<div>
-				<p>Test GET request: {this.state.testGet}</p>
-				<p>Test POST request: {this.state.testPost}</p>
-				<Login signIn={signIn}/>
-			</div>
-		);
-	}
+	return (
+		// The ThemeProvider has to encapsulate the whole app.
+		// Then a paper area is added to the top of the page to hold the title.
+		// Below that a Box contains all items of the pages body, e.g. the DeviceTreeView.
+		<ThemeProvider theme={theme}>
+			<CssBaseline />	 {/* used to remove default padding of html body */}
+			<Paper sx={{ padding: '2rem' }}>
+				<Typography variant="h2">
+					Shelly Dirigent
+				</Typography>
+			</Paper>
+			<Box sx={{ padding: '1.5rem' }}>
+				<DeviceTreeView />
+			</Box>
+		</ThemeProvider >
+	);
 }
 
 
-export default App
+export default App;

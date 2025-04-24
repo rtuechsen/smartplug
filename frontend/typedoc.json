@@ -1,0 +1,15 @@
+{
+	"$schema": "https://typedoc.org/schema.json",
+	"name": "Shelly Dirigent - Frontend",
+	"entryPoints": [
+		"./src/*.tsx"
+	],
+	"out": "./docs",
+	"validation": {
+		"notExported": true,
+		"invalidLink": true,
+		"rewrittenLink": true,
+		"notDocumented": true,
+		"unusedMergeModuleWith": true
+	}
+}

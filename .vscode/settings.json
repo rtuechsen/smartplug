@@ -4,17 +4,42 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "explicit",
 	},
-	"eslint.validate": [
-		"javascript"
-	],
 	"[typescriptreact]": {
-		"editor.defaultFormatter": "vscode.typescript-language-features"
+		"editor.defaultFormatter": "vscode.typescript-language-features",
+		"editor.detectIndentation": false,
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4
 	},
 	"[typescript]": {
-		"editor.defaultFormatter": "vscode.typescript-language-features"
+		"editor.defaultFormatter": "vscode.typescript-language-features",
+		"editor.detectIndentation": false,
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4
 	},
 	"[json]": {
 		"editor.defaultFormatter": "vscode.json-language-features"
 	},
 	"python.defaultInterpreterPath": "./backend/django-env/bin/python3.12",
+	"[python]": {
+		"editor.defaultFormatter": "ms-python.black-formatter",
+		"editor.detectIndentation": false,
+		"editor.insertSpaces": true,
+		"editor.tabSize": 4
+	},
+	"git.mergeEditor": true,
+	"typescript.validate.enable": false,
+	"eslint.format.enable": true,
+	"eslint.useFlatConfig": true,
+	"eslint.validate": [
+		"javascript",
+		"javascriptreact",
+		"typescript",
+		"typescriptreact"
+	],
+	"eslint.workingDirectories": [
+		"./frontend/"
+	],
+	"eslint.options": {
+		"overrideConfigFile": "./eslint.config.js"
+	}
 }

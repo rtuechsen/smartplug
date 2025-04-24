@@ -19,9 +19,10 @@ Enter project folder with `cd shelly-dirigent`.
 Run `bash install.sh` to install the project.  
 VSCode should find the python virtual environment automatically ONCE you have opened a python file. For existing terminals VSCode will ask you to reload them.  
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
-When using breakpoints in VSCode, instead of simply opening the browser, go to the debug tab and launch `Frontend Debug (Chrome)`.  
+When using breakpoints in VSCode for the __frontend__, instead of simply opening the browser, go to the debug tab in VSCode (on the left) and launch `Frontend Debug (Chrome)`.  
+When using breakpoints in VSCode for the __backend__, instead of running `develop_backend.sh`, go to the debug tab in VSCode (on the left) and launch `Backend Debug (Django ASGI Uvicorn)`.  
 For Debugging React Components in a browser the [React Developer Tools](https://react.dev/learn/react-developer-tools) might be helpful.  
-Run `bash deploy.sh` to deploy using nginx. Currently one has to open http://localhost:80 (note the lack of https).  
+Run `bash deploy.sh` to deploy using nginx. Currently one has to open [](https://localhost:80).  
 
 
 ## WSL
@@ -39,7 +40,7 @@ You can verify the syntax of `nginx.conf` by calling `sudo nginx -t` __AFTER__ d
 
 ## Backend
 
-After adding dependencies to the backend via pip, run `pip freeze > requirements.txt` from within `./backend` to add those dependencies to the installation.  
+After adding dependencies to the backend via pip, one has to manually add them to `/backend/requirements.txt` to include them in future installations. The dependency should allow patches (`>=`) but not switch to higher feature versions (`,<`).  
 
 
 ## Frontend
@@ -47,3 +48,7 @@ After adding dependencies to the backend via pip, run `pip freeze > requirements
 Requires the extension `ESLint` for in-code-linting in VSCode.  
 
 
+## Documentation
+
+- Python: [Doxygen](https://www.doxygen.nl/manual/docblocks.html#pythonblocks)
+- Typescript: [TypeDoc](https://typedoc.org/documents/Overview.html)

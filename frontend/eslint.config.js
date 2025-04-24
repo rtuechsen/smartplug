@@ -15,6 +15,12 @@ export default defineConfig([
 		rules: {
 			"react/react-in-jsx-scope": "off",
 			"react/jsx-uses-react": "off",
+			"semi": ["warn", "always"],
+			"@typescript-eslint/explicit-function-return-type": "warn",
+			"@typescript-eslint/consistent-type-definitions": "warn",
+			"@typescript-eslint/no-unused-vars": "warn",
+			"no-unused-labels": "warn",
+			"no-unused-expressions": "warn"
 		}
 	},
 	globalIgnores(["dist/", "node_modules/"]),
