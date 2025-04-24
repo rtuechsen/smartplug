@@ -5,9 +5,6 @@ from pathlib import Path
 
 # TODO: create an instance of this in RequestManager
 
-# TODO: error handling
-#   - file / folder cannot be created
-
 # TODO: ensure ubuntu settings for deleting old log files work as expected
 
 
@@ -19,21 +16,20 @@ class Log:
 
 class Logger:
 
-    queue: Queue
-
     def __init__(self):
         self.queue = Queue(maxsize=100)
         self.output_folder = Path("/var/log/shellydirigent/")
+        self.background_task_started = False
 
         # check if outfolder exists and create it otherwise
         if not self.output_folder.is_dir():
             self.output_folder.mkdir()
 
-        # TODO: start file writing thread
-        # if not self.background_task_started:
-        #     self.background_task_started = True
-        #     thread = threading.Thread(target=self.loop, daemon=True)
-        #     thread.start()
+        # start file writing thread
+        if not self.background_task_started:
+            self.background_task_started = True
+            thread = threading.Thread(target=self.write_queue_to_file, daemon=True)
+            thread.start()
 
         # TODO: how to abort this thread properly when server stops ???
 
@@ -42,8 +38,8 @@ class Logger:
         now = datetime.datetime.now()
 
         log = Log()
-        # TODO: check for newline in message -> remove
-        log.message = message
+        # remove newlines
+        log.message = message.replace("\n", "")
 
         # add date and time to line
         log.date = now.strftime("%Y-%m-%d")
@@ -52,26 +48,36 @@ class Logger:
 
     def write_queue_to_file(self):
 
-        # generate file name from current date
-        filename: str = datetime.datetime.now().strftime("%Y_%m_%d.log")
-        log_file_path = self.output_folder / filename
-
-        try:
-            # mode "a" appends to an existing file or creates a new one if not exists
-            with open(log_file_path, "a", encoding="utf8") as file:
-                log_file = file.read()
-        except FileNotFoundError:
-            print(f"Error: Could not find the file {log_file_path}")
-        except IOError:
-            print(f"Error: while reading the file {log_file_path}")
+        last_filename = None
+        log_file = None
 
         while True:
-            message = self.queue.get()
+            log: Log = self.queue.get()
 
-            # check if date matches the currently open file
-            # if not -> switch file
-            #       if file does not exist -> create it
+            filename: str = log.date.replace("-", "_") + ".log"
 
-            # TODO: write to file
+            # check if the currently open log file is matches the log date
+            if filename != last_filename:
+
+                # file is not open currently
+
+                # close open file if exists
+                if log_file:
+                    log_file.close()
+
+                # TODO: what if file writing for error logging itself fails ???
+
+                # open the new file
+                log_file_path = self.output_folder / filename
+                try:
+                    log_file = open(log_file_path, mode="a", encoding="UTF-8")
+                except FileNotFoundError:
+                    print(f"Error: Could not find the file {log_file_path}")
+                except IOError:
+                    print(f"Error: while reading the file {log_file_path}")
+
+                last_filename = filename
+
+            log_file.write(f"{log.date} {log.time} {log.message}")
 
             self.queue.task_done()
