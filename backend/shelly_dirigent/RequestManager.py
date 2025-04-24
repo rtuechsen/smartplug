@@ -70,6 +70,8 @@ class RequestManager:
         @return This is some return value.
 
         """
+        # TODO: log request: WHO requested WHAT - wait for session management to identify user ???
+
         try:
             # get the schema for this endpoints request and validate the request with it
             jsonschema.validate(instance=request.data, schema=self.schema_switch)
@@ -77,14 +79,15 @@ class RequestManager:
             # instruct the app to perform the switch
             self.my_internal_app.switch(request.data["id"], request.data["isOn"])
 
-            response = Response(None, status=status.HTTP_200_OK)
+            return Response(None, status=status.HTTP_200_OK)
 
         except Exception as e:
 
-            if hasattr(e, 'message'):
+            # TODO: make sure to return proper response for all cases (also failures)
+
+            if hasattr(e, "message"):
                 self.logger.log(e.message)
             else:
                 self.logger.log(str(e))
 
-        # TODO: make sure to return proper response for all cases (also failures)
-        return response
+            raise e
