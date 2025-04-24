@@ -25,6 +25,10 @@ import DeviceTreeView from './DeviceTreeView';
  */
 function App(): JSX.Element {
 
+	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
+
+	
+
 	const theme = createTheme({
 		// even though only the dark theme is mentioned here, this will use the system preference of the user
 		colorSchemes: {
