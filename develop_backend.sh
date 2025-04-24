@@ -9,6 +9,6 @@ python3 manage.py makemigrations
 
 python3 manage.py migrate
 
-uvicorn shelly_dirigent.asgi:application
+sudo  -E env PATH="$PATH" uvicorn shelly_dirigent.asgi:application
 
 
