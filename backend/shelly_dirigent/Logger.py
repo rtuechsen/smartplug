@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 # TODO: ensure ubuntu settings for deleting old log files work as expected
-# TODO: make sure to set correct time(-zone) for ubuntu system / AD-server
+# TODO: make sure to set correct time(-zone) and date for ubuntu system / AD-server
 
 
 class Log:
@@ -77,12 +77,17 @@ class Logger:
                     last_filename = filename
                 except FileNotFoundError:
                     print(f"Error: Could not find the file {log_file_path}")
+                    return
                 except IOError:
                     print(f"Error: while reading the file {log_file_path}")
+                    return
 
-            log_str: str = f"{log.date} {log.time} {log.message}"
+            log_str: str = f"{log.date} {log.time} {log.message}\n"
             # TODO: should one really wait until message arrives in queue before printing ???
             print(log_str)
             log_file.write(log_str)
+
+            # better to write to file immediatly so that logs don't get lost if something happens
+            log_file.flush()
 
             self.queue.task_done()
