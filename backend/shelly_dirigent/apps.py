@@ -133,9 +133,9 @@ class InternalApp(AppConfig):
 
         # 1. read the file
 
-        LABOR_CONFIG_FILE_PATH: str = "./labor-config.json"
+        labor_config_file_path: str = "./labor-config.json"
 
-        lab_config_path = Path(__file__).parent.parent.parent / LABOR_CONFIG_FILE_PATH
+        lab_config_path = Path(__file__).parent.parent.parent / labor_config_file_path
 
         try:
             with open(lab_config_path, "r", encoding="utf8") as file:
