@@ -5,6 +5,7 @@ from pathlib import Path
 
 
 # TODO: ensure ubuntu settings for deleting old log files work as expected
+# TODO: make sure to set correct time(-zone) for ubuntu system / AD-server
 
 
 class Log:
@@ -72,7 +73,6 @@ class Logger:
                 log_file_path = self.output_folder / filename
                 try:
                     log_file = open(log_file_path, mode="a", encoding="UTF-8")
-
                     # setting the variable here will make the logger try to open the file again (and again)
                     last_filename = filename
                 except FileNotFoundError:
