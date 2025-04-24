@@ -3,7 +3,6 @@ import threading
 import datetime
 from pathlib import Path
 
-# TODO: create an instance of this in RequestManager
 
 # TODO: ensure ubuntu settings for deleting old log files work as expected
 
@@ -33,7 +32,9 @@ class Logger:
 
         # TODO: how to abort this thread properly when server stops ???
 
-    def put(self, message: str):
+    def log(self, message: str):
+
+        # TODO: add note about newlines in docstring
 
         now = datetime.datetime.now()
 
@@ -71,13 +72,17 @@ class Logger:
                 log_file_path = self.output_folder / filename
                 try:
                     log_file = open(log_file_path, mode="a", encoding="UTF-8")
+
+                    # setting the variable here will make the logger try to open the file again (and again)
+                    last_filename = filename
                 except FileNotFoundError:
                     print(f"Error: Could not find the file {log_file_path}")
                 except IOError:
                     print(f"Error: while reading the file {log_file_path}")
 
-                last_filename = filename
-
-            log_file.write(f"{log.date} {log.time} {log.message}")
+            log_str: str = f"{log.date} {log.time} {log.message}"
+            # TODO: should one really wait until message arrives in queue before printing ???
+            print(log_str)
+            log_file.write(log_str)
 
             self.queue.task_done()

@@ -7,6 +7,7 @@ from rest_framework import status
 import jsonschema
 import yaml
 from .apps import InternalApp  # for type hints only
+from .Logger import Logger
 
 
 # input validation:
@@ -26,6 +27,9 @@ class RequestManager:
     """
 
     def __init__(self) -> None:
+
+        self.logger = Logger()
+
         # get the instance of InternalApp
         self.my_internal_app: InternalApp = apps.get_app_config("shelly_dirigent")
 
@@ -36,6 +40,12 @@ class RequestManager:
 
         with open(openapi_abs_path, "r", encoding="utf8") as file:
             self.openapi = yaml.safe_load(file)
+
+        self.schema_switch = self.openapi["paths"]["/api/switch"]["post"][
+            "requestBody"
+        ]["content"]["application/json"]["schema"]
+
+        # TODO: handle file errors
 
     def csrf(self, request: Request) -> Response:
         return Response({"csrfToken": get_token(request)}, status=status.HTTP_200_OK)
@@ -60,15 +70,21 @@ class RequestManager:
         @return This is some return value.
 
         """
-        # get the schema for this endpoints request and validate the request with it
-        # TODO: dont retrieve schema every time
-        schema = self.openapi["paths"]["/api/switch"]["post"]["requestBody"]["content"][
-            "application/json"
-        ]["schema"]
-        jsonschema.validate(instance=request.data, schema=schema)
+        try:
+            # get the schema for this endpoints request and validate the request with it
+            jsonschema.validate(instance=request.data, schema=self.schema_switch)
 
-        # instruct the app to perform the switch
-        self.my_internal_app.switch(request.data["id"], request.data["isOn"])
+            # instruct the app to perform the switch
+            self.my_internal_app.switch(request.data["id"], request.data["isOn"])
+
+            response = Response(None, status=status.HTTP_200_OK)
+
+        except Exception as e:
+
+            if hasattr(e, 'message'):
+                self.logger.log(e.message)
+            else:
+                self.logger.log(str(e))
 
         # TODO: make sure to return proper response for all cases (also failures)
-        return Response(None, status=status.HTTP_200_OK)
+        return response
