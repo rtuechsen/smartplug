@@ -1,10 +1,20 @@
 from queue import Queue
 import threading
+import datetime
+from pathlib import Path
 
 # TODO: create an instance of this in RequestManager
 
 # TODO: error handling
 #   - file / folder cannot be created
+
+# TODO: ensure ubuntu settings for deleting old log files work as expected
+
+
+class Log:
+    message: str
+    date: str
+    time: str
 
 
 class Logger:
@@ -13,9 +23,11 @@ class Logger:
 
     def __init__(self):
         self.queue = Queue(maxsize=100)
-        self.output_folder = "/var/log/shellydirigent/"
+        self.output_folder = Path("/var/log/shellydirigent/")
 
-        # TODO: check if outfolder exists and create it otherwise
+        # check if outfolder exists and create it otherwise
+        if not self.output_folder.is_dir():
+            self.output_folder.mkdir()
 
         # TODO: start file writing thread
         # if not self.background_task_started:
@@ -27,19 +39,31 @@ class Logger:
 
     def put(self, message: str):
 
-        # TODO: add date and time
+        now = datetime.datetime.now()
 
-        self.queue.put(message)
+        log = Log()
+        # TODO: check for newline in message -> remove
+        log.message = message
+
+        # add date and time to line
+        log.date = now.strftime("%Y-%m-%d")
+        log.time = now.strftime("%H:%M:%S.%f")
+        self.queue.put(log)
 
     def write_queue_to_file(self):
 
         # generate file name from current date
+        filename: str = datetime.datetime.now().strftime("%Y_%m_%d.log")
+        log_file_path = self.output_folder / filename
 
-        # check if this file already exists
-        #   if yes -> resume that file
-        #   else -> create new file
-
-        # open a file for writing
+        try:
+            # mode "a" appends to an existing file or creates a new one if not exists
+            with open(log_file_path, "a", encoding="utf8") as file:
+                log_file = file.read()
+        except FileNotFoundError:
+            print(f"Error: Could not find the file {log_file_path}")
+        except IOError:
+            print(f"Error: while reading the file {log_file_path}")
 
         while True:
             message = self.queue.get()
