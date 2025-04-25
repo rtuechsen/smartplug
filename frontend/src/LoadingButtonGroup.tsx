@@ -84,7 +84,7 @@ function LoadingButtonGroup({ id }: LoadingButtonGroupProps): JSX.Element {
 	 * @return a void promise indicating that the functions has returned
 	 */
 	async function sendSwitchRequest(isOn: boolean): Promise<void> {
-		await fetch('/api/switch/', {
+		const response = await fetch('/api/switch/', {
 			method: 'POST',
 			headers: {
 				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
@@ -98,7 +98,8 @@ function LoadingButtonGroup({ id }: LoadingButtonGroupProps): JSX.Element {
 			}),
 		});
 		// TODO: handle error
-		// await response.json();
+		await response.json();
+		console.log(response);
 	}
 
 	return (

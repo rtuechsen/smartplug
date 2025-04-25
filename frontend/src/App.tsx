@@ -5,6 +5,7 @@
  * # TODO
  ******************************************************************************************/
 
+import * as React from 'react';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import CssBaseline from '@mui/material/CssBaseline';	// used to remove default padding of html body
@@ -12,6 +13,7 @@ import Box from '@mui/material/Box';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { JSX } from '@emotion/react/jsx-runtime';
 import DeviceTreeView from './DeviceTreeView';
+import ErrorDisplay from './ErrorDisplay';
 
 
 /**
@@ -25,9 +27,17 @@ import DeviceTreeView from './DeviceTreeView';
  */
 function App(): JSX.Element {
 
+	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
 
-	
+	async function displayError(message: string): Promise<void> {
+		if (isErrorOpen) {
+			// close previous error if still open
+			setIsErrorOpen(false);
+		}
+		setCurrentErrorMessage(message);
+		setIsErrorOpen(true);
+	}
 
 	const theme = createTheme({
 		// even though only the dark theme is mentioned here, this will use the system preference of the user
@@ -48,7 +58,8 @@ function App(): JSX.Element {
 				</Typography>
 			</Paper>
 			<Box sx={{ padding: '1.5rem' }}>
-				<DeviceTreeView />
+				<DeviceTreeView displayError={displayError} />
+				<ErrorDisplay message={currentErrorMessage} isErrorOpen={isErrorOpen} setIsErrorOpen={setIsErrorOpen} />
 			</Box>
 		</ThemeProvider >
 	);

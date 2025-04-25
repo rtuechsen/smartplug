@@ -6,21 +6,22 @@
  ******************************************************************************************/
 
 import * as React from 'react';
-import Button from '@mui/material/Button';
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import Alert from '@mui/material/Alert';
 import { JSX } from '@emotion/react/jsx-runtime';
 
 
 interface ErrorDisplayProps {
 	message: string;
-	isOpenState: boolean;
+	isErrorOpen: boolean;
+	setIsErrorOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // https://mui.com/material-ui/react-snackbar/#introduction
 
-function ErrorDisplay({ message, isOpenState }: ErrorDisplayProps): JSX.Element {
+function ErrorDisplay({ message, isErrorOpen, setIsErrorOpen }: ErrorDisplayProps): JSX.Element {
 
 	const handleClose = (
 		event: React.SyntheticEvent | Event,
@@ -29,14 +30,11 @@ function ErrorDisplay({ message, isOpenState }: ErrorDisplayProps): JSX.Element 
 		if (reason === 'clickaway') {
 			return;
 		}
-		setOpen(false);
+		setIsErrorOpen(false);
 	};
 
 	const action = (
 		<React.Fragment>
-			<Button color="secondary" size="small" onClick={handleClose}>
-				UNDO
-			</Button>
 			<IconButton
 				size="small"
 				aria-label="close"
@@ -49,16 +47,22 @@ function ErrorDisplay({ message, isOpenState }: ErrorDisplayProps): JSX.Element 
 	);
 
 	return (
-		<div>
-			<Button onClick={handleClick}>Open Snackbar</Button>
-			<Snackbar
-				open={open}
-				autoHideDuration={6000}
+		<Snackbar
+			anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+			open={isErrorOpen}
+			onClose={handleClose}
+			severity="success"
+			variant="filled"
+			action={action}
+		>
+			<Alert
 				onClose={handleClose}
-				message="Note archived"
-				action={action}
-			/>
-		</div>
+				severity="error"
+				variant="filled"
+			>
+				{message}
+			</Alert>
+		</Snackbar>
 	);
 }
 
