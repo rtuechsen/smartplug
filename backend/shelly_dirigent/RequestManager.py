@@ -1,9 +1,11 @@
 from pathlib import Path
 from django.middleware.csrf import get_token
 from django.apps import apps
+import jsonschema.exceptions
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
+from rest_framework import exceptions as drf_exceptions
 import jsonschema
 import yaml
 from .apps import InternalApp  # for type hints only
@@ -65,7 +67,12 @@ class RequestManager:
         schema = self.openapi["paths"]["/api/switch"]["post"]["requestBody"]["content"][
             "application/json"
         ]["schema"]
-        jsonschema.validate(instance=request.data, schema=schema)
+        try:
+            jsonschema.validate(instance=request.data, schema=schema)
+        except jsonschema.exceptions.ValidationError as e:
+            raise drf_exceptions.ValidationError(
+                detail="Error: Request for /switch is illformed!"
+            ) from e
 
         # instruct the app to perform the switch
         self.my_internal_app.switch(request.data["id"], request.data["isOn"])
