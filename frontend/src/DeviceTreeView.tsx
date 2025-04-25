@@ -11,11 +11,9 @@ import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
 import { JSX } from '@emotion/react/jsx-runtime';
 import DeviceTreeItemData from './DeviceTreeItemData';
 import DeviceTreeItem from './DeviceTreeItem';
+import { DeviceTreeItemProps } from './DeviceTreeItem';
+import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
-
-interface DeviceTreeViewProps {
-	displayError: (string) => Promise<vois>;
-}
 
 /**
  * The Tree View that displays all devices and groups in a hierarchy
@@ -24,7 +22,7 @@ interface DeviceTreeViewProps {
  * 
  * @return the react component of the tree view
  */
-function DeviceTreeView({ displayError }: DeviceTreeViewProps): JSX.Element {
+function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Element {
 
 	const ref = React.useRef<HTMLDivElement>(null);
 
@@ -182,6 +180,7 @@ function DeviceTreeView({ displayError }: DeviceTreeViewProps): JSX.Element {
 					items={deviceTreeDataState}		// the data for the tree, updates when the state changes
 					slots={{ item: DeviceTreeItem }}	// a custom tree item that includes label, icons and buttons
 					expansionTrigger='iconContainer'	// only collapse/expand when clicking the arrow, not the whole panel (interferes with buttons)
+					slotProps={{ item: { displayError: displayError } as DisplayErrorCallbackProps }}
 					itemChildrenIndentation={'1.5rem'}
 					expandedItems={expandedIdsState}	// the ids of the items to expand, updates when the state changes
 					onExpandedItemsChange={(_event, ids) => setExpandedIdsState(ids)}	// because we set the expanded items explicitly, user interaction will not work anymore => need to apply user interactions manually
