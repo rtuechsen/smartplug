@@ -31,6 +31,7 @@ function App(): JSX.Element {
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
 
 	async function displayError(message: string): Promise<void> {
+		console.log('displayError is running');
 		if (isErrorOpen) {
 			// close previous error if still open
 			setIsErrorOpen(false);
