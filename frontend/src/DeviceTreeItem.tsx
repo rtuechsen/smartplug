@@ -8,6 +8,7 @@
 import * as React from 'react';
 import { TreeItem2, TreeItem2Props } from '@mui/x-tree-view/TreeItem2';
 import { useTreeItem2 } from '@mui/x-tree-view/useTreeItem2';
+import { JSX } from '@emotion/react/jsx-runtime';
 import { DeviceTreeItemLabel, DeviceTreeItemLabelProps } from './DeviceTreeItemLabel';
 import DeviceTreeItemData from './DeviceTreeItemData';
 
@@ -17,10 +18,7 @@ import DeviceTreeItemData from './DeviceTreeItemData';
  * This construct is needed according to the documentation (https://mui.com/x/react-tree-view/tree-item-customization/#usetreeitem2).
  * Allows us to set a custom label (DeviceTreeItemLabel).
  */
-const DeviceTreeItem = React.forwardRef(function DeviceTreeItem(
-	props: TreeItem2Props,
-	ref: React.Ref<HTMLLIElement>,
-) {
+function DeviceTreeItem(props: TreeItem2Props, ref: React.Ref<HTMLLIElement>): JSX.Element {
 	/**
 	 * Code needed according to the documentation to get the DeviceTreeItemData we passed to the tree.
 	 */
@@ -73,7 +71,7 @@ const DeviceTreeItem = React.forwardRef(function DeviceTreeItem(
 			}}
 		/>
 	);
-});
+}
 
 
 export default DeviceTreeItem;
