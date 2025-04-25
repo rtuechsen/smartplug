@@ -10,12 +10,13 @@ import Typography from '@mui/material/Typography';
 import { JSX } from '@emotion/react/jsx-runtime';
 import LoadingButtonGroup from './LoadingButtonGroup';
 import { AvilableIcon, OnIcon } from './StatusIcons';
+import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 
 /**
  * Data structure to pass information to each tree item
  */
-export interface DeviceTreeItemLabelProps {
+export interface DeviceTreeItemLabelProps extends DisplayErrorCallbackProps {
 	label: string;
 	id: string;
 	isOn: boolean;
@@ -33,7 +34,7 @@ export interface DeviceTreeItemLabelProps {
  * 
  * @return the react component of the label
  */
-export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup }: DeviceTreeItemLabelProps): JSX.Element {
+export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, displayError }: DeviceTreeItemLabelProps): JSX.Element {
 
 	return (
 		<Stack
@@ -55,7 +56,7 @@ export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup }: D
 			>
 				<AvilableIcon isAvailable={isAvailable} isGroup={isGroup} />
 				<OnIcon isOn={isOn} isGroup={isGroup} />
-				<LoadingButtonGroup id={id} />
+				<LoadingButtonGroup id={id} displayError={displayError} />
 			</Stack>
 		</Stack>
 	);
