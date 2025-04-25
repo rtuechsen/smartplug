@@ -11,6 +11,10 @@ import { useTreeItem2 } from '@mui/x-tree-view/useTreeItem2';
 import { JSX } from '@emotion/react/jsx-runtime';
 import { DeviceTreeItemLabel, DeviceTreeItemLabelProps } from './DeviceTreeItemLabel';
 import DeviceTreeItemData from './DeviceTreeItemData';
+import { DisplayErrorCallbackProps } from './ErrorDisplay';
+
+
+export interface DeviceTreeItemProps extends TreeItem2Props, DisplayErrorCallbackProps { }
 
 /**
  * Tree item to be passed to RichTreeViews item slot
@@ -18,7 +22,7 @@ import DeviceTreeItemData from './DeviceTreeItemData';
  * This construct is needed according to the documentation (https://mui.com/x/react-tree-view/tree-item-customization/#usetreeitem2).
  * Allows us to set a custom label (DeviceTreeItemLabel).
  */
-function DeviceTreeItem(props: TreeItem2Props, ref: React.Ref<HTMLLIElement>): JSX.Element {
+function DeviceTreeItem(props: DeviceTreeItemProps, ref: React.Ref<HTMLLIElement>): JSX.Element {
 	/**
 	 * Code needed according to the documentation to get the DeviceTreeItemData we passed to the tree.
 	 */
@@ -50,12 +54,17 @@ function DeviceTreeItem(props: TreeItem2Props, ref: React.Ref<HTMLLIElement>): J
 		}
 	}, [itemData.isAvailable]);	// watches for changes of isAvailable in tree data
 
+	/**
+	 * Because TreeItem2 expects only TreeItem2Props as props, we need to split off our own props. Then we can pass each one spearately
+	 */
+	const { displayError, ...treeItem2Props } = props;
+
 	return (
 		/**
 		 * Code needed according to the documentation to pass the custom label to the tree items slot
 		 */
 		<TreeItem2
-			{...props}
+			{...treeItem2Props}
 			ref={ref}
 			slots={{
 				label: DeviceTreeItemLabel,
@@ -66,7 +75,8 @@ function DeviceTreeItem(props: TreeItem2Props, ref: React.Ref<HTMLLIElement>): J
 					id: itemData.id,		// pass id as fixed data
 					isOn: isOnState,		// pass isOn state as variable state
 					isAvailable: isAvailableState,	// pass isAvailable state as variable state
-					isGroup: itemData.children == undefined ? false : true		// let the label know if it is a device or group
+					isGroup: itemData.children == undefined ? false : true,		// let the label know if it is a device or group
+					displayError: displayError
 				} as DeviceTreeItemLabelProps,
 			}}
 		/>
