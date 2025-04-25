@@ -13,6 +13,11 @@ import Alert from '@mui/material/Alert';
 import { JSX } from '@emotion/react/jsx-runtime';
 
 
+export interface DisplayErrorCallbackProps {
+	displayError: (string) => Promise<void>;
+}
+
+
 interface ErrorDisplayProps {
 	message: string;
 	isErrorOpen: boolean;
@@ -51,8 +56,6 @@ function ErrorDisplay({ message, isErrorOpen, setIsErrorOpen }: ErrorDisplayProp
 			anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
 			open={isErrorOpen}
 			onClose={handleClose}
-			severity="success"
-			variant="filled"
 			action={action}
 		>
 			<Alert
