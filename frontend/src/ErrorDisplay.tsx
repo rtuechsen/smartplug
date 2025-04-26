@@ -14,7 +14,7 @@ import { JSX } from '@emotion/react/jsx-runtime';
 
 
 export interface DisplayErrorCallbackProps {
-	displayError: (string) => Promise<void>;
+	displayError: (message: string) => Promise<void>;
 }
 
 
@@ -29,7 +29,7 @@ interface ErrorDisplayProps {
 function ErrorDisplay({ message, isErrorOpen, setIsErrorOpen }: ErrorDisplayProps): JSX.Element {
 
 	const handleClose = (
-		event: React.SyntheticEvent | Event,
+		_: React.SyntheticEvent | Event,
 		reason?: SnackbarCloseReason,
 	): void => {
 		if (reason === 'clickaway') {
