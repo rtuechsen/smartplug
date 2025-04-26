@@ -98,14 +98,10 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 				isOn: isOn
 			}),
 		});
-		// TODO: handle error
-
-		console.log(response);
 
 		if (!response.ok) {
-			console.log('Call displayError');
 			const responseData = await response.json();
-			await displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
+			await displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
 		}
 	}
 
