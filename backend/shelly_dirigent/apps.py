@@ -8,9 +8,8 @@ from pathlib import Path
 from functools import reduce
 from django.apps import AppConfig
 from django_eventstream import send_event
-
-# exceptions of the same name are used from different libraries e.g. ValidationError, thus we do not import the exception directly but only the module it is in
-import rest_framework.exceptions as drf_exceptions
+from rest_framework import status
+from .ErrorHandler import BackendError
 
 
 class TreeItem:
@@ -110,6 +109,8 @@ class InternalApp(AppConfig):
 
     def ready(self):
         print("\n\n -> Starting internal app ...\n\n")
+
+        # TODO: log server start
 
         # load the labor-config.json
         self.load_labor_config()
@@ -258,8 +259,11 @@ class InternalApp(AppConfig):
 
             if id not in self.id_to_tree_item_mapping:
                 # this error will automatically be propagated back as a proper response to the requesting client
-                raise drf_exceptions.ValidationError(
-                    detail=f"Specified id {id} does not exist."
+
+                raise BackendError(
+                    f"Specified id {id} does not exist.",
+                    status.HTTP_400_BAD_REQUEST,
+                    "Specified id does not exist.",
                 )
 
             tree_item = self.id_to_tree_item_mapping[id]
@@ -271,8 +275,8 @@ class InternalApp(AppConfig):
                 for child in tree_item.children:
                     switch_recursive(child.id, isOn)
             else:
-                raise RuntimeError(
-                    f"Error: object {tree_item} has unexpected type {type(tree_item)}!"
+                raise BackendError(
+                    f"Implementation error, 'tree_item' {tree_item} is of unknown class: {type(tree_item)}."
                 )
 
         # TODO: remove, simulating latency
