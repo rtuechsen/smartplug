@@ -16,22 +16,35 @@ class Log:
 
 class Logger:
 
-    def __init__(self):
-        self.queue = Queue(maxsize=100)
-        self.output_folder = Path("/var/log/shellydirigent/")
-        self.background_task_started = False
+    _instance = None
+    queue: Queue
+    output_folder: Path
 
-        # check if outfolder exists and create it otherwise
-        if not self.output_folder.is_dir():
-            self.output_folder.mkdir()
+    def __new__(cls):
 
-        # start file writing thread
-        if not self.background_task_started:
-            self.background_task_started = True
-            thread = threading.Thread(target=self.write_queue_to_file, daemon=True)
+        # https://python-patterns.guide/gang-of-four/singleton/
+
+        if cls._instance is None:
+            print("Creating the object")
+            cls._instance = super(Logger, cls).__new__(cls)
+
+            # need to do initialization here because __init__() would be called every time an instance is requested
+
+            cls._instance.queue = Queue(maxsize=100)
+            cls._instance.output_folder = Path("/var/log/shellydirigent/")
+
+            # check if outfolder exists and create it otherwise
+            if not cls._instance.output_folder.is_dir():
+                cls._instance.output_folder.mkdir()
+
+            # start file writing thread
+            thread = threading.Thread(
+                target=cls._instance.write_queue_to_file, daemon=True
+            )
             thread.start()
+            # TODO: how to abort this thread properly when server stops ???
 
-        # TODO: how to abort this thread properly when server stops ???
+        return cls._instance
 
     def log(self, message: str):
 
