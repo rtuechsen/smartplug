@@ -1,15 +1,14 @@
 from pathlib import Path
 from django.middleware.csrf import get_token
 from django.apps import apps
-import jsonschema.exceptions
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
-from rest_framework import exceptions as drf_exceptions
 import jsonschema
 import yaml
 from .apps import InternalApp  # for type hints only
 from .Logger import Logger
+from .ErrorHandler import ErrorHandler, BackendError
 
 
 # input validation:
@@ -31,6 +30,7 @@ class RequestManager:
     def __init__(self) -> None:
 
         self.logger = Logger()
+        self.error_handler = ErrorHandler()
 
         # get the instance of InternalApp
         self.my_internal_app: InternalApp = apps.get_app_config("shelly_dirigent")
@@ -77,19 +77,19 @@ class RequestManager:
         try:
             # get the schema for this endpoints request and validate the request with it
             jsonschema.validate(instance=request.data, schema=self.schema_switch)
+        except jsonschema.exceptions.ValidationError as e:
+            return self.error_handler.response(
+                e.message,
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+            )
 
+        try:
             # instruct the app to perform the switch
             self.my_internal_app.switch(request.data["id"], request.data["isOn"])
+        except BackendError as e:
+            return self.error_handler.response(e.message, e.status_code, e.user_message)
 
-            return Response(None, status=status.HTTP_200_OK)
+        # TODO: make sure to return proper response for all cases (also failures)
 
-        except Exception as e:
-
-            # TODO: make sure to return proper response for all cases (also failures)
-
-            if hasattr(e, "message"):
-                self.logger.log(e.message)
-            else:
-                self.logger.log(str(e))
-
-            raise e
+        return Response(None, status=status.HTTP_200_OK)
