@@ -139,6 +139,10 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 			setDeviceTreeDataState(treeData);
 		};
 
+		eventSource.onerror = function (_event): void {
+			displayError('Server Sent Events (SSE) have failed.');
+		};
+
 		return function (): void {
 			/**
 			 * need to close EventSource to avoid subscribing twice in StrictMode (in StrictMode components will
