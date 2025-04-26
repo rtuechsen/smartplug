@@ -11,7 +11,6 @@ import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
 import { JSX } from '@emotion/react/jsx-runtime';
 import DeviceTreeItemData from './DeviceTreeItemData';
 import DeviceTreeItem from './DeviceTreeItem';
-import { DeviceTreeItemProps } from './DeviceTreeItem';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 
