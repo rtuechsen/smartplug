@@ -58,7 +58,7 @@ class RequestManager:
     def logout(self, request: Request) -> Response:
         return Response(None, status=status.HTTP_200_OK)
 
-    def gettree(self, request: Request) -> Response:
+    def gettree(self, _: Request) -> Response:
         device_tree = self.my_internal_app.get_device_tree_dicts()
         return Response(device_tree, status=status.HTTP_200_OK)
 
