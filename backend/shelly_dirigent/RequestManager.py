@@ -1,9 +1,11 @@
 from pathlib import Path
 from django.middleware.csrf import get_token
 from django.apps import apps
+import jsonschema.exceptions
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
+from rest_framework import exceptions as drf_exceptions
 import jsonschema
 import yaml
 from .apps import InternalApp  # for type hints only

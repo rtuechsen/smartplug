@@ -276,7 +276,7 @@ class InternalApp(AppConfig):
                 )
 
         # TODO: remove, simulating latency
-        time.sleep(2)
+        time.sleep(1)
 
         with self.device_tree_mutex:
             switch_recursive(id, isOn)

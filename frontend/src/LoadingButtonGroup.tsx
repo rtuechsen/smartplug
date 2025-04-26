@@ -10,6 +10,7 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
 import { JSX } from '@emotion/react/jsx-runtime';
 import { getCsrfToken } from './RequestTools';
+import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 
 /**
@@ -62,7 +63,7 @@ function LoadingButton({ onClick, children }: React.PropsWithChildren<LoadingBut
 /**
  * Data structure to pass information to an LoadingButtonGroup.  
  */
-interface LoadingButtonGroupProps {
+interface LoadingButtonGroupProps extends DisplayErrorCallbackProps {
 	id: string;
 }
 
@@ -74,7 +75,7 @@ interface LoadingButtonGroupProps {
  * 
  * @return the react component of the button group
  */
-function LoadingButtonGroup({ id }: LoadingButtonGroupProps): JSX.Element {
+function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.Element {
 
 	/**
 	 * Function to send the switch request to the API
@@ -84,7 +85,7 @@ function LoadingButtonGroup({ id }: LoadingButtonGroupProps): JSX.Element {
 	 * @return a void promise indicating that the functions has returned
 	 */
 	async function sendSwitchRequest(isOn: boolean): Promise<void> {
-		await fetch('/api/switch/', {
+		const response = await fetch('/api/switch/', {
 			method: 'POST',
 			headers: {
 				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
@@ -98,7 +99,14 @@ function LoadingButtonGroup({ id }: LoadingButtonGroupProps): JSX.Element {
 			}),
 		});
 		// TODO: handle error
-		// await response.json();
+
+		console.log(response);
+
+		if (!response.ok) {
+			console.log('Call displayError');
+			const responseData = await response.json();
+			await displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
+		}
 	}
 
 	return (
