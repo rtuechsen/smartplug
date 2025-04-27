@@ -41,5 +41,9 @@
 	],
 	"eslint.options": {
 		"overrideConfigFile": "./eslint.config.js"
-	}
+	},
+	"black-formatter.args": [
+		"--line-length",
+		"79"
+	]
 }

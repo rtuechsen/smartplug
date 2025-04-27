@@ -95,7 +95,9 @@ class InternalApp(AppConfig):
 
         labor_config_file_path: str = "./labor-config.json"
 
-        lab_config_path = Path(__file__).parent.parent.parent / labor_config_file_path
+        lab_config_path = (
+            Path(__file__).parent.parent.parent / labor_config_file_path
+        )
 
         try:
             with open(lab_config_path, "r", encoding="utf8") as file:
@@ -135,7 +137,9 @@ class InternalApp(AppConfig):
             len(InternalApp.device_id_to_tree_item_mapping.keys()) * 2
         )
 
-    def object_list_to_tree_item_list(self, object_list: list[dict]) -> list[TreeItem]:
+    def object_list_to_tree_item_list(
+        self, object_list: list[dict]
+    ) -> list[TreeItem]:
         """Converts a list of dictionaries (JSON) to a list of TreeItems.
 
         @param object_list A list of dictionaries representing tree items.
@@ -166,7 +170,9 @@ class InternalApp(AppConfig):
 
         if "deviceId" in obj.keys():
             if obj["deviceId"] in self.device_id_to_tree_item_mapping:
-                raise BackendError(f"Property 'deviceId' of {obj} is not unique.")
+                raise BackendError(
+                    f"Property 'deviceId' of {obj} is not unique."
+                )
             tree_item = TreeItemDevice()
             tree_item.deviceId = obj["deviceId"]
             tree_item.isOn = False
@@ -175,7 +181,9 @@ class InternalApp(AppConfig):
 
         elif "children" in obj.keys():
             tree_item = TreeItemGroup()
-            tree_item.children = self.object_list_to_tree_item_list(obj["children"])
+            tree_item.children = self.object_list_to_tree_item_list(
+                obj["children"]
+            )
             if len(tree_item.children) == 0:
                 self.logger.warn(f"Object {obj} is a group without children.")
 
@@ -207,9 +215,9 @@ class InternalApp(AppConfig):
             device_id: str = random.choice(
                 list(self.device_id_to_tree_item_mapping.keys())
             )
-            tree_item: TreeItemDevice = InternalApp.device_id_to_tree_item_mapping[
-                device_id
-            ]
+            tree_item: TreeItemDevice = (
+                InternalApp.device_id_to_tree_item_mapping[device_id]
+            )
 
             toggle_availability: bool = random.choice([True, False])
 
