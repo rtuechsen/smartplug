@@ -34,7 +34,7 @@ class ErrorHandler:
         """
 
         # in any case log the error
-        self.logger.log("ERROR: " + message)
+        self.logger.error(message)
 
         if status_code is None:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -44,4 +44,4 @@ class ErrorHandler:
                 "The server encountered an internal error, please contact the admin."
             )
 
-        return Response({"message": user_message}, status=status_code)
+        return Response({"message": "ERROR: " + user_message}, status=status_code)
