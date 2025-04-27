@@ -54,7 +54,6 @@ class Logger:
         """
 
         if cls._instance is None:
-            print("Creating the object")
             cls._instance = super(Logger, cls).__new__(cls)
 
             # We need to do the initializations here because __init__() would be called every time an instance is requested.
@@ -137,8 +136,6 @@ class Logger:
                 log_file_path: Path = self._output_folder / filename
                 try:
                     log_file = open(log_file_path, mode="a", encoding="UTF-8")
-                    # setting the variable here will make the logger try to open the file again (and again)
-                    last_filename = filename
                 except FileNotFoundError:
                     # these errors are printed to console directly as logging obviously does not work properly
                     print(
@@ -153,6 +150,8 @@ class Logger:
                     )
                     # end the logging process, but keep the server running as this is not a fatal error
                     return
+
+            last_filename = filename
 
             log_str: str = f"{log.date} {log.time} {log.message}\n"
 
