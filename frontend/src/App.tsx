@@ -33,6 +33,7 @@ function App(): JSX.Element {
 	async function displayError(message: string): Promise<void> {
 		if (isErrorOpen) {
 			// close previous error if still open
+			// TODO: check if this works properly
 			setIsErrorOpen(false);
 		}
 		setCurrentErrorMessage(message);
