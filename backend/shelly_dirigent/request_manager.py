@@ -66,6 +66,9 @@ class RequestManager:
 
         @return A response containing either the CSRF token or an error.
         """
+        # TODO: add more info to log: WHO has send that request? ip, user name, ...
+        self._logger.info("A /csrf request has been received.")
+
         return Response(
             {"csrfToken": get_token(request)}, status=status.HTTP_200_OK
         )
