@@ -59,7 +59,7 @@ class InternalApp(AppConfig):
     ## The logger instance (singleton) to log events and errors.
     logger: Logger = Logger()
 
-    def ready(self):
+    def ready(self) -> None:
 
         InternalApp.logger.info("Server was started.")
 

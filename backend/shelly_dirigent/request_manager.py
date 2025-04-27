@@ -31,7 +31,7 @@ class RequestManager:
     It delegates work to the backend and construct responses for the requests.
     """
 
-    def __init__(self) -> None:
+    def __init__(self):
         """Constructor for the class."""
 
         ## The logger instance (singleton) to log events and errors.
