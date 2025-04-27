@@ -9,6 +9,7 @@ from django.apps import AppConfig
 from django_eventstream import send_event
 from rest_framework import status
 from .ErrorHandler import BackendError
+from .Logger import Logger
 from .TreeItem import TreeItem, TreeItemDevice, TreeItemGroup
 
 
@@ -33,10 +34,13 @@ class InternalApp(AppConfig):
     # mapping to get the TreeItem for a given deviceId
     device_id_to_tree_item_mapping: dict[str, TreeItem] = {}
 
+    logger: Logger
+
     def ready(self):
         print("\n\n -> Starting internal app ...\n\n")
 
-        # TODO: log server start
+        self.logger = Logger()
+        self.logger.log("Server was started.")
 
         # load the labor-config.json
         self.load_labor_config()

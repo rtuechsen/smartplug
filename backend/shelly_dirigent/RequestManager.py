@@ -59,6 +59,8 @@ class RequestManager:
         return Response(None, status=status.HTTP_200_OK)
 
     def gettree(self, _: Request) -> Response:
+        # TODO: add more info to log: WHO has send that request? ip, user name, ...
+        self.logger.log("A /gettree request has been received.")
         device_tree = self.my_internal_app.get_device_tree_dicts()
         return Response(device_tree, status=status.HTTP_200_OK)
 
@@ -73,6 +75,7 @@ class RequestManager:
 
         """
         # TODO: log request: WHO requested WHAT - wait for session management to identify user ???
+        self.logger.log("A /switch request has been received.")
 
         try:
             # get the schema for this endpoints request and validate the request with it
