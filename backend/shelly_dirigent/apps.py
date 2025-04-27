@@ -4,6 +4,8 @@ Contains the TODO class which stores most of the data for the backend and also h
 TODO: more details ???
 """
 
+# TODO: we need a tool to wrap comments and docstrings to the maximum line lenght of PEP8, black formatter does not handle those
+
 import time
 import json
 import random
