@@ -33,12 +33,16 @@ class RequestManager:
         self.error_handler = ErrorHandler()
 
         # get the instance of InternalApp
-        self.my_internal_app: InternalApp = apps.get_app_config("shelly_dirigent")
+        self.my_internal_app: InternalApp = apps.get_app_config(
+            "shelly_dirigent"
+        )
 
         # Because openapi.yaml already contains schemas for the requests for documentation purposes, we extract those schemas and use them for validation
         openapi_rel_path: str = "./openapi.yaml"
 
-        openapi_abs_path = Path(__file__).parent.parent.parent / openapi_rel_path
+        openapi_abs_path = (
+            Path(__file__).parent.parent.parent / openapi_rel_path
+        )
 
         with open(openapi_abs_path, "r", encoding="utf8") as file:
             self.openapi = yaml.safe_load(file)
@@ -50,7 +54,9 @@ class RequestManager:
         # TODO: handle file errors
 
     def csrf(self, request: Request) -> Response:
-        return Response({"csrfToken": get_token(request)}, status=status.HTTP_200_OK)
+        return Response(
+            {"csrfToken": get_token(request)}, status=status.HTTP_200_OK
+        )
 
     def login(self, request: Request) -> Response:
         return Response(None, status=status.HTTP_200_OK)
@@ -79,7 +85,9 @@ class RequestManager:
 
         try:
             # get the schema for this endpoints request and validate the request with it
-            jsonschema.validate(instance=request.data, schema=self.schema_switch)
+            jsonschema.validate(
+                instance=request.data, schema=self.schema_switch
+            )
         except jsonschema.exceptions.ValidationError as e:
             return self.error_handler.response(
                 e.message,
@@ -89,9 +97,13 @@ class RequestManager:
 
         try:
             # instruct the app to perform the switch
-            self.my_internal_app.switch(request.data["id"], request.data["isOn"])
+            self.my_internal_app.switch(
+                request.data["id"], request.data["isOn"]
+            )
         except BackendError as e:
-            return self.error_handler.response(e.message, e.status_code, e.user_message)
+            return self.error_handler.response(
+                e.message, e.status_code, e.user_message
+            )
 
         # TODO: make sure to return proper response for all cases (also failures)
 

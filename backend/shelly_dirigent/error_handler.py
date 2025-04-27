@@ -1,5 +1,4 @@
-"""@package ErrorHandler
-Contains classes for handling errors.
+"""Contains classes for handling errors.
 
 TODO: more details ???
 """
@@ -10,20 +9,42 @@ from .logger import Logger
 
 
 class BackendError(Exception):
+    """A custom exception that should be used to report errors in the backend.
+
+    In addition to a message it also offers to set a HTTP error code and an alternative user facing message.
+    """
 
     def __init__(
         self, message: str, status_code: int = None, user_message: str = None
     ):
-        # Call the base class constructor with the parameters it needs
+        """Constructor for the class.
+
+        @param message The main message. Usually includes technical details aimed at admins.
+
+        @param status_code An optional HTTP error code that matches the error best. Should be used if the error occured while processing a REST API request.
+
+        @param user_message An optional user facing message. Should be used if the error occured while processing a REST API request and the main message might contain either information about the backends implementation or contains user input. Sending repsonses with user input might open the door for injection attacks.
+        """
+        # Calling the base class constructor with the arguments it needs.
         super().__init__(message)
+
+        ## The main message. Usually includes technical details aimed at admins.
         self.message = message
+
+        ## An optional HTTP error code that matches the error best. Should be used if the error occured while processing a REST API request.
         self.status_code = status_code
+
+        ## An optional user facing message. Should be used if the error occured while processing a REST API request and the main message might contain either information about the backends implementation or contains user input. Sending repsonses with user input might open the door for injection attacks.
         self.user_message = user_message
 
 
 class ErrorHandler:
+    """A class that logs errors and generates an error response for the REST API."""
 
     def __init__(self):
+        """Constructor for the class."""
+
+        ## The logger instance (singleton) to log events and errors.
         self.logger = Logger()
 
     def response(
