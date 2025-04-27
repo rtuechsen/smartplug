@@ -1,3 +1,5 @@
+"""Contains the RequestManager that handles incoming requests from the REST API."""
+
 from pathlib import Path
 from django.middleware.csrf import get_token
 from django.apps import apps
@@ -6,12 +8,12 @@ from rest_framework.request import Request
 from rest_framework import status
 import jsonschema
 import yaml
-from .apps import InternalApp  # for type hints only
+from .apps import InternalApp
 from .logger import Logger
 from .error_handler import ErrorHandler, BackendError
 
 
-# input validation:
+# rules for input validation (OWASP):
 # - use schema: https://pypi.org/project/jsonschema/
 # - verify range of numbers
 # - verify string length
@@ -20,40 +22,49 @@ from .error_handler import ErrorHandler, BackendError
 #     - avoid: https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
 #     - use: https://owasp.org/www-community/OWASP_Validation_Regex_Repository
 
+# TODO: make RequestManager a singleton like Logger
+
 
 class RequestManager:
-    """This is an example docstring.
+    """This class handles the incoming requests from the REST API.
 
-    Here are some details.
+    It delegates work to the backend and construct responses for the requests.
     """
 
     def __init__(self) -> None:
 
-        self.logger = Logger()
-        self.error_handler = ErrorHandler()
+        ## The logger instance (singleton) to log events and errors.
+        self.logger: Logger = Logger()
 
-        # get the instance of InternalApp
+        ## An instance of ErrorHandler to simultaneously log an error and generate a response for the REST API.
+        self.error_handler: ErrorHandler = ErrorHandler()
+
+        ## The instance of TODO that manages the device tree.
         self.my_internal_app: InternalApp = apps.get_app_config(
             "shelly_dirigent"
         )
 
         # Because openapi.yaml already contains schemas for the requests for documentation purposes, we extract those schemas and use them for validation
         openapi_rel_path: str = "./openapi.yaml"
-
-        openapi_abs_path = (
+        openapi_abs_path: Path = (
             Path(__file__).parent.parent.parent / openapi_rel_path
         )
 
-        with open(openapi_abs_path, "r", encoding="utf8") as file:
-            self.openapi = yaml.safe_load(file)
+        with open(openapi_abs_path, "r", encoding="UTF-8") as file:
+            self.openapi: dict = yaml.safe_load(file)
+            # TODO: handle errors
 
-        self.schema_switch = self.openapi["paths"]["/api/switch"]["post"][
-            "requestBody"
-        ]["content"]["application/json"]["schema"]
-
-        # TODO: handle file errors
+        self.schema_switch: dict = self.openapi["paths"]["/api/switch"][
+            "post"
+        ]["requestBody"]["content"]["application/json"]["schema"]
 
     def csrf(self, request: Request) -> Response:
+        """Function to process requests to /csrf .
+
+        @param request The incoming request.
+
+        @return A response containing either the CSRF token or an error.
+        """
         return Response(
             {"csrfToken": get_token(request)}, status=status.HTTP_200_OK
         )
@@ -65,26 +76,31 @@ class RequestManager:
         return Response(None, status=status.HTTP_200_OK)
 
     def gettree(self, _: Request) -> Response:
+        """Function to process requests to /gettree .
+
+        @param request The incoming request.
+
+        @return A response containing either the device tree as a JSON or an error.
+        """
+        # No schema validation needed here a there is no payload expected in the request. Any payload in the request would be ignored.
+
         # TODO: add more info to log: WHO has send that request? ip, user name, ...
         self.logger.info("A /gettree request has been received.")
+        # TODO: handle errors
         device_tree = self.my_internal_app.get_device_tree_dicts()
         return Response(device_tree, status=status.HTTP_200_OK)
 
     def switch(self, request: Request) -> Response:
-        """This is an example docstring.
+        """Function to process requests to /switch .
 
-        Here are some details.
+        @param request The incoming request.
 
-        @param request This is some parameter.
-
-        @return This is some return value.
-
+        @return A response containing either a successn status or an error.
         """
         # TODO: log request: WHO requested WHAT - wait for session management to identify user ???
         self.logger.info("A /switch request has been received.")
 
         try:
-            # get the schema for this endpoints request and validate the request with it
             jsonschema.validate(
                 instance=request.data, schema=self.schema_switch
             )
