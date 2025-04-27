@@ -35,10 +35,10 @@ class RequestManager:
         """Constructor for the class."""
 
         ## The logger instance (singleton) to log events and errors.
-        self.logger: Logger = Logger()
+        self._logger: Logger = Logger()
 
         ## An instance of ErrorHandler to simultaneously log an error and generate a response for the REST API.
-        self.error_handler: ErrorHandler = ErrorHandler()
+        self._error_handler: ErrorHandler = ErrorHandler()
 
         ## The instance of TODO that manages the device tree.
         self.my_internal_app: InternalApp = apps.get_app_config(
@@ -52,10 +52,10 @@ class RequestManager:
         )
 
         with open(openapi_abs_path, "r", encoding="UTF-8") as file:
-            self.openapi: dict = yaml.safe_load(file)
+            self._openapi: dict = yaml.safe_load(file)
             # TODO: handle errors
 
-        self.schema_switch: dict = self.openapi["paths"]["/api/switch"][
+        self._schema_switch: dict = self._openapi["paths"]["/api/switch"][
             "post"
         ]["requestBody"]["content"]["application/json"]["schema"]
 
@@ -86,7 +86,7 @@ class RequestManager:
         # No schema validation needed here a there is no payload expected in the request. Any payload in the request would be ignored.
 
         # TODO: add more info to log: WHO has send that request? ip, user name, ...
-        self.logger.info("A /gettree request has been received.")
+        self._logger.info("A /gettree request has been received.")
         # TODO: handle errors
         device_tree = self.my_internal_app.get_device_tree_dicts()
         return Response(device_tree, status=status.HTTP_200_OK)
@@ -99,14 +99,14 @@ class RequestManager:
         @return A response containing either a successn status or an error.
         """
         # TODO: log request: WHO requested WHAT - wait for session management to identify user ???
-        self.logger.info("A /switch request has been received.")
+        self._logger.info("A /switch request has been received.")
 
         try:
             jsonschema.validate(
-                instance=request.data, schema=self.schema_switch
+                instance=request.data, schema=self._schema_switch
             )
         except jsonschema.exceptions.ValidationError as e:
-            return self.error_handler.response(
+            return self._error_handler.response(
                 e.message,
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
@@ -118,7 +118,7 @@ class RequestManager:
                 request.data["id"], request.data["isOn"]
             )
         except BackendError as e:
-            return self.error_handler.response(
+            return self._error_handler.response(
                 e.message, e.status_code, e.user_message
             )
 

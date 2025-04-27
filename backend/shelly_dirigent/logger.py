@@ -42,10 +42,10 @@ class Logger:
     _instance: "Logger" = None
 
     ## A thread safe queue that stores the logs.
-    log_queue: Queue
+    _log_queue: Queue
 
     ## The output folder of log files. Set fixed to '/var/log/shellydirigent/'.
-    output_folder: Path = Path("/var/log/shellydirigent/")
+    _output_folder: Path = Path("/var/log/shellydirigent/")
 
     def __new__(cls):
         """Creates an instance of the class.
@@ -60,15 +60,15 @@ class Logger:
             # We need to do the initializations here because __init__() would be called every time an instance is requested.
 
             # The size of the queue is set arbitrarily to 100.
-            cls._instance.log_queue = Queue(maxsize=100)
+            cls._instance._log_queue = Queue(maxsize=100)
 
             # check if outfolder exists and create it otherwise
-            if not cls._instance.output_folder.is_dir():
-                cls._instance.output_folder.mkdir()
+            if not cls._instance._output_folder.is_dir():
+                cls._instance._output_folder.mkdir()
 
             # start file writing thread
             thread = threading.Thread(
-                target=cls._instance.write_queue_to_file, daemon=True
+                target=cls._instance._write_queue_to_file, daemon=True
             )
             thread.start()
 
@@ -111,16 +111,16 @@ class Logger:
         log.date = now.strftime("%Y-%m-%d")
         log.time = now.strftime("%H:%M:%S.%f")
 
-        self.log_queue.put(log)
+        self._log_queue.put(log)
 
-    def write_queue_to_file(self) -> None:
+    def _write_queue_to_file(self) -> None:
         """Function for the worker thread. Takes incoming logs from the log_queue and writes them to a log file."""
 
         last_filename: str = None
         log_file: TextIOWrapper = None
 
         while True:
-            log: Log = self.log_queue.get()
+            log: Log = self._log_queue.get()
 
             filename: str = log.date.replace("-", "_") + ".log"
 
@@ -134,7 +134,7 @@ class Logger:
                     log_file.close()
 
                 # open the new file
-                log_file_path: Path = self.output_folder / filename
+                log_file_path: Path = self._output_folder / filename
                 try:
                     log_file = open(log_file_path, mode="a", encoding="UTF-8")
                     # setting the variable here will make the logger try to open the file again (and again)
@@ -162,4 +162,4 @@ class Logger:
             # better to write to file immediatly so that logs don't get lost if something happens
             log_file.flush()
 
-            self.log_queue.task_done()
+            self._log_queue.task_done()

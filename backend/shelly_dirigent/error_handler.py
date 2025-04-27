@@ -45,7 +45,7 @@ class ErrorHandler:
         """Constructor for the class."""
 
         ## The logger instance (singleton) to log events and errors.
-        self.logger = Logger()
+        self._logger = Logger()
 
     def response(
         self, message: str, status_code: int = None, user_message: str = None
@@ -63,7 +63,7 @@ class ErrorHandler:
         """
 
         # in any case log the error
-        self.logger.error(message)
+        self._logger.error(message)
 
         if status_code is None:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
