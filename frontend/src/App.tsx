@@ -13,7 +13,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { JSX } from '@emotion/react/jsx-runtime';
 import DeviceTreeView from './DeviceTreeView';
 import Login from './components/Login'
-
+import React from "react";
 
 /**
  * Main App component.
@@ -25,6 +25,10 @@ import Login from './components/Login'
  * @return the react component of the main app
  */
 function App(): JSX.Element {
+	const [isLoggedIn, setLoggedIn] = React.useState(false);
+	const onLoginSuccess = () => {
+		setLoggedIn(true)
+	}
 
 	const theme = createTheme({
 		// even though only the dark theme is mentioned here, this will use the system preference of the user
@@ -45,10 +49,7 @@ function App(): JSX.Element {
 				</Typography>
 			</Paper>
 			<Box sx={{ padding: '1.5rem' }}>
-				<Login />
-			</Box>
-			<Box sx={{ padding: '1.5rem' }}>
-				<DeviceTreeView />
+				{isLoggedIn ? <DeviceTreeView /> : <Login callback={onLoginSuccess} />}
 			</Box>
 		</ThemeProvider >
 	);

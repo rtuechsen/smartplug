@@ -5,20 +5,12 @@ import KeyRounded from '@mui/icons-material/KeyRounded';
 import PersonRounded from '@mui/icons-material/PersonRounded';
 import React from "react";
 
-const signIn = (username: string, password: string) => {
-	fetch('/api/login/', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			username: username,
-			password: password,
-		}),
-	})
+
+interface LoginProps {
+	callback: () => void;
 }
 
-const Login = () => {
+const Login: React.FC<LoginProps> = ({ callback }) => {
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [password, setPassword] = React.useState('');
 	const [username, setUsername] = React.useState('');
@@ -35,6 +27,25 @@ const Login = () => {
 	const handleMouseUpPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 	};
+
+	// Is executed when trying to sign in using the "Sign In"-button
+	const signIn = async (username: string, password: string) => {
+		const response: Response = await fetch('/api/login/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				username: username,
+				password: password,
+			}),
+		})
+
+		if (response.ok) {
+			callback()
+		}
+
+	}
 
 
 	return (
