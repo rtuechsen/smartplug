@@ -26,6 +26,8 @@ class MQTTClient:
         self.client.on_connect = on_connect
         self.client.connect(self.broker_ip, self.broker_port, self.keep_alive_seconds)
 
+        # TODO: error handling
+
     def disconnect(self):
         self.client.disconnect()
 
@@ -40,3 +42,5 @@ class MQTTClient:
 
         self.client.publish(self.topic, json.dumps(payload))
         print(f"Switch command (ON={isOn}) was sent.")
+
+        # TODO: error handling ??? or not possible ???
