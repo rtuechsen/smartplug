@@ -8,6 +8,7 @@ from pathlib import Path
 from functools import reduce
 from django.apps import AppConfig
 from django_eventstream import send_event
+from .MQTTClient import MQTTClient
 
 # exceptions of the same name are used from different libraries e.g. ValidationError, thus we do not import the exception directly but only the module it is in
 import rest_framework.exceptions as drf_exceptions
@@ -100,7 +101,7 @@ class InternalApp(AppConfig):
     device_tree: list[TreeItemDevice | TreeItemGroup]
 
     # mutex to avoid race conditions on the device tree
-    device_tree_mutex = threading.Lock()
+    device_tree_mutex = threading.Lock
 
     # mapping to get the TreeItem for a given id
     id_to_tree_item_mapping: dict[str, TreeItem] = {}
@@ -108,11 +109,17 @@ class InternalApp(AppConfig):
     # mapping to get the TreeItem for a given deviceId
     device_id_to_tree_item_mapping: dict[str, TreeItem] = {}
 
+    mqtt_client: MQTTClient
+
     def ready(self):
         print("\n\n -> Starting internal app ...\n\n")
 
+        self.device_tree_mutex = threading.Lock()
+
         # load the labor-config.json
         self.load_labor_config()
+
+        self.mqtt_client = MQTTClient()
 
         if not self.background_task_started:
             self.background_task_started = True
@@ -265,7 +272,7 @@ class InternalApp(AppConfig):
             tree_item = self.id_to_tree_item_mapping[id]
 
             if isinstance(tree_item, TreeItemDevice):
-                # TODO: actually (try to) switch the plug here
+                self.mqtt_client.switch(isOn)
                 tree_item.isOn = isOn
             elif isinstance(tree_item, TreeItemGroup):
                 for child in tree_item.children:
