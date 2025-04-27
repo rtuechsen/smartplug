@@ -46,9 +46,22 @@ class Logger:
 
         return cls._instance
 
-    def log(self, message: str):
+    def info(self, message: str):
 
-        # TODO: add note about newlines in docstring
+        # TODO: add note about newlines in docstring, about adding INFO
+        self._log("INFO: " + message)
+
+    def error(self, message: str):
+
+        # TODO: add note about newlines in docstring, about adding ERROR
+        self._log("ERROR: " + message)
+
+    def warn(self, message: str):
+
+        # TODO: add note about newlines in docstring, about adding WARNING
+        self._log("WARNING: " + message)
+
+    def _log(self, message: str):
 
         now = datetime.datetime.now()
 
