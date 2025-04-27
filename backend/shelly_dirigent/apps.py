@@ -1,3 +1,13 @@
+"""@package apps
+Contains the TODO class which stores most of the data for the backend and also handles background tasks the REST API does not handle.
+
+This module is registered in the django settings as an app.
+- starts when server starts
+- reads and holds hierarchy of devices and groups as well as their current state
+- is used by the REST API to get or manipulate data
+- holds the mqtt client to communicate with the devices
+"""
+
 import threading
 import time
 import json
@@ -6,7 +16,7 @@ import hashlib
 import warnings
 from pathlib import Path
 from django.apps import AppConfig
-from django_eventstream import send_event
+import django_eventstream
 from rest_framework import status
 from .ErrorHandler import BackendError
 from .Logger import Logger
@@ -15,8 +25,13 @@ from .TreeItem import TreeItem, TreeItemDevice, TreeItemGroup
 
 # TODO: better name for class
 class InternalApp(AppConfig):
+    """The main class for storing data about devices and groups as well as their state. Also handles background tasks the REST API does not handle.
 
-    # TODO: consider renaming as well
+    TODO: more details
+    """
+
+    # TODO: consider renaming as well (has to match the folder !!!)
+    # django requires this variable to be static (defined outside __init__)
     name: str = "shelly_dirigent"
 
     # needed to avoid starting background task multiple times
@@ -26,7 +41,7 @@ class InternalApp(AppConfig):
     device_tree: list[TreeItemDevice | TreeItemGroup]
 
     # mutex to avoid race conditions on the device tree
-    device_tree_mutex = threading.Lock()
+    device_tree_mutex: threading.Lock = threading.Lock()
 
     # mapping to get the TreeItem for a given id
     id_to_tree_item_mapping: dict[str, TreeItem] = {}
@@ -34,19 +49,18 @@ class InternalApp(AppConfig):
     # mapping to get the TreeItem for a given deviceId
     device_id_to_tree_item_mapping: dict[str, TreeItem] = {}
 
-    logger: Logger
+    # The logger instance (singleton) to log events and errors
+    logger: Logger = Logger()
 
     def ready(self):
-        print("\n\n -> Starting internal app ...\n\n")
 
-        self.logger = Logger()
-        self.logger.log("Server was started.")
+        InternalApp.logger.log("Server was started.")
 
         # load the labor-config.json
         self.load_labor_config()
 
-        if not self.background_task_started:
-            self.background_task_started = True
+        if not InternalApp.background_task_started:
+            InternalApp.background_task_started = True
             thread = threading.Thread(target=self.loop, daemon=True)
             thread.start()
 
@@ -58,7 +72,9 @@ class InternalApp(AppConfig):
             print("\n\n -> Running background task ...\n\n")
             # TODO: remove, used for debugging only
             # self.change_device_tree_randomly(10)
-            send_event("device_tree_update", "message", self.get_device_tree_dicts())
+            django_eventstream.send_event(
+                "device_tree_update", "message", self.get_device_tree_dicts()
+            )
 
     def load_labor_config(self) -> list[TreeItemDevice | TreeItemGroup]:
 
@@ -85,8 +101,10 @@ class InternalApp(AppConfig):
 
         # 3. convert to classes
 
-        with self.device_tree_mutex:
-            self.device_tree = self.object_list_to_tree_item_list(lab_config_python_obj)
+        with InternalApp.device_tree_mutex:
+            InternalApp.device_tree = self.object_list_to_tree_item_list(
+                lab_config_python_obj
+            )
 
         # TODO: get values (isOn, ...) from devices
 
@@ -94,12 +112,13 @@ class InternalApp(AppConfig):
         random.seed(42)  # make the changes reproducible
         # set a (fixed) random initial state
         self.change_device_tree_randomly(
-            len(self.device_id_to_tree_item_mapping.keys()) * 2
+            len(InternalApp.device_id_to_tree_item_mapping.keys()) * 2
         )
 
     def object_list_to_tree_item_list(self, object_list: list[dict]) -> list[TreeItem]:
         """Converts a list of dictionaries (JSON) to a list of TreeItems"""
 
+        # TODO: this causes doxygen to think self.object_to_tree_item is a new instance attribute ...
         return list(map(self.object_to_tree_item, object_list))
 
     def object_to_tree_item(self, obj: dict) -> TreeItem:
@@ -138,12 +157,12 @@ class InternalApp(AppConfig):
         # this hides the deviceId of the shelly plugs from the clients and gives ids to groups as well
         hash_source: str = tree_item.label
         tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
-        while tree_item.id in self.id_to_tree_item_mapping:
+        while tree_item.id in InternalApp.id_to_tree_item_mapping:
             # if the label is not unique in the file change the hash source (deterministically) until a unique hash is created
             hash_source += "0"
             tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
 
-        self.id_to_tree_item_mapping[tree_item.id] = tree_item
+        InternalApp.id_to_tree_item_mapping[tree_item.id] = tree_item
 
         return tree_item
 
@@ -155,11 +174,13 @@ class InternalApp(AppConfig):
             device_id: str = random.choice(
                 list(self.device_id_to_tree_item_mapping.keys())
             )
-            tree_item: TreeItemDevice = self.device_id_to_tree_item_mapping[device_id]
+            tree_item: TreeItemDevice = InternalApp.device_id_to_tree_item_mapping[
+                device_id
+            ]
 
             toggle_availability: bool = random.choice([True, False])
 
-            with self.device_tree_mutex:
+            with InternalApp.device_tree_mutex:
 
                 if toggle_availability:
                     tree_item.isAvailable = not tree_item.isAvailable
@@ -175,8 +196,8 @@ class InternalApp(AppConfig):
         # time.sleep(2)
 
         # always lock the tree before working on it
-        with self.device_tree_mutex:
-            for tree_item in self.device_tree:
+        with InternalApp.device_tree_mutex:
+            for tree_item in InternalApp.device_tree:
                 tree_item_dict = tree_item.to_dict()
                 device_tree_dict.append(tree_item_dict)
 
@@ -187,7 +208,7 @@ class InternalApp(AppConfig):
 
         def switch_recursive(id: str, isOn: bool):
 
-            if id not in self.id_to_tree_item_mapping:
+            if id not in InternalApp.id_to_tree_item_mapping:
                 # this error will automatically be propagated back as a proper response to the requesting client
 
                 raise BackendError(
@@ -196,7 +217,7 @@ class InternalApp(AppConfig):
                     "Specified id does not exist.",
                 )
 
-            tree_item = self.id_to_tree_item_mapping[id]
+            tree_item = InternalApp.id_to_tree_item_mapping[id]
 
             if isinstance(tree_item, TreeItemDevice):
                 # TODO: actually (try to) switch the plug here
@@ -212,8 +233,10 @@ class InternalApp(AppConfig):
         # TODO: remove, simulating latency
         time.sleep(1)
 
-        with self.device_tree_mutex:
+        with InternalApp.device_tree_mutex:
             switch_recursive(id, isOn)
 
         # notify SSE subscribers about changes to the device tree
-        send_event("device_tree_update", "message", self.get_device_tree_dicts())
+        django_eventstream.send_event(
+            "device_tree_update", "message", self.get_device_tree_dicts()
+        )
