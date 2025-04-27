@@ -7,8 +7,8 @@ from rest_framework import status
 import jsonschema
 import yaml
 from .apps import InternalApp  # for type hints only
-from .Logger import Logger
-from .ErrorHandler import ErrorHandler, BackendError
+from .logger import Logger
+from .error_handler import ErrorHandler, BackendError
 
 
 # input validation:

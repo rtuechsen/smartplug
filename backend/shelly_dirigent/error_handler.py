@@ -1,11 +1,19 @@
+"""@package ErrorHandler
+Contains classes for handling errors.
+
+TODO: more details ???
+"""
+
 from rest_framework.response import Response
 from rest_framework import status
-from .Logger import Logger
+from .logger import Logger
 
 
 class BackendError(Exception):
 
-    def __init__(self, message: str, status_code: int = None, user_message: str = None):
+    def __init__(
+        self, message: str, status_code: int = None, user_message: str = None
+    ):
         # Call the base class constructor with the parameters it needs
         super().__init__(message)
         self.message = message
@@ -40,8 +48,8 @@ class ErrorHandler:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
         if user_message is None:
-            user_message = (
-                "The server encountered an internal error, please contact the admin."
-            )
+            user_message = "The server encountered an internal error, please contact the admin."
 
-        return Response({"message": "ERROR: " + user_message}, status=status_code)
+        return Response(
+            {"message": "ERROR: " + user_message}, status=status_code
+        )

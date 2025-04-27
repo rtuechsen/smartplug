@@ -3,7 +3,7 @@
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import api_view
-from .RequestManager import RequestManager
+from .request_manager import RequestManager
 
 # The instance of the RequestManager of the API. All requests are forwarded to it.
 # Django requires all functions for the API endpoints to be defined in this file at file level.

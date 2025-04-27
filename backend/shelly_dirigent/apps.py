@@ -15,9 +15,9 @@ from pathlib import Path
 from django.apps import AppConfig
 import django_eventstream
 from rest_framework import status
-from .ErrorHandler import BackendError
-from .Logger import Logger
-from .TreeItem import TreeItem, TreeItemDevice, TreeItemGroup
+from .error_handler import BackendError
+from .logger import Logger
+from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
 
 
 # TODO: better name for class
