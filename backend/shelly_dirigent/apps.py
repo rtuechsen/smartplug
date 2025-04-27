@@ -8,12 +8,12 @@ This module is registered in the django settings as an app.
 - holds the mqtt client to communicate with the devices
 """
 
-import threading
 import time
 import json
 import random
 import hashlib
 import warnings
+import threading
 from pathlib import Path
 from django.apps import AppConfig
 import django_eventstream
@@ -28,28 +28,29 @@ class InternalApp(AppConfig):
     """The main class for storing data about devices and groups as well as their state. Also handles background tasks the REST API does not handle.
 
     TODO: more details
+    Apps in Django define and initialize usually all their attributes as class attributes.
+    Only initialization of attributes that require external django models happen inside ready().
     """
 
     # TODO: consider renaming as well (has to match the folder !!!)
-    # django requires this variable to be static (defined outside __init__)
     name: str = "shelly_dirigent"
 
-    # needed to avoid starting background task multiple times
+    ## Boolean needed to avoid starting background task multiple times.
     background_task_started: bool = False
 
-    # main data structure to hold the data of the devices and groups
+    ## main data structure to hold the data of the devices and groups
     device_tree: list[TreeItemDevice | TreeItemGroup]
 
-    # mutex to avoid race conditions on the device tree
+    ## mutex to avoid race conditions on the device tree
     device_tree_mutex: threading.Lock = threading.Lock()
 
-    # mapping to get the TreeItem for a given id
+    ## mapping to get the TreeItem for a given id
     id_to_tree_item_mapping: dict[str, TreeItem] = {}
 
-    # mapping to get the TreeItem for a given deviceId
+    ## mapping to get the TreeItem for a given deviceId
     device_id_to_tree_item_mapping: dict[str, TreeItem] = {}
 
-    # The logger instance (singleton) to log events and errors
+    ## The logger instance (singleton) to log events and errors
     logger: Logger = Logger()
 
     def ready(self):
