@@ -12,6 +12,7 @@ import Box from '@mui/material/Box';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { JSX } from '@emotion/react/jsx-runtime';
 import DeviceTreeView from './DeviceTreeView';
+import Login from './components/Login'
 
 
 /**
@@ -43,6 +44,9 @@ function App(): JSX.Element {
 					Shelly Dirigent
 				</Typography>
 			</Paper>
+			<Box sx={{ padding: '1.5rem' }}>
+				<Login />
+			</Box>
 			<Box sx={{ padding: '1.5rem' }}>
 				<DeviceTreeView />
 			</Box>

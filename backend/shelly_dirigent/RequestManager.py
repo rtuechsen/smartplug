@@ -8,7 +8,6 @@ import jsonschema
 import yaml
 from .apps import InternalApp  # for type hints only
 
-
 # input validation:
 # - use schema: https://pypi.org/project/jsonschema/
 # - verify range of numbers
@@ -41,14 +40,25 @@ class RequestManager:
         return Response({"csrfToken": get_token(request)}, status=status.HTTP_200_OK)
 
     def login(self, request: Request) -> Response:
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        request.session['username'] = username
+
         return Response(None, status=status.HTTP_200_OK)
+        #else:
+        #    return Response(None, status=status.HTTP_401_UNAUTHORIZED)
 
     def logout(self, request: Request) -> Response:
         return Response(None, status=status.HTTP_200_OK)
 
     def gettree(self, request: Request) -> Response:
-        device_tree = self.my_internal_app.get_device_tree_dicts()
-        return Response(device_tree, status=status.HTTP_200_OK)
+        user = request.session.get('username')
+        if user:
+            device_tree = self.my_internal_app.get_device_tree_dicts()
+            return Response(device_tree, status=status.HTTP_200_OK)
+        else:
+            return Response(None, status=status.HTTP_401_UNAUTHORIZED)
 
     def switch(self, request: Request) -> Response:
         """This is an example docstring.
