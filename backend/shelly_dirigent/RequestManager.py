@@ -7,6 +7,9 @@ from rest_framework import status
 import jsonschema
 import yaml
 from .apps import InternalApp  # for type hints only
+from .LoginManager import LoginManager
+
+login_manager = LoginManager()
 
 # input validation:
 # - use schema: https://pypi.org/project/jsonschema/
@@ -16,7 +19,6 @@ from .apps import InternalApp  # for type hints only
 #     - allow only certain characters
 #     - avoid: https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
 #     - use: https://owasp.org/www-community/OWASP_Validation_Regex_Repository
-
 
 class RequestManager:
     """This is an example docstring.
@@ -43,18 +45,17 @@ class RequestManager:
         username = request.data.get('username')
         password = request.data.get('password')
 
-        request.session['username'] = username
-
-        return Response(None, status=status.HTTP_200_OK)
-        #else:
-        #    return Response(None, status=status.HTTP_401_UNAUTHORIZED)
+        if login_manager.login(username, password, request):
+            return Response(None, status=status.HTTP_200_OK)
+        else:
+            return Response(None, status=status.HTTP_401_UNAUTHORIZED)
 
     def logout(self, request: Request) -> Response:
+        login_manager.logout(request)
         return Response(None, status=status.HTTP_200_OK)
 
     def gettree(self, request: Request) -> Response:
-        user = request.session.get('username')
-        if user:
+        if login_manager.get_user_permission(request):
             device_tree = self.my_internal_app.get_device_tree_dicts()
             return Response(device_tree, status=status.HTTP_200_OK)
         else:
