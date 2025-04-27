@@ -15,6 +15,7 @@ class Log:
     """A pure data class that groups properties of a log."""
 
     def __init__(self):
+        """Constructor for the class."""
 
         ## The message of the log.
         self.message: str
@@ -47,8 +48,10 @@ class Logger:
     output_folder: Path = Path("/var/log/shellydirigent/")
 
     def __new__(cls):
+        """Creates an instance of the class.
 
-        # Singleton pattern taken from this tutorial: https://python-patterns.guide/gang-of-four/singleton/
+        Implements the singleton pattern taken from this tutorial: https://python-patterns.guide/gang-of-four/singleton/
+        """
 
         if cls._instance is None:
             print("Creating the object")

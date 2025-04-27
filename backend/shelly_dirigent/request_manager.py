@@ -32,6 +32,7 @@ class RequestManager:
     """
 
     def __init__(self) -> None:
+        """Constructor for the class."""
 
         ## The logger instance (singleton) to log events and errors.
         self.logger: Logger = Logger()

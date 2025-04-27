@@ -1,23 +1,43 @@
+"""Contains classes for storing the device tree."""
+
 from functools import reduce
 
 
 class TreeItem:
-    """Common parent class of devices and groups."""
+    """A pure data class that groups common properties of a tree items."""
 
-    label: str
-    id: str
-    # TODO: add more specific type aliases for e.g. id ??? https://stackoverflow.com/questions/33045222/how-do-you-alias-a-type-in-python
+    def __init__(self):
+        """Constructor for the class."""
+
+        ## The human readable label of the item. Used when displaying the item in a UI.
+        self.label: str
+
+        ## The unique id of the item. A string of hexadecimal digits of lenght 64.
+        self.id: str
 
 
 class TreeItemDevice(TreeItem):
-    deviceId: str
-    isOn: bool
-    isAvailable: bool
-    # some variables in the device tree do not match the PEP8 naming convention, but it was important to us to match the naming of this
-    # data across the project, i.e. the same variables will be spelled the same for backend, REST API and frontend
+    """A data class that groups common properties of a devices."""
+
+    def __init__(self):
+        """Constructor for the class."""
+
+        super().__init__()
+
+        ## The unique id that is set on the shelly plug. Ignores PEP8 naming convention to match the name of the variable across the project.
+        self.deviceId: str
+
+        ## A boolean indicating if the item should be turned on (True) or off (False). Ignores PEP8 naming convention to match the name of the variable across the project.
+        self.isOn: bool
+
+        ## A boolean indicating if the item is currently reachable. Ignores PEP8 naming convention to match the name of the variable across the project.
+        self.isAvailable: bool
 
     def to_dict(self) -> dict:
-        """Convert the class to a dictionary."""
+        """Converts the class to a dictionary.
+
+        @return A dictionary representing the current state of the class.
+        """
         return {
             "label": self.label,
             "id": self.id,
@@ -27,11 +47,22 @@ class TreeItemDevice(TreeItem):
 
 
 class TreeItemGroup(TreeItem):
-    children: "list[TreeItemDevice|TreeItemGroup]"
+    """A data class that groups common properties of a groups."""
+
+    def __init__(self):
+        """Constructor for the class."""
+        super().__init__()
+
+        ## A list of TreeItems that this group combines.
+        self.children: "list[TreeItemDevice|TreeItemGroup]"
+
     # note: does not hold isOn or isAvailable, those will be evaluated from its children before send out to the API
 
     def to_dict(self) -> dict:
-        """Convert the class to a hierarchy of dictionaries and lists."""
+        """Converts the class to a hierarchy of dictionaries and lists.
+
+        @return A dictionary representing the current state of the class.
+        """
         children_dict: list[dict] = []
         children_isOn: list[bool] = []
         children_isAvailable: list[bool] = []
@@ -47,16 +78,25 @@ class TreeItemGroup(TreeItem):
 
         # decide state of group based on children
 
-        def combine_bools(a: bool, b: bool) -> bool | None:
-            if a is True and b is True:
+        def combine_bools(state_a: bool, state_b: bool) -> bool | None:
+            """Callback used for reduce(). Decides what the common state is given the state of two items.
+
+            @param state_a The state of the first item.
+
+            @param state_b The state of the second item.
+
+            @return The common state of the items.
+            """
+            if state_a is True and state_b is True:
                 return True
-            elif a is False and b is False:
+            elif state_a is False and state_b is False:
                 return False
             else:
                 return None
 
         if len(children_isOn) != 0:
-            # no initial value passed because needed behavior cannot be achieved using reduce
+            # TODO: improve exlanation
+            # no initial value passed to reduce() because desired behavior cannot be achieved using reduce
             isOn: bool = reduce(combine_bools, children_isOn)
         else:
             isOn: bool = None
