@@ -272,7 +272,7 @@ class InternalApp(AppConfig):
             tree_item = self.id_to_tree_item_mapping[id]
 
             if isinstance(tree_item, TreeItemDevice):
-                self.mqtt_client.switch(isOn)
+                self.mqtt_client.switch(tree_item.deviceId, isOn)
                 tree_item.isOn = isOn
             elif isinstance(tree_item, TreeItemGroup):
                 for child in tree_item.children:

@@ -5,14 +5,14 @@ import paho.mqtt.client as mqtt
 class MQTTClient:
 
     def __init__(self):
-        self.broker_ip: str = "localhost"
-        self.broker_port: int = 1883
-        self.keep_alive_seconds = 60
-        self.topic: str = "shellyplugsg3-b08184a654b8/rpc"
-        self.client = mqtt.Client()
+        self._broker_ip: str = "localhost"
+        self._broker_port: int = 1883
+        self._keep_alive_seconds = 60
+        self._sub_topic: str = "/rpc"
+        self._client = mqtt.Client()
 
         self.connect()
-        self.client.loop_forever()
+        self._client.loop_forever()
 
     def connect(self):
 
@@ -23,15 +23,17 @@ class MQTTClient:
             else:
                 print("Connecting to Broker failed. Code:", rc)
 
-        self.client.on_connect = on_connect
-        self.client.connect(self.broker_ip, self.broker_port, self.keep_alive_seconds)
+        self._client.on_connect = on_connect
+        self._client.connect(
+            self._broker_ip, self._broker_port, self._keep_alive_seconds
+        )
 
         # TODO: error handling
 
     def disconnect(self):
-        self.client.disconnect()
+        self._client.disconnect()
 
-    def switch(self, isOn: bool):
+    def switch(self, deviceId: str, isOn: bool):
 
         payload = {
             "id": 1,
@@ -40,7 +42,9 @@ class MQTTClient:
             "params": {"id": 0, "on": isOn},
         }
 
-        self.client.publish(self.topic, json.dumps(payload))
+        self._client.publish(deviceId + self._sub_topic, json.dumps(payload))
+
+        # TODO: remove debug print
         print(f"Switch command (ON={isOn}) was sent.")
 
         # TODO: error handling ??? or not possible ???
