@@ -8,11 +8,15 @@ import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 
 /**
- * Data structure to pass information to an LoadingButton.  
- *
- * onClick holds the callback for the button and accepts an async function.  
+ * A data structure to pass information to an LoadingButton.  
  */
-interface LoadingButtonProps {
+export interface LoadingButtonProps {
+
+	/**
+	 * The (async) callback used when clicking the button. 
+	 * 
+	 * @returns A void Promise that can be waited on if one wants to wait for the function to complete.
+	 */
 	onClick: () => Promise<void>;
 }
 
@@ -20,21 +24,19 @@ interface LoadingButtonProps {
 /**
  * A button that shows a loading circle while waiting for its callback to finish.  
  * 
- * @param buttonProperty of type LoadingButtonProps that holds the data needed to construct the button.
+ * @param props The properties needed to construct the button.
  * 
- * @return the react component of the button
+ * @return The react component of the button.
  */
 function LoadingButton({ onClick, children }: React.PropsWithChildren<LoadingButtonProps>): JSX.Element {
 
-	/**
-	 * state that decides wheter to show a loading circle or not, triggers the button to update when state changes
-	 */
+	// state that decides wheter to show a loading circle or not, triggers the button to update when state changes
 	const [loading, setLoading] = React.useState<boolean>(false);
 
 	/**
-	 * Wrapper function to wrap the callback of the button between changes to the loading state
+	 * Wrapper function to wrap the callback of the button between changes to the loading state.
 	 * 
-	 * @return a void promise indicating that the functions has returned
+	 * @return A void Promise that can be waited on if one wants to wait for the function to complete.
 	 */
 	async function handleClick(): Promise<void> {
 		setLoading(true);
@@ -55,28 +57,32 @@ function LoadingButton({ onClick, children }: React.PropsWithChildren<LoadingBut
 
 
 /**
- * Data structure to pass information to an LoadingButtonGroup.  
+ * A data structure to pass information to an LoadingButtonGroup.  
  */
-interface LoadingButtonGroupProps extends DisplayErrorCallbackProps {
+export interface LoadingButtonGroupProps extends DisplayErrorCallbackProps {
+
+	/**
+	 * The id of the tree item this button groups belongs to. Used to make API calls to switch items on or off.
+	 */
 	id: string;
 }
 
 
 /**
- * A combined group of 'ON' and 'OFF' button which each show a loading circle while waiting for its callback to finish
+ * A combined group of 'ON' and 'OFF' button which each show a loading circle while waiting for its callback to finish.
  *
- * @param buttonGroupProperty of type LoadingButtonProps that holds the data needed to construct the button.
+ * @param props Holds the data needed to construct the button.
  * 
- * @return the react component of the button group
+ * @return The react component of the button group.
  */
 function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.Element {
 
 	/**
-	 * Function to send the switch request to the API
+	 * Function to send the switch request to the API.
 	 * 
-	 * @param isOn if the group or device should be turned on (true) or off (false)
+	 * @param isOn If the group or device should be turned on (true) or off (false).
 	 * 
-	 * @return a void promise indicating that the functions has returned
+	 * @return A void promise indicating that the functions has returned.
 	 */
 	async function sendSwitchRequest(isOn: boolean): Promise<void> {
 		const response = await fetch('/api/switch/', {

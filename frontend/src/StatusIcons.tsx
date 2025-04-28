@@ -7,25 +7,34 @@ import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import Tooltip from '@mui/material/Tooltip';
 import { JSX } from '@emotion/react/jsx-runtime';
 
+// TODO: de-duplicate these two components ???
 
 /**
- * Data structure to pass information to an OnIcon.  
+ * A data structure to pass information to an OnIcon.  
  */
-interface OnIconProps {
+export interface OnIconProps {
+
+	/**
+	 * A boolean indicating if the item should be turned on (True) or off (False). 
+	 */
 	isOn: boolean;
+
+	/**
+	 * If the item is a group or a device.
+	 */
 	isGroup: boolean;
 }
 
 
 /**
- * Icon with different states and tooltip to inform about the isOn state of an tree item.  
+ * A component for an icon with different states and a tooltip to inform about the isOn state of an tree item.  
  *
  * Switches between tree icons on if the item is on or not. Groups can have a mixed state 
  * as well if their children have different values.  
  * 
- * @param iconProperty of type OnIconProps that holds the data needed to construct the icon.
+ * @param props Holds the data needed to construct the icon.
  * 
- * @return the react component of the icon
+ * @return The react component of the icon.
  */
 export function OnIcon({ isOn, isGroup }: OnIconProps): JSX.Element {
 
@@ -59,23 +68,31 @@ export function OnIcon({ isOn, isGroup }: OnIconProps): JSX.Element {
 
 
 /**
- * Data structure to pass information to an AvilableIcon.  
+ * A data structure to pass information to an AvilableIcon.  
  */
-interface AvilableIconProps {
+export interface AvilableIconProps {
+
+	/**
+	 * A boolean indicating if the item is currently reachable.
+	 */
 	isAvailable: boolean;
+
+	/**
+	 * If the item is a group or a device.
+	 */
 	isGroup: boolean;
 }
 
 
 /**
- * Icon with different states and tooltip to inform about the isAvailable state of an tree item.  
+ * A component for an icon with different states and tooltip to inform about the isAvailable state of an tree item.  
  *
  * Switches between tree icons on if the item is available or not. Groups can have a mixed state 
  * as well if their children have different values.  
  * 
- * @param iconProperty of type AvilableIconProps that holds the data needed to construct the icon.
+ * @param props Holds the data needed to construct the icon.
  * 
- * @return the react component of the icon
+ * @return The react component of the icon.
  */
 export function AvilableIcon({ isAvailable, isGroup }: AvilableIconProps): JSX.Element {
 
