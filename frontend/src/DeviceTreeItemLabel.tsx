@@ -1,10 +1,4 @@
 
-/******************************************************************************************
- * @packageDocumentation  DeviceTreeItemLabel.tsx
- * 
- * # TODO
- ******************************************************************************************/
-
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { JSX } from '@emotion/react/jsx-runtime';

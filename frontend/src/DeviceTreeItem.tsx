@@ -1,10 +1,4 @@
 
-/******************************************************************************************
- * @packageDocumentation  DeviceTreeItem.tsx
- * 
- * # TODO
- ******************************************************************************************/
-
 import * as React from 'react';
 import { TreeItem2, TreeItem2Props } from '@mui/x-tree-view/TreeItem2';
 import { useTreeItem2 } from '@mui/x-tree-view/useTreeItem2';

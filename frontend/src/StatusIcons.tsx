@@ -1,10 +1,4 @@
 
-/******************************************************************************************
- * @packageDocumentation  StatusIcons.tsx
- * 
- * # TODO
- ******************************************************************************************/
-
 import WifiOffOutlinedIcon from '@mui/icons-material/WifiOffOutlined';
 import WifiOutlinedIcon from '@mui/icons-material/WifiOutlined';
 import PowerOffOutlinedIcon from '@mui/icons-material/PowerOffOutlined';

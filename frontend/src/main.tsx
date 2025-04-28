@@ -1,10 +1,4 @@
 
-/******************************************************************************************
- * @packageDocumentation  main.tsx
- * 
- * The entry point of the frontend. Adds the main app component to the websites root
- ******************************************************************************************/
-
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';

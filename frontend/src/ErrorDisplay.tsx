@@ -1,10 +1,4 @@
 
-/******************************************************************************************
- * @packageDocumentation  ErrorDisplay.tsx
- * 
- * # TODO
- ******************************************************************************************/
-
 import * as React from 'react';
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
