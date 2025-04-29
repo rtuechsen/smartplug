@@ -16,6 +16,7 @@
     - meine Version: "python-3.12.0-amd64"
 2. Visual Studio Build Tools runterladen von "https://visualstudio.microsoft.com/visual-cpp-build-tools/"
 3. Sachen auswählen wie im Bild "Visual Studio Build Tools.png"
+    - WICHTIG! Wenn ihr eine andere Windows Version als Windows 10 habt, dann eine andere SDK auswählen!
 4. installieren lassen
 5. .whl Datei für gewählte Python Version installieren von "https://github.com/cgohlke/python-ldap-build/releases"
     - in diesem Beispiel mit Python 3.12, also "python_ldap-3.4.4-cp312-cp312-win_amd64.whl"
