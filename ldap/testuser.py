@@ -14,7 +14,7 @@ try:
     # Connect and bind
     conn = ldap.initialize(LDAP_SERVER)
     conn.set_option(ldap.OPT_DEBUG_LEVEL, 255)
-    # conn.set_option(ldap.OPT_PROTOCOL_VERSION, ldap.VERSION3)     # for LDAPv3
+    conn.set_option(ldap.OPT_PROTOCOL_VERSION, ldap.VERSION3)  # for LDAPv3
     conn.set_option(ldap.OPT_NETWORK_TIMEOUT, 5)  # 5 seconds timeout
     conn.set_option(ldap.OPT_REFERRALS, 0)  # Important for AD: Disable referrals!
     conn.simple_bind_s(BIND_DN, PASSWORD)
