@@ -16,7 +16,7 @@ Note that there are no Quotes around the password in contrast to user name or em
 Clone this repo using: `git clone https://gitlab.com/proi3/shelly-dirigent.git`  
 
 Enter project folder with `cd shelly-dirigent`.  
-Run `bash install.sh` to install the project.  
+Run `bash install.sh` to install the project. When prompted for an LDAP password enter one (preferably use the one in Proton Pass under 'Windows-Server-2019').  
 VSCode should find the python virtual environment automatically ONCE you have opened a python file. For existing terminals VSCode will ask you to reload them.  
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
 When using breakpoints in VSCode for the __frontend__, instead of simply opening the browser, go to the debug tab in VSCode (on the left) and launch `Frontend Debug (Chrome)`.  
