@@ -5,12 +5,10 @@ LDAP_SERVER = "ldap://192.168.178.50:389"  # Your server IP
 BIND_DN = "max.mustermann@mylab.local"  # Your full user logon name
 PASSWORD = "FHKiel123!"  # User password
 BASE_DN = "dc=mylab,dc=local"  # Correct BASE_DN for your domain
-# SEARCH_FILTER = (
-#     "(sAMAccountName=test.user)"  # Find the user with exactly that name combination
-# )
+SEARCH_FILTER = "(sAMAccountName=max.mustermann)"  # Find the user with exactly that name combination
 
 # Attributs you want to get printed
-# ATTRIBUTES = ["cn", "sAMAccountName", "userPrincipalName"]
+ATTRIBUTES = ["givenName", "sn"]
 
 try:
     # Connect and bind
@@ -21,15 +19,15 @@ try:
     print("Successfully connected and bound to the LDAP server.")
 
     # Perform search
-    # result = conn.search_s(BASE_DN, ldap.SCOPE_SUBTREE, SEARCH_FILTER, ATTRIBUTES)
-    # print("Search results:")
-    # for dn, entry in result:
-    #     if dn is None:
-    #         continue  # skips LDAP references
-    #     print(f"DN: {dn}")
-    #     for attr, values in entry.items():
-    #         for value in values:
-    #             print(f"  {attr}: {value.decode('utf-8')}")  # to make it readable
+    result = conn.search_s(BASE_DN, ldap.SCOPE_SUBTREE, SEARCH_FILTER, ATTRIBUTES)
+    print("Search results:")
+    for dn, entry in result:
+        if dn is None:
+            continue  # skips LDAP references
+        print(f"DN: {dn}")
+        for attr, values in entry.items():
+            for value in values:
+                print(f"  {attr}: {value.decode('utf-8')}")  # to make it readable
 
     conn.unbind_s()
 
