@@ -12,7 +12,7 @@ class MQTTClient:
         self._client = mqtt.Client()
 
         self.connect()
-        self._client.loop_forever()
+        self._client.loop_start()
 
     def connect(self):
 
