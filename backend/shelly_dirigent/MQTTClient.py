@@ -6,10 +6,17 @@ class MQTTClient:
 
     def __init__(self):
         self._broker_ip: str = "localhost"
-        self._broker_port: int = 1883
+        self._broker_port: int = 8883
         self._keep_alive_seconds = 60
         self._sub_topic: str = "/rpc"
         self._client = mqtt.Client()
+
+        self._client.tls_set(
+            ca_certs="/var/lib/mosquitto/ssl/server.crt",  # Path to your CA certificate
+            tls_version=mqtt.ssl.PROTOCOL_TLSv1_2  # Use TLSv1.2
+        )
+
+        self._client.tls_insecure_set(True)
 
         self.connect()
         self._client.loop_start()
@@ -47,4 +54,4 @@ class MQTTClient:
         # TODO: remove debug print
         print(f"Switch command (ON={isOn}) was sent.")
 
-        # TODO: error handling ??? or not possible ???
+        # TODO: error handling ??? or not possible ??? Might not be required, further research please.
