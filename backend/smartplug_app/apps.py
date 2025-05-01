@@ -20,7 +20,7 @@ from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
 
 
 # TODO: better name for class
-class InternalApp(AppConfig):
+class SmartplugApp(AppConfig):
     """The main class for storing data about devices and groups as well as their state. Also handles background tasks the REST API does not handle.
 
     This module is registered in the django settings as an app.
@@ -61,14 +61,14 @@ class InternalApp(AppConfig):
 
     def ready(self) -> None:
 
-        InternalApp._logger.info("Server was started.")
+        SmartplugApp._logger.info("Server was started.")
 
         # load the labor-config.json
         self._load_labor_config()
 
         # TODO: remove, used for debugging only
-        if not InternalApp._background_task_started:
-            InternalApp._background_task_started = True
+        if not SmartplugApp._background_task_started:
+            SmartplugApp._background_task_started = True
             thread = threading.Thread(target=self.loop, daemon=True)
             thread.start()
 
@@ -123,9 +123,9 @@ class InternalApp(AppConfig):
 
         # 3. convert to classes
 
-        with InternalApp._device_tree_mutex:
+        with SmartplugApp._device_tree_mutex:
             # errors from parsing will not be logged but will result in an unhandled exception immediately after starting the server
-            InternalApp._device_tree = self._object_list_to_tree_item_list(
+            SmartplugApp._device_tree = self._object_list_to_tree_item_list(
                 lab_config_python_obj
             )
 
@@ -135,7 +135,7 @@ class InternalApp(AppConfig):
         random.seed(42)  # make the changes reproducible
         # set a (fixed) random initial state
         self.change_device_tree_randomly(
-            len(InternalApp._device_id_to_tree_item_mapping.keys()) * 2
+            len(SmartplugApp._device_id_to_tree_item_mapping.keys()) * 2
         )
 
     def _object_list_to_tree_item_list(
@@ -201,12 +201,12 @@ class InternalApp(AppConfig):
         # This hides the deviceId of the smartplugs from the clients and gives ids to groups as well.
         hash_source: str = tree_item.label
         tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
-        while tree_item.id in InternalApp._id_to_tree_item_mapping:
+        while tree_item.id in SmartplugApp._id_to_tree_item_mapping:
             # if the label is not unique in the file change the hash source (deterministically) until a unique hash is created
             hash_source += "0"
             tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
 
-        InternalApp._id_to_tree_item_mapping[tree_item.id] = tree_item
+        SmartplugApp._id_to_tree_item_mapping[tree_item.id] = tree_item
 
         return tree_item
 
@@ -219,12 +219,12 @@ class InternalApp(AppConfig):
                 list(self._device_id_to_tree_item_mapping.keys())
             )
             tree_item: TreeItemDevice = (
-                InternalApp._device_id_to_tree_item_mapping[device_id]
+                SmartplugApp._device_id_to_tree_item_mapping[device_id]
             )
 
             toggle_availability: bool = random.choice([True, False])
 
-            with InternalApp._device_tree_mutex:
+            with SmartplugApp._device_tree_mutex:
 
                 if toggle_availability:
                     tree_item.isAvailable = not tree_item.isAvailable
@@ -243,8 +243,8 @@ class InternalApp(AppConfig):
         # time.sleep(2)
 
         # always lock the tree before working on it
-        with InternalApp._device_tree_mutex:
-            for tree_item in InternalApp._device_tree:
+        with SmartplugApp._device_tree_mutex:
+            for tree_item in SmartplugApp._device_tree:
                 tree_item_dict = tree_item.to_dict()
                 device_tree_dict.append(tree_item_dict)
 
@@ -266,7 +266,7 @@ class InternalApp(AppConfig):
             @param isOn A boolean indicating if the item should be turned on (True) or off (False). Ignores PEP8 naming convention to match the name of the variable across the project.
             """
 
-            if id not in InternalApp._id_to_tree_item_mapping:
+            if id not in SmartplugApp._id_to_tree_item_mapping:
 
                 raise BackendError(
                     f"Specified id {id} does not exist.",
@@ -274,7 +274,7 @@ class InternalApp(AppConfig):
                     "Specified id does not exist.",
                 )
 
-            tree_item = InternalApp._id_to_tree_item_mapping[id]
+            tree_item = SmartplugApp._id_to_tree_item_mapping[id]
 
             if isinstance(tree_item, TreeItemDevice):
                 # TODO: actually (try to) switch the plug here
@@ -290,7 +290,7 @@ class InternalApp(AppConfig):
         # TODO: remove, simulating latency
         time.sleep(1)
 
-        with InternalApp._device_tree_mutex:
+        with SmartplugApp._device_tree_mutex:
             switch_recursive(id, isOn)
 
         # notify SSE subscribers about changes to the device tree

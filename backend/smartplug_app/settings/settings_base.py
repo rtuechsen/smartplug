@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
-    "smartplug_app.apps.InternalApp",
+    "smartplug_app.apps.SmartplugApp",
 ]
 
 MIDDLEWARE = [

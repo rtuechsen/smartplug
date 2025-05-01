@@ -8,7 +8,7 @@ from rest_framework.request import Request
 from rest_framework import status
 import jsonschema
 import yaml
-from .apps import InternalApp
+from .apps import SmartplugApp
 from .logger import Logger
 from .error_handler import ErrorHandler, BackendError
 
@@ -41,7 +41,7 @@ class RequestManager:
         self._error_handler: ErrorHandler = ErrorHandler()
 
         ## The instance of TODO that manages the device tree.
-        self.my_internal_app: InternalApp = apps.get_app_config(
+        self.my_internal_app: SmartplugApp = apps.get_app_config(
             "smartplug_app"
         )
 
