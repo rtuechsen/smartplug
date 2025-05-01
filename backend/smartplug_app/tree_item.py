@@ -1,6 +1,7 @@
 """Contains classes for storing the device tree."""
 
 from functools import reduce
+import datetime
 
 
 class TreeItem:
@@ -32,6 +33,8 @@ class TreeItemDevice(TreeItem):
 
         ## A boolean indicating if the item is currently reachable. Ignores PEP8 naming convention to match the name of the variable across the project.
         self.isAvailable: bool
+
+        self.time_last_switched: datetime.datetime = datetime.datetime.now()
 
     def to_dict(self) -> dict:
         """Converts the class to a dictionary.

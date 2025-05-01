@@ -11,12 +11,19 @@ import random
 import hashlib
 import threading
 from pathlib import Path
+from queue import Queue
+import datetime
 from django.apps import AppConfig
 import django_eventstream
 from rest_framework import status
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
+
+
+class SwitchRequest:
+    deviceId: str
+    isOn: bool
 
 
 # TODO: better name for class
@@ -47,6 +54,8 @@ class SmartplugApp(AppConfig):
     ## The main data structure to hold the hierarchy of devices and groups and their current state.
     _device_tree: list[TreeItemDevice | TreeItemGroup]
 
+    _switch_queue: Queue = Queue()
+
     ## A mutex to avoid race conditions on the device tree. Needed because async calls from the REST API are possible. ALWAYS lock this mutex when reading or manipulating the device tree!
     _device_tree_mutex: threading.Lock = threading.Lock()
 
@@ -69,20 +78,49 @@ class SmartplugApp(AppConfig):
         # TODO: remove, used for debugging only
         if not SmartplugApp._background_task_started:
             SmartplugApp._background_task_started = True
-            thread = threading.Thread(target=self.loop, daemon=True)
+            thread = threading.Thread(
+                target=self.apply_switch_requests, daemon=True
+            )
             thread.start()
 
     # TODO: remove, used for debugging only
-    def loop(self) -> None:
-        time.sleep(2)
+    def apply_switch_requests(self) -> None:
         while True:
-            time.sleep(4)
-            print("\n\n -> Running background task ...\n\n")
-            # TODO: remove, used for debugging only
-            # self.change_device_tree_randomly(10)
-            django_eventstream.send_event(
-                "device_tree_update", "message", self.get_device_tree_dicts()
-            )
+            switch_request: SwitchRequest = self._switch_queue.get()
+
+            with SmartplugApp._device_tree_mutex:
+                tree_item: TreeItemDevice = (
+                    SmartplugApp._id_to_tree_item_mapping[
+                        switch_request.deviceId
+                    ]
+                )
+
+                now = datetime.datetime.now()
+                time_passed_since_last_switch: datetime.timedelta = (
+                    now - tree_item.time_last_switched
+                )
+
+                # TODO: retrieve switch_toggle_delay from settings.json, construct timedelta once
+                if time_passed_since_last_switch < datetime.timedelta(
+                    seconds=3.0
+                ):
+                    # if last switch request was not that long ago -> drop this request
+                    continue
+                tree_item.time_last_switched = now
+
+                # TODO: try sending MQTT request here !!!
+
+                # TODO: do NOT set state here / send update event here, wait for signal from plug that it changed somewhere else in the code
+                tree_item.isOn = switch_request.isOn
+                # notify SSE subscribers about changes to the device tree
+                django_eventstream.send_event(
+                    "device_tree_update",
+                    "message",
+                    self.get_device_tree_dicts(),
+                )
+
+            # TODO: retrieve inrush_current_delay from settings.json
+            time.sleep(1.0)
 
     def _load_labor_config(self) -> list[TreeItemDevice | TreeItemGroup]:
         """Loads the hierarchy of devices and groups from `labor-config.json`.
@@ -277,8 +315,10 @@ class SmartplugApp(AppConfig):
             tree_item = SmartplugApp._id_to_tree_item_mapping[id]
 
             if isinstance(tree_item, TreeItemDevice):
-                # TODO: actually (try to) switch the plug here
-                tree_item.isOn = isOn
+                switch_request = SwitchRequest()
+                switch_request.deviceId = id
+                switch_request.isOn = isOn
+                SmartplugApp._switch_queue.put(switch_request)
             elif isinstance(tree_item, TreeItemGroup):
                 for child in tree_item.children:
                     switch_recursive(child.id, isOn)
@@ -288,12 +328,6 @@ class SmartplugApp(AppConfig):
                 )
 
         # TODO: remove, simulating latency
-        time.sleep(1)
+        # time.sleep(1)
 
-        with SmartplugApp._device_tree_mutex:
-            switch_recursive(id, isOn)
-
-        # notify SSE subscribers about changes to the device tree
-        django_eventstream.send_event(
-            "device_tree_update", "message", self.get_device_tree_dicts()
-        )
+        switch_recursive(id, isOn)
