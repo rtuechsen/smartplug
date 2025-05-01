@@ -49,7 +49,7 @@ function App(): JSX.Element {
 			<CssBaseline />	 {/* used to remove default padding of html body */}
 			<Paper sx={{ padding: '2rem' }}>
 				<Typography variant="h2">
-					Shelly Dirigent
+					Smartplug Dirigent
 				</Typography>
 			</Paper>
 			<Box sx={{ padding: '1.5rem' }}>

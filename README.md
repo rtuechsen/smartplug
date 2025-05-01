@@ -13,9 +13,9 @@ To store your git password (AS PLAINTEXT - DO NOT USE A PASSWORD YOU ARE USING S
 `git config --global user.password YOUR_PASSWORD`  
 Note that there are no Quotes around the password in contrast to user name or email.  
 
-Clone this repo using: `git clone https://gitlab.com/proi3/shelly-dirigent.git`  
+Clone this repo using: `git clone https://gitlab.com/proi3/smartplug-dirigent.git`  
 
-Enter project folder with `cd shelly-dirigent`.  
+Enter project folder with `cd smartplug-dirigent`.  
 Run `bash install.sh` to install the project.  
 VSCode should find the python virtual environment automatically ONCE you have opened a python file. For existing terminals VSCode will ask you to reload them.  
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  

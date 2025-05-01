@@ -42,7 +42,7 @@ class RequestManager:
 
         ## The instance of TODO that manages the device tree.
         self.my_internal_app: InternalApp = apps.get_app_config(
-            "shelly_dirigent"
+            "smartplug_app"
         )
 
         # Because openapi.yaml already contains schemas for the requests for documentation purposes, we extract those schemas and use them for validation

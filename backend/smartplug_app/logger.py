@@ -33,7 +33,7 @@ class Logger:
     This class is implemented as a singleton as it is possibly used by multiple threads. Logging using this class should be thread safe.
     Because the class is a singleton its attributes are all class attributes.
 
-    Log files are stored in '/var/log/shellydirigent/' with a file per day.
+    Log files are stored in '/var/log/smartplugdirigent/' with a file per day.
     TODO: add note about linux removing files from /var/log/ regularly.
     """
 
@@ -44,8 +44,8 @@ class Logger:
     ## A thread safe queue that stores the logs.
     _log_queue: Queue
 
-    ## The output folder of log files. Set fixed to '/var/log/shellydirigent/'.
-    _output_folder: Path = Path("/var/log/shellydirigent/")
+    ## The output folder of log files. Set fixed to '/var/log/smartplugdirigent/'.
+    _output_folder: Path = Path("/var/log/smartplugdirigent/")
 
     def __new__(cls):
         """Creates an instance of the class.

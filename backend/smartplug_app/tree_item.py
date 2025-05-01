@@ -24,7 +24,7 @@ class TreeItemDevice(TreeItem):
 
         super().__init__()
 
-        ## The unique id that is set on the shelly plug. Ignores PEP8 naming convention to match the name of the variable across the project.
+        ## The unique id that is set on the smartplug. Ignores PEP8 naming convention to match the name of the variable across the project.
         self.deviceId: str
 
         ## A boolean indicating if the item should be turned on (True) or off (False). Ignores PEP8 naming convention to match the name of the variable across the project.

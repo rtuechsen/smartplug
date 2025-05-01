@@ -39,7 +39,7 @@ class InternalApp(AppConfig):
 
     # TODO: consider renaming as well (has to match the folder!)
     ## The name of the app (required by Django).
-    name: str = "shelly_dirigent"
+    name: str = "smartplug_app"
 
     ## Boolean needed to avoid starting background task multiple times.
     _background_task_started: bool = False
@@ -198,7 +198,7 @@ class InternalApp(AppConfig):
         tree_item.label = obj["label"]
 
         # Use (cryptographic) hash of the items label for the id in order to keep the same id across runs.
-        # This hides the deviceId of the shelly-plugs from the clients and gives ids to groups as well.
+        # This hides the deviceId of the smartplugs from the clients and gives ids to groups as well.
         hash_source: str = tree_item.label
         tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
         while tree_item.id in InternalApp._id_to_tree_item_mapping:
