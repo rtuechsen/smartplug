@@ -1,6 +1,8 @@
 from rest_framework.request import Request
 from django.conf import settings
 
+# simulates LDAP-Process
+# TODO: Implement LDAP
 def VerifyLogin(username: str, password: str) -> bool:
     if username == 'user' and password == 'pass':
         return True
@@ -11,6 +13,8 @@ class LoginManager:
     def __init__(self):
         pass
 
+        # TODO: Integrate LDAP into login logic
+        # TODO: Throw exception on login fail
     def login(self, username: str, password: str, request: Request) -> bool:
         if VerifyLogin(username=username, password=password):
             request.session['username'] = username
@@ -24,6 +28,7 @@ class LoginManager:
         # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
         request.session.flush()
 
+    # TODO: Throw exception on insufficient permission
     def get_user_permission(self, request: Request) -> bool:
         # user will be null unless logged in. Per default we use a 
         # database-backed session management. The session data is
