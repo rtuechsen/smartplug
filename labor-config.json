@@ -32,7 +32,10 @@
 									},
 									{
 										"label": "Monitor 2",
-										"deviceId": "10005"
+										"deviceId": "10005",
+										"turn_off_if_all_in_list_are_off": [
+											"10003"
+										]
 									}
 								]
 							},

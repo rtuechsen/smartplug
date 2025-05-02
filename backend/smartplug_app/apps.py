@@ -374,15 +374,9 @@ class SmartplugApp(AppConfig):
 
     def _solve_item_dependencies(self):
 
+        ids_to_switch_off: list[str] = []
+
         def solve_recursive(id: str):
-
-            if id not in SmartplugApp._id_to_tree_item_mapping:
-
-                raise BackendError(
-                    f"Specified id {id} does not exist.",
-                    status.HTTP_400_BAD_REQUEST,
-                    "Specified id does not exist.",
-                )
 
             tree_item = SmartplugApp._id_to_tree_item_mapping[id]
 
@@ -391,10 +385,18 @@ class SmartplugApp(AppConfig):
                 # TODO: check status of all device_ids
                 all_devices_are_off = True
                 for deviceId in tree_item.turn_off_if_all_in_list_are_off:
-                    dep_tree_item = (
+                    tree_item_dep: TreeItemDevice = (
                         SmartplugApp._device_id_to_tree_item_mapping[deviceId]
                     )
+                    if (
+                        tree_item_dep.isOn
+                        and tree_item_dep.id not in ids_to_switch_off
+                    ):
+                        all_devices_are_off = False
+                        break
 
+                if all_devices_are_off:
+                    ids_to_switch_off.append(tree_item.id)
                 # TODO: problem: need to do this again and again, because turning something off could trigger another dependency
 
             if isinstance(tree_item, TreeItemGroup):
@@ -405,8 +407,6 @@ class SmartplugApp(AppConfig):
                     f"Implementation error, 'tree_item' {tree_item} is of unknown class: {type(tree_item)}."
                 )
 
-        ids_to_switch_off = []
-
         with SmartplugApp._device_tree_mutex:
             for item in SmartplugApp._device_tree:
                 solve_recursive(item.id)
@@ -416,29 +416,33 @@ class SmartplugApp(AppConfig):
 
     def _build_dependency_tree(self):
 
-        # id -> list[id]
+        # deviceId -> list[deviceId]
+        # if_I_turn_off -> those_might_turn_off
+        # e.g. PC1 -> [Monitor1, Monitor2]
         dependencies: dict = {}
 
-        def collect_dependencies(id: str):
+        def collect_dependencies(id: str, add_to_all_children: list[str]):
 
             tree_item = SmartplugApp._id_to_tree_item_mapping[id]
 
             if tree_item.turn_off_if_all_in_list_are_off is not None:
-                for deviceId in tree_item.turn_off_if_all_in_list_are_off:
 
-                    # TODO: don't give dependencies to groups, give deps to devices in group instead
+                add_to_all_children = (
+                    add_to_all_children
+                    + tree_item.turn_off_if_all_in_list_are_off
+                )
 
-                    dep_id = SmartplugApp._device_id_to_tree_item_mapping[
-                        deviceId
-                    ].id
-                    if dep_id in dependencies.keys():
-                        dependencies[dep_id].append(tree_item.id)
+            if isinstance(tree_item, TreeItemDevice):
+
+                for deviceId in add_to_all_children:
+                    if deviceId in dependencies:
+                        dependencies[deviceId].append(tree_item.deviceId)
                     else:
-                        dependencies[dep_id] = [tree_item.id]
+                        dependencies[deviceId] = [tree_item.deviceId]
 
-            if isinstance(tree_item, TreeItemGroup):
+            elif isinstance(tree_item, TreeItemGroup):
                 for child in tree_item.children:
-                    collect_dependencies(child.id)
+                    collect_dependencies(child.id, add_to_all_children)
             else:
                 raise BackendError(
                     f"Implementation error, 'tree_item' {tree_item} is of unknown class: {type(tree_item)}."
@@ -446,7 +450,7 @@ class SmartplugApp(AppConfig):
 
         with SmartplugApp._device_tree_mutex:
             for item in SmartplugApp._device_tree:
-                collect_dependencies(item.id)
+                collect_dependencies(item.id, [])
 
         another_dep_was_found = True
         while another_dep_was_found:
