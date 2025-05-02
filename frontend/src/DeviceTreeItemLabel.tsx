@@ -3,7 +3,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { JSX } from '@emotion/react/jsx-runtime';
 import LoadingButtonGroup from './LoadingButtonGroup';
-import { AvilableIcon, OnIcon } from './StatusIcons';
+import { AvilableIcon, OnIcon, WifiIcon, ElectricityIcon } from './StatusIcons';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 
@@ -71,6 +71,8 @@ export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, dis
 				<AvilableIcon isAvailable={isAvailable} isGroup={isGroup} />
 				<OnIcon isOn={isOn} isGroup={isGroup} />
 				<LoadingButtonGroup id={id} displayError={displayError} />
+				<WifiIcon isAvailable={isAvailable} isGroup={isGroup} />
+				<ElectricityIcon />
 			</Stack>
 		</Stack>
 	);
