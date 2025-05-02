@@ -18,6 +18,7 @@ from rest_framework import status
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
+from .admin_settings import SWITCHING_TOGGLE_DELAY, INRUSH_CURRENT_DELAY
 
 
 # TODO: better name for class
@@ -59,6 +60,10 @@ class SmartplugApp(AppConfig):
 
     ## The logger instance (singleton) to log events and errors.
     _logger: Logger = Logger()
+
+    _last_switch_on_date_time: datetime.datetime = datetime.datetime.now()
+
+    _last_switch_on_date_time_mutex: threading.Lock = threading.Lock()
 
     def ready(self) -> None:
 
@@ -241,6 +246,9 @@ class SmartplugApp(AppConfig):
         @param isOn A boolean indicating if the item should be turned on (True) or off (False). Ignores PEP8 naming convention to match the name of the variable across the project.
         """
 
+        # if requests are dropped due to SWITCHING_TOGGLE_DELAY
+        requests_dropped: bool = False
+
         def switch_recursive(id: str, isOn: bool):
             """A helper function that switches the item as well as all children in case the item is a group.
 
@@ -270,21 +278,52 @@ class SmartplugApp(AppConfig):
                     print(f"working on request for device: {tree_item.label}")
 
                     now = datetime.datetime.now()
-                    time_passed_since_last_switch: datetime.timedelta = (
-                        now - tree_item.time_last_switched
-                    )
+
+                    # TODO: need to save last 'switch ON time' (mutex), wait if below delay
+                    # TODO: only delay between device switches, not at beginning or end of request
+                    if isOn:
+                        # only delay switching when switching ON (no inrush current when switching OFF)
+                        with SmartplugApp._last_switch_on_date_time_mutex:
+
+                            time_passed_since_last_switch_on: (
+                                datetime.timedelta
+                            ) = (now - SmartplugApp._last_switch_on_date_time)
+
+                            if (
+                                time_passed_since_last_switch_on.seconds
+                                < INRUSH_CURRENT_DELAY
+                            ):
+
+                                time.sleep(
+                                    INRUSH_CURRENT_DELAY
+                                    - time_passed_since_last_switch_on.seconds
+                                )
+
+                            SmartplugApp._last_switch_on_date_time = (
+                                datetime.datetime.now()
+                            )
+
+                    now = datetime.datetime.now()
+                    time_passed_since_last_switch_of_current_item: (
+                        datetime.timedelta
+                    ) = (now - tree_item.time_last_switched)
 
                     print(
-                        f"time passed: {time_passed_since_last_switch.seconds}"
+                        f"time passed: {time_passed_since_last_switch_of_current_item.seconds}"
                     )
 
-                    # TODO: retrieve switch_toggle_delay from settings.json, construct timedelta once
-                    if time_passed_since_last_switch < datetime.timedelta(
-                        seconds=5.0
+                    if (
+                        time_passed_since_last_switch_of_current_item
+                        < datetime.timedelta(seconds=SWITCHING_TOGGLE_DELAY)
                     ):
                         print(
                             f"request is to early for device: {tree_item.label}"
                         )
+
+                        # need to declare variable as 'nonlocal' to avoid redefining it
+                        nonlocal requests_dropped
+                        requests_dropped = True
+
                         # if last switch request was not that long ago -> drop this request
                         return
 
@@ -306,12 +345,6 @@ class SmartplugApp(AppConfig):
                 )
                 print(f"executed switch for device: {tree_item.label}")
 
-                # TODO: retrieve inrush_current_delay from settings.json
-                # TODO: only delay between device switches, not at beginning or end of request
-                if isOn:
-                    # only delay switching when switching ON (no inrush current when switching OFF)
-                    time.sleep(1.0)
-
             elif isinstance(tree_item, TreeItemGroup):
                 for child in tree_item.children:
                     switch_recursive(child.id, isOn)
@@ -324,3 +357,11 @@ class SmartplugApp(AppConfig):
         # time.sleep(1)
 
         switch_recursive(id, isOn)
+
+        # TODO: add info about delay value
+        if requests_dropped:
+            raise BackendError(
+                f"Some switch requests were not executed in order to comply with the per device switching delay of {SWITCHING_TOGGLE_DELAY} seconds.",
+                status.HTTP_409_CONFLICT,
+                f"Some switch requests were not executed in order to comply with the per device switching delay of {SWITCHING_TOGGLE_DELAY} seconds.",
+            )
