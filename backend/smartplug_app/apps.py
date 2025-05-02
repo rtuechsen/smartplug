@@ -413,3 +413,48 @@ class SmartplugApp(AppConfig):
 
         for id in ids_to_switch_off:
             SmartplugApp.switch(self, id, False)
+
+    def _build_dependency_tree(self):
+
+        # id -> list[id]
+        dependencies: dict = {}
+
+        def collect_dependencies(id: str):
+
+            tree_item = SmartplugApp._id_to_tree_item_mapping[id]
+
+            if tree_item.turn_off_if_all_in_list_are_off is not None:
+                for deviceId in tree_item.turn_off_if_all_in_list_are_off:
+
+                    # TODO: don't give dependencies to groups, give deps to devices in group instead
+
+                    dep_id = SmartplugApp._device_id_to_tree_item_mapping[
+                        deviceId
+                    ].id
+                    if dep_id in dependencies.keys():
+                        dependencies[dep_id].append(tree_item.id)
+                    else:
+                        dependencies[dep_id] = [tree_item.id]
+
+            if isinstance(tree_item, TreeItemGroup):
+                for child in tree_item.children:
+                    collect_dependencies(child.id)
+            else:
+                raise BackendError(
+                    f"Implementation error, 'tree_item' {tree_item} is of unknown class: {type(tree_item)}."
+                )
+
+        with SmartplugApp._device_tree_mutex:
+            for item in SmartplugApp._device_tree:
+                collect_dependencies(item.id)
+
+        another_dep_was_found = True
+        while another_dep_was_found:
+            another_dep_was_found = False
+
+            # go over all deps:
+            # if dep is referenced in another dep:
+
+            # TODO: add dependencies of dependencies, detect circular dependencies
+
+        # TODO: check dependencies during switching
