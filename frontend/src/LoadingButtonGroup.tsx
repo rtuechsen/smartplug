@@ -44,6 +44,8 @@ function LoadingButton({ onClick, children }: React.PropsWithChildren<LoadingBut
 		setLoading(false);
 	}
 
+	// TODO: verify that new error messages replace older ones in the UI
+
 	return (
 		<Button
 			onClick={handleClick}
