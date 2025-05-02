@@ -25,7 +25,10 @@
 									},
 									{
 										"label": "Monitor 1",
-										"deviceId": "10004"
+										"deviceId": "10004",
+										"turn_off_if_all_in_list_are_off": [
+											"10003"
+										]
 									},
 									{
 										"label": "Monitor 2",

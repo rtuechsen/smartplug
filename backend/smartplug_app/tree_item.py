@@ -16,6 +16,8 @@ class TreeItem:
         ## The unique id of the item. A string of hexadecimal digits of lenght 64.
         self.id: str
 
+        self.turn_off_if_all_in_list_are_off: list[str]
+
 
 class TreeItemDevice(TreeItem):
     """A data class that groups common properties of a devices."""

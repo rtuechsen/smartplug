@@ -152,10 +152,19 @@ class SmartplugApp(AppConfig):
 
         # also verifies the correctness of the data, providing feedback to the admin using error messages
 
-        if len(obj.keys()) != 2:
-            raise BackendError(f"Object {obj} has not exactly two properties.")
         if "label" not in obj.keys():
             raise BackendError(f"Object {obj} is missing property 'label'.")
+
+        if "turn_off_if_all_in_list_are_off" in obj.keys():
+            if len(obj.keys()) != 3:
+                raise BackendError(
+                    f"Object {obj} has wrong amount of properties."
+                )
+        else:
+            if len(obj.keys()) != 2:
+                raise BackendError(
+                    f"Object {obj} has wrong amount of properties."
+                )
 
         if "deviceId" in obj.keys():
             if obj["deviceId"] in self._device_id_to_tree_item_mapping:
@@ -184,6 +193,13 @@ class SmartplugApp(AppConfig):
             )
 
         tree_item.label = obj["label"]
+
+        if "turn_off_if_all_in_list_are_off" in obj.keys():
+            tree_item.turn_off_if_all_in_list_are_off = obj[
+                "turn_off_if_all_in_list_are_off"
+            ]
+        else:
+            tree_item.turn_off_if_all_in_list_are_off = None
 
         # Use (cryptographic) hash of the items label for the id in order to keep the same id across runs.
         # This hides the deviceId of the smartplugs from the clients and gives ids to groups as well.
@@ -355,3 +371,45 @@ class SmartplugApp(AppConfig):
                 status.HTTP_409_CONFLICT,
                 f"Some switch requests were not executed in order to comply with the per device switching delay of {SWITCHING_TOGGLE_DELAY} seconds.",
             )
+
+    def _solve_item_dependencies(self):
+
+        def solve_recursive(id: str):
+
+            if id not in SmartplugApp._id_to_tree_item_mapping:
+
+                raise BackendError(
+                    f"Specified id {id} does not exist.",
+                    status.HTTP_400_BAD_REQUEST,
+                    "Specified id does not exist.",
+                )
+
+            tree_item = SmartplugApp._id_to_tree_item_mapping[id]
+
+            if tree_item.turn_off_if_all_in_list_are_off is not None:
+
+                # TODO: check status of all device_ids
+                all_devices_are_off = True
+                for deviceId in tree_item.turn_off_if_all_in_list_are_off:
+                    dep_tree_item = (
+                        SmartplugApp._device_id_to_tree_item_mapping[deviceId]
+                    )
+
+                # TODO: problem: need to do this again and again, because turning something off could trigger another dependency
+
+            if isinstance(tree_item, TreeItemGroup):
+                for child in tree_item.children:
+                    solve_recursive(child.id)
+            else:
+                raise BackendError(
+                    f"Implementation error, 'tree_item' {tree_item} is of unknown class: {type(tree_item)}."
+                )
+
+        ids_to_switch_off = []
+
+        with SmartplugApp._device_tree_mutex:
+            for item in SmartplugApp._device_tree:
+                solve_recursive(item.id)
+
+        for id in ids_to_switch_off:
+            SmartplugApp.switch(self, id, False)
