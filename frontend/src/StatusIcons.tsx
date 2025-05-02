@@ -129,6 +129,7 @@ export function AvilableIcon({ isAvailable, isGroup }: AvilableIconProps): JSX.E
 export function WifiIcon({ isAvailable, isGroup }: AvilableIconProps): JSX.Element {
 	return (
 		<SvgIcon>
+			{/* credit: modified wifi icon from https://fonts.google.com/icons*/}
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				fill="currentColor"
