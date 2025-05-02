@@ -3,6 +3,7 @@
 TODO: more details ???
 """
 
+import datetime
 from rest_framework.response import Response
 from rest_framework import status
 from .logger import Logger
@@ -37,6 +38,9 @@ class BackendError(Exception):
         ## An optional user facing message. Should be used if the error occured while processing a REST API request and the main message might contain either information about the backends implementation or contains user input. Sending repsonses with user input might open the door for injection attacks.
         self.user_message = user_message
 
+        ## The time and date when the error was raised.
+        self.date_time: datetime.datetime = datetime.datetime.now()
+
 
 class ErrorHandler:
     """A class that logs errors and generates an error response for the REST API."""
@@ -48,7 +52,11 @@ class ErrorHandler:
         self._logger = Logger()
 
     def response(
-        self, message: str, status_code: int = None, user_message: str = None
+        self,
+        message: str,
+        status_code: int = None,
+        user_message: str = None,
+        date_time: datetime.datetime = None,
     ) -> Response:
         """
         Generates an error response and logs the error.
@@ -63,7 +71,7 @@ class ErrorHandler:
         """
 
         # in any case log the error
-        self._logger.error(message)
+        self._logger.error(message, date_time)
 
         if status_code is None:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -72,5 +80,8 @@ class ErrorHandler:
             user_message = "The server encountered an internal error, please contact the admin."
 
         return Response(
-            {"message": "ERROR: " + user_message}, status=status_code
+            {
+                "message": f"ERROR: {user_message} [{date_time.strftime("%Y-%m-%d %H:%M:%S.%f")}]"
+            },
+            status=status_code,
         )

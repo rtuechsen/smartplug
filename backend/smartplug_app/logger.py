@@ -1,6 +1,7 @@
 """Contains classes for logging events and errors."""
 
 from queue import Queue
+import datetime
 import threading
 import datetime
 from pathlib import Path
@@ -73,34 +74,37 @@ class Logger:
 
         return cls._instance
 
-    def info(self, message: str) -> None:
+    def info(self, message: str, date_time: datetime.datetime = None) -> None:
         """Takes a message and logs it with the INFO prefix. Removes newlines from the message.
 
         @param message The message to be logged.
         """
 
-        self._log("INFO: " + message)
+        self._log("INFO: " + message, date_time)
 
-    def warn(self, message: str) -> None:
+    def warn(self, message: str, date_time: datetime.datetime = None) -> None:
         """Takes a message and logs it with the WARNING prefix. Removes newlines from the message.
 
         @param message The message to be logged."""
 
-        self._log("WARNING: " + message)
+        self._log("WARNING: " + message, date_time)
 
-    def error(self, message: str) -> None:
+    def error(self, message: str, date_time: datetime.datetime = None) -> None:
         """Takes a message and logs it with the ERROR prefix. Removes newlines from the message.
 
         @param message The message to be logged."""
 
-        self._log("ERROR: " + message)
+        self._log("ERROR: " + message, date_time)
 
-    def _log(self, message: str) -> None:
+    def _log(self, message: str, date_time: datetime.datetime = None) -> None:
         """Takes a message, adds current time and date to it and adds it as a Log to the log_queue.
 
         @param message The message to be logged."""
 
-        now = datetime.datetime.now()
+        if date_time is None:
+            now = datetime.datetime.now()
+        else:
+            now = date_time
 
         log = Log()
         # remove newlines

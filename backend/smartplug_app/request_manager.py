@@ -105,24 +105,24 @@ class RequestManager:
         self._logger.info("A /switch request has been received.")
 
         try:
-            jsonschema.validate(
-                instance=request.data, schema=self._schema_switch
-            )
-        except jsonschema.exceptions.ValidationError as e:
-            return self._error_handler.response(
-                e.message,
-                status.HTTP_400_BAD_REQUEST,
-                "The request did not match the expected schema.",
-            )
+            try:
+                jsonschema.validate(
+                    instance=request.data, schema=self._schema_switch
+                )
+            except jsonschema.exceptions.ValidationError as e:
+                raise BackendError(
+                    e.message,
+                    status.HTTP_400_BAD_REQUEST,
+                    "The request did not match the expected schema.",
+                ) from e
 
-        try:
             # instruct the app to perform the switch
             self.my_internal_app.switch(
                 request.data["id"], request.data["isOn"]
             )
         except BackendError as e:
             return self._error_handler.response(
-                e.message, e.status_code, e.user_message
+                e.message, e.status_code, e.user_message, e.date_time
             )
 
         # TODO: make sure to return proper response for all cases (also failures)
