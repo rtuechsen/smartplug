@@ -246,6 +246,8 @@ class SmartplugApp(AppConfig):
         @param isOn A boolean indicating if the item should be turned on (True) or off (False). Ignores PEP8 naming convention to match the name of the variable across the project.
         """
 
+        # TODO: break function into smaller parts
+
         # if requests are dropped due to SWITCHING_TOGGLE_DELAY
         requests_dropped: bool = False
 
@@ -274,8 +276,6 @@ class SmartplugApp(AppConfig):
                     if tree_item.isOn == isOn:
                         # isOn is already in desired state, no switching needed
                         return
-
-                    print(f"working on request for device: {tree_item.label}")
 
                     now = datetime.datetime.now()
 
@@ -308,17 +308,10 @@ class SmartplugApp(AppConfig):
                         datetime.timedelta
                     ) = (now - tree_item.time_last_switched)
 
-                    print(
-                        f"time passed: {time_passed_since_last_switch_of_current_item.seconds}"
-                    )
-
                     if (
                         time_passed_since_last_switch_of_current_item
                         < datetime.timedelta(seconds=SWITCHING_TOGGLE_DELAY)
                     ):
-                        print(
-                            f"request is to early for device: {tree_item.label}"
-                        )
 
                         # need to declare variable as 'nonlocal' to avoid redefining it
                         nonlocal requests_dropped
@@ -327,9 +320,6 @@ class SmartplugApp(AppConfig):
                         # if last switch request was not that long ago -> drop this request
                         return
 
-                    print(
-                        f"request is NOT to early for device: {tree_item.label}"
-                    )
                     tree_item.time_last_switched = now
 
                     # TODO: try sending MQTT request here !!!
