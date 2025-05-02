@@ -264,7 +264,7 @@ class SmartplugApp(AppConfig):
                 with SmartplugApp._device_tree_mutex:
 
                     if tree_item.isOn == isOn:
-                        # isOn is already in desired state, continue
+                        # isOn is already in desired state, no switching needed
                         return
 
                     print(f"working on request for device: {tree_item.label}")
@@ -308,7 +308,9 @@ class SmartplugApp(AppConfig):
 
                 # TODO: retrieve inrush_current_delay from settings.json
                 # TODO: only delay between device switches, not at beginning or end of request
-                time.sleep(1.0)
+                if isOn:
+                    # only delay switching when switching ON (no inrush current when switching OFF)
+                    time.sleep(1.0)
 
             elif isinstance(tree_item, TreeItemGroup):
                 for child in tree_item.children:
