@@ -41,9 +41,7 @@ class RequestManager:
         self._error_handler: ErrorHandler = ErrorHandler()
 
         ## The instance of TODO that manages the device tree.
-        self.my_internal_app: SmartplugApp = apps.get_app_config(
-            "smartplug_app"
-        )
+        self.smartplug_app: SmartplugApp = apps.get_app_config("smartplug_app")
 
         # Because openapi.yaml already contains schemas for the requests for documentation purposes, we extract those schemas and use them for validation
         openapi_rel_path: str = "./openapi.yaml"
@@ -91,7 +89,7 @@ class RequestManager:
         # TODO: add more info to log: WHO has send that request? ip, user name, ...
         self._logger.info("A /gettree request has been received.")
         # TODO: handle errors
-        device_tree = self.my_internal_app.get_device_tree_dicts()
+        device_tree = self.smartplug_app.get_device_tree_dicts()
         return Response(device_tree, status=status.HTTP_200_OK)
 
     def switch(self, request: Request) -> Response:
@@ -117,9 +115,7 @@ class RequestManager:
 
         try:
             # instruct the app to perform the switch
-            self.my_internal_app.switch(
-                request.data["id"], request.data["isOn"]
-            )
+            self.smartplug_app.switch(request.data["id"], request.data["isOn"])
         except BackendError as e:
             return self._error_handler.response(
                 e.message, e.status_code, e.user_message
