@@ -77,3 +77,16 @@ def switch(request: Request) -> Response:
     @return The response from the request manager for the REST API.
     """
     return request_manager.switch(request)
+
+
+@api_view(["GET"])
+def getusers(request: Request) -> Response:
+    """Callback for the /getusers endpoint.
+
+    Forwards its requests to the request manager. Forwards the responses received from the request manager back to the REST API.
+
+    @param request The request from the REST API.
+
+    @return The response from the request manager for the REST API.
+    """
+    return request_manager.getusers(request)
