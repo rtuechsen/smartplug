@@ -54,6 +54,7 @@ export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, dis
 		<Stack
 			direction='row'
 			justifyContent='space-between'
+			// TODO: should these units be in rem ???
 			spacing={8}
 			flexGrow={1}
 		>

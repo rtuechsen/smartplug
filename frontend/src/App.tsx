@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -8,6 +9,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { JSX } from '@emotion/react/jsx-runtime';
 import DeviceTreeView from './DeviceTreeView';
 import ErrorDisplay from './ErrorDisplay';
+import UserList from './UserList';
 
 
 /**
@@ -53,7 +55,18 @@ function App(): JSX.Element {
 				</Typography>
 			</Paper>
 			<Box sx={{ padding: '1.5rem' }}>
-				<DeviceTreeView displayError={displayError} />
+
+				<Stack
+					direction='row'
+					justifyContent='space-between'
+					spacing={8}
+					flexGrow={1}
+				>
+					<DeviceTreeView displayError={displayError} />
+
+					<UserList />
+				</Stack>
+
 				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
 				<ErrorDisplay message={currentErrorMessage} isErrorOpen={isErrorOpen} setIsErrorOpen={setIsErrorOpen} />
 			</Box>
