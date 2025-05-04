@@ -10,6 +10,7 @@ import NetworkWifi2BarRoundedIcon from '@mui/icons-material/NetworkWifi2BarRound
 import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
 import WifiRoundedIcon from '@mui/icons-material/WifiRounded';
 import WifiOffRoundedIcon from '@mui/icons-material/WifiOffRounded';
+import { useTheme } from '@mui/material/styles';
 import SvgIcon from '@mui/material/SvgIcon';
 import Tooltip from '@mui/material/Tooltip';
 import { JSX } from '@emotion/react/jsx-runtime';
@@ -163,6 +164,26 @@ export function WifiIcon({ isAvailable, isGroup }: AvilableIconProps): JSX.Eleme
 }
 
 export function BoltIcon({ isOn, isGroup }: OnIconProps): JSX.Element {
+
+	const theme = useTheme();
+
+	let colorOn: string = undefined;
+	let colorMixed: string = undefined;
+
+	switch (theme.palette.mode) {
+		case 'dark':
+			colorOn = 'orange';
+			colorMixed = 'red';
+			break;
+		case 'light':
+			colorOn = 'orange';
+			colorMixed = 'darkred';
+			break;
+		default:
+			// TODO: error
+			break;
+	}
+
 	return (
 		<SvgIcon>
 			{/* credit: modified bolt icon from https://fonts.google.com/icons */}
@@ -172,11 +193,11 @@ export function BoltIcon({ isOn, isGroup }: OnIconProps): JSX.Element {
 				stroke="none"
 			>
 				{isOn === true ? <path
-					fill="orange"
+					fill={colorOn}
 					d="M 13.582354,3.3756636 6.3925781,13.75 h 4.0429689 l -1.0058595,6.962891 v 0 L 17.328125,11.25 h -4.751953 z"
 				/> : null}
 				{isOn == null ? <path
-					fill="red"
+					fill={colorMixed}
 					d="M 7.2578125 12.5 L 6.3925781 13.75 L 10.435547 13.75 L 9.4296875 20.712891 L 16.285156 12.5 L 7.2578125 12.5 z "
 				/> : null}
 				<path
