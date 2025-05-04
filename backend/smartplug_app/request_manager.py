@@ -1,4 +1,5 @@
-"""Contains the RequestManager that handles incoming requests from the REST API."""
+"""Contains the RequestManager that handles incoming requests from the REST
+API."""
 
 from pathlib import Path
 from django.middleware.csrf import get_token
@@ -28,7 +29,8 @@ from .error_handler import ErrorHandler, BackendError
 class RequestManager:
     """This class handles the incoming requests from the REST API.
 
-    It delegates work to the backend and construct responses for the requests.
+    It delegates work to the backend and construct responses for the
+    requests.
     """
 
     def __init__(self):
@@ -45,17 +47,15 @@ class RequestManager:
 
         # Because openapi.yaml already contains schemas for the requests for documentation purposes, we extract those schemas and use them for validation
         openapi_rel_path: str = "./openapi.yaml"
-        openapi_abs_path: Path = (
-            Path(__file__).parent.parent.parent / openapi_rel_path
-        )
+        openapi_abs_path: Path = Path(__file__).parent.parent.parent / openapi_rel_path
 
         with open(openapi_abs_path, "r", encoding="UTF-8") as file:
             self._openapi: dict = yaml.safe_load(file)
             # TODO: handle errors
 
-        self._schema_switch: dict = self._openapi["paths"]["/api/switch"][
-            "post"
-        ]["requestBody"]["content"]["application/json"]["schema"]
+        self._schema_switch: dict = self._openapi["paths"]["/api/switch"]["post"][
+            "requestBody"
+        ]["content"]["application/json"]["schema"]
 
     def csrf(self, request: Request) -> Response:
         """Function to process requests to /csrf .
@@ -67,9 +67,7 @@ class RequestManager:
         # TODO: add more info to log: WHO has send that request? ip, user name, ...
         self._logger.info("A /csrf request has been received.")
 
-        return Response(
-            {"csrfToken": get_token(request)}, status=status.HTTP_200_OK
-        )
+        return Response({"csrfToken": get_token(request)}, status=status.HTTP_200_OK)
 
     def login(self, request: Request) -> Response:
         return Response(None, status=status.HTTP_200_OK)
@@ -103,9 +101,7 @@ class RequestManager:
         self._logger.info("A /switch request has been received.")
 
         try:
-            jsonschema.validate(
-                instance=request.data, schema=self._schema_switch
-            )
+            jsonschema.validate(instance=request.data, schema=self._schema_switch)
         except jsonschema.exceptions.ValidationError as e:
             return self._error_handler.response(
                 e.message,

@@ -79,7 +79,8 @@ class TreeItemGroup(TreeItem):
         # decide state of group based on children
 
         def combine_bools(state_a: bool, state_b: bool) -> bool | None:
-            """Callback used for reduce(). Decides what the common state is given the state of two items.
+            """Callback used for reduce(). Decides what the common state is
+            given the state of two items.
 
             @param state_a The state of the first item.
 

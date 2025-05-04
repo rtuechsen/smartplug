@@ -1,6 +1,8 @@
 """Contains the callbacks for the endpoints of the backend.
 
-Django requires the endpoints to be defined in this file on file level. In order to combine the handling of the endpoints in a class we forward all requests to an instance of RequestManager.
+Django requires the endpoints to be defined in this file on file level.
+In order to combine the handling of the endpoints in a class we forward
+all requests to an instance of RequestManager.
 """
 
 from rest_framework.response import Response

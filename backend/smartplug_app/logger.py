@@ -74,7 +74,8 @@ class Logger:
         return cls._instance
 
     def info(self, message: str) -> None:
-        """Takes a message and logs it with the INFO prefix. Removes newlines from the message.
+        """Takes a message and logs it with the INFO prefix. Removes newlines
+        from the message.
 
         @param message The message to be logged.
         """
@@ -82,23 +83,29 @@ class Logger:
         self._log("INFO: " + message)
 
     def warn(self, message: str) -> None:
-        """Takes a message and logs it with the WARNING prefix. Removes newlines from the message.
+        """Takes a message and logs it with the WARNING prefix. Removes
+        newlines from the message.
 
-        @param message The message to be logged."""
+        @param message The message to be logged.
+        """
 
         self._log("WARNING: " + message)
 
     def error(self, message: str) -> None:
-        """Takes a message and logs it with the ERROR prefix. Removes newlines from the message.
+        """Takes a message and logs it with the ERROR prefix. Removes newlines
+        from the message.
 
-        @param message The message to be logged."""
+        @param message The message to be logged.
+        """
 
         self._log("ERROR: " + message)
 
     def _log(self, message: str) -> None:
-        """Takes a message, adds current time and date to it and adds it as a Log to the log_queue.
+        """Takes a message, adds current time and date to it and adds it as a
+        Log to the log_queue.
 
-        @param message The message to be logged."""
+        @param message The message to be logged.
+        """
 
         now = datetime.datetime.now()
 
@@ -113,7 +120,11 @@ class Logger:
         self._log_queue.put(log)
 
     def _write_queue_to_file(self) -> None:
-        """Function for the worker thread. Takes incoming logs from the log_queue and writes them to a log file."""
+        """Function for the worker thread.
+
+        Takes incoming logs from the log_queue and writes them to a log
+        file.
+        """
 
         last_filename: str = None
         log_file: TextIOWrapper = None

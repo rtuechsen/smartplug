@@ -11,12 +11,11 @@ from .logger import Logger
 class BackendError(Exception):
     """A custom exception that should be used to report errors in the backend.
 
-    In addition to a message it also offers to set a HTTP error code and an alternative user facing message.
+    In addition to a message it also offers to set a HTTP error code and
+    an alternative user facing message.
     """
 
-    def __init__(
-        self, message: str, status_code: int = None, user_message: str = None
-    ):
+    def __init__(self, message: str, status_code: int = None, user_message: str = None):
         """Constructor for the class.
 
         @param message The main message. Usually includes technical details aimed at admins.
@@ -39,7 +38,8 @@ class BackendError(Exception):
 
 
 class ErrorHandler:
-    """A class that logs errors and generates an error response for the REST API."""
+    """A class that logs errors and generates an error response for the REST
+    API."""
 
     def __init__(self):
         """Constructor for the class."""
@@ -50,8 +50,7 @@ class ErrorHandler:
     def response(
         self, message: str, status_code: int = None, user_message: str = None
     ) -> Response:
-        """
-        Generates an error response and logs the error.
+        """Generates an error response and logs the error.
 
         @param message The message that will be logged. If 'user_message' is not set, 'message' will also be used for the response. Please formulate a complete sentence starting with a capital letter and ending with a period.
 
@@ -69,8 +68,8 @@ class ErrorHandler:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
         if user_message is None:
-            user_message = "The server encountered an internal error, please contact the admin."
+            user_message = (
+                "The server encountered an internal error, please contact the admin."
+            )
 
-        return Response(
-            {"message": "ERROR: " + user_message}, status=status_code
-        )
+        return Response({"message": "ERROR: " + user_message}, status=status_code)
