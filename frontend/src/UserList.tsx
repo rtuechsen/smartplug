@@ -93,8 +93,8 @@ function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element {
 				<Typography variant="h5" sx={{ paddingBottom: '1rem', paddingLeft: '1rem' }}>
 					Active Users
 				</Typography>
-				<Paper sx={{ maxHeight: '30rem', padding: '1rem' }}>
-					<List sx={{ minWidth: '15rem', maxHeight: '100%', overflow: 'auto', padding: '0rem' }}>
+				<Paper sx={{ maxHeight: '30rem', padding: '0.5rem' }}>
+					<List sx={{ minWidth: '15rem', maxWidth: '25rem', maxHeight: '100%', overflow: 'auto', padding: '0rem' }}>
 						{userListState.map((name) => (<UserListItem key={name} name={name} />))}
 					</List>
 				</Paper>
