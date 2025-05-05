@@ -80,13 +80,48 @@ class SmartplugApp(AppConfig):
     # TODO: remove, used for debugging only
     def loop(self) -> None:
         time.sleep(2)
+        users = [
+            "Isaac Newton",
+            "Albert Einstein",
+            "Marie Curie",
+            "Charles Darwin",
+            "Galileo Galilei",
+            "Nikola Tesla",
+            "Leonardo da Vinci",
+            "Stephen Hawking",
+            "Alan Turing",
+            "Aristotle",
+            "Archimedes",
+            "Johannes Kepler",
+            "Michael Faraday",
+            "James Clerk Maxwell",
+            "Louis Pasteur",
+            "Rosalind Franklin",
+            "Gregor Mendel",
+            "Max Planck",
+            "Niels Bohr",
+            "Erwin Schrödinger",
+            "Werner Heisenberg",
+            "Richard Feynman",
+            "Carl Sagan",
+            "Neil deGrasse Tyson",
+            "Ada Lovelace",
+            "Emmy Noether",
+            "Copernicus",
+            "Robert Boyle",
+            "Antoine Lavoisier",
+            "Dmitri Mendeleev",
+        ]
         while True:
             time.sleep(4)
             print("\n\n -> Running background task ...\n\n")
+            current_users = random.sample(users, random.randint(5, 15))
             # TODO: remove, used for debugging only
             # self.change_device_tree_randomly(10)
             django_eventstream.send_event(
-                "device_tree_update", "message", self.get_device_tree_dicts()
+                "default",
+                "user_list_update",
+                current_users,
             )
 
     def _load_labor_config(self) -> list[TreeItemDevice | TreeItemGroup]:
@@ -101,7 +136,9 @@ class SmartplugApp(AppConfig):
 
         labor_config_file_path: str = "./labor-config.json"
 
-        lab_config_path = Path(__file__).parent.parent.parent / labor_config_file_path
+        lab_config_path = (
+            Path(__file__).parent.parent.parent / labor_config_file_path
+        )
 
         try:
             with open(lab_config_path, "r", encoding="utf8") as file:
@@ -141,7 +178,9 @@ class SmartplugApp(AppConfig):
             len(SmartplugApp._device_id_to_tree_item_mapping.keys()) * 2
         )
 
-    def _object_list_to_tree_item_list(self, object_list: list[dict]) -> list[TreeItem]:
+    def _object_list_to_tree_item_list(
+        self, object_list: list[dict]
+    ) -> list[TreeItem]:
         """Converts a list of dictionaries (JSON) to a list of TreeItems.
 
         @param object_list A list of dictionaries representing tree items.
@@ -173,16 +212,22 @@ class SmartplugApp(AppConfig):
 
         if "deviceId" in obj.keys():
             if obj["deviceId"] in self._device_id_to_tree_item_mapping:
-                raise BackendError(f"Property 'deviceId' of {obj} is not unique.")
+                raise BackendError(
+                    f"Property 'deviceId' of {obj} is not unique."
+                )
             tree_item = TreeItemDevice()
             tree_item.deviceId = obj["deviceId"]
             tree_item.isOn = False
             tree_item.isAvailable = False
-            self._device_id_to_tree_item_mapping[tree_item.deviceId] = tree_item
+            self._device_id_to_tree_item_mapping[tree_item.deviceId] = (
+                tree_item
+            )
 
         elif "children" in obj.keys():
             tree_item = TreeItemGroup()
-            tree_item.children = self._object_list_to_tree_item_list(obj["children"])
+            tree_item.children = self._object_list_to_tree_item_list(
+                obj["children"]
+            )
             if len(tree_item.children) == 0:
                 self._logger.warn(f"Object {obj} is a group without children.")
 
@@ -214,9 +259,9 @@ class SmartplugApp(AppConfig):
             device_id: str = random.choice(
                 list(self._device_id_to_tree_item_mapping.keys())
             )
-            tree_item: TreeItemDevice = SmartplugApp._device_id_to_tree_item_mapping[
-                device_id
-            ]
+            tree_item: TreeItemDevice = (
+                SmartplugApp._device_id_to_tree_item_mapping[device_id]
+            )
 
             toggle_availability: bool = random.choice([True, False])
 
@@ -294,5 +339,7 @@ class SmartplugApp(AppConfig):
 
         # notify SSE subscribers about changes to the device tree
         django_eventstream.send_event(
-            "device_tree_update", "message", self.get_device_tree_dicts()
+            "default",
+            "device_tree_update",
+            self.get_device_tree_dicts(),
         )

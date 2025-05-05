@@ -112,12 +112,18 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		});
 		// TODO: can this fail? error handling!
 
-		// register a function to run when a SSE message arrives, converts the update to the tree view
-		// from JSON to interface and updates the state to trigger the tree to update
-		eventSource.onmessage = function (event): void {
+		eventSource.addEventListener("device_tree_update", (event) => {
 			const treeData = JSON.parse(event.data) as DeviceTreeItemData[];
 			setDeviceTreeDataState(treeData);
-		};
+		});
+
+		// register a function to run when a SSE message arrives, converts the update to the tree view
+		// from JSON to interface and updates the state to trigger the tree to update
+		// eventSource.onmessage = function (event): void {
+		// 	const treeData = JSON.parse(event.data) as DeviceTreeItemData[];
+		// 	setDeviceTreeDataState(treeData);
+		// 	console.log('NOT channel');
+		// };
 
 		eventSource.onerror = function (): void {
 			displayError('Server Sent Events (SSE) have failed.');

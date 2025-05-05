@@ -10,6 +10,7 @@ import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import { JSX } from '@emotion/react/jsx-runtime';
+import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 
 interface UserListItemProps {
@@ -31,7 +32,7 @@ function UserListItem({ name }: UserListItemProps): JSX.Element {
 }
 
 
-function UserList(): JSX.Element {
+function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element {
 
 	// const userList = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven'];
 
@@ -73,10 +74,15 @@ function UserList(): JSX.Element {
 		getUserList();
 
 		// create the event source for SSE
-		// const eventSource = new EventSource('/api/events/', {
-		// 	withCredentials: true
-		// });
+		const eventSource = new EventSource('/api/events/', {
+			withCredentials: true
+		});
 		// TODO: can this fail? error handling!
+
+		eventSource.addEventListener("user_list_update", (event) => {
+			const userData = JSON.parse(event.data) as string[];
+			setUserListState(userData);
+		});
 
 		// register a function to run when a SSE message arrives, converts the update to the tree view
 		// from JSON to interface and updates the state to trigger the tree to update
@@ -86,17 +92,17 @@ function UserList(): JSX.Element {
 		// };
 
 		// TODO: error handling
-		// eventSource.onerror = function (): void {
-		// 	displayError('Server Sent Events (SSE) have failed.');
-		// };
+		eventSource.onerror = function (): void {
+			displayError('Server Sent Events (SSE) have failed.');
+		};
 
-		// return function (): void {
+		return function (): void {
 
-		// 	// need to close EventSource to avoid subscribing twice in StrictMode (in StrictMode components will
-		// 	// be mounted multiple times to detect side effects, see main.tsx)
+			// need to close EventSource to avoid subscribing twice in StrictMode (in StrictMode components will
+			// be mounted multiple times to detect side effects, see main.tsx)
 
-		// 	eventSource.close();
-		// };
+			eventSource.close();
+		};
 
 	}, []);	// empty dependencies => will only run once after component mounted
 

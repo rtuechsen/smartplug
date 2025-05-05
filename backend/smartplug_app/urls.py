@@ -16,6 +16,6 @@ urlpatterns = [
     path(
         "api/events/",
         include(django_eventstream.urls),
-        {"channels": ["device_tree_update"]},
+        {"channels": ["default"]},
     ),
 ]
