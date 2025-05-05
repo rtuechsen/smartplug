@@ -13,6 +13,9 @@ import { JSX } from '@emotion/react/jsx-runtime';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 
+// TODO: documentation !!!
+
+
 interface UserListItemProps {
 	name: string;
 }
@@ -34,13 +37,8 @@ function UserListItem({ name }: UserListItemProps): JSX.Element {
 
 function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element {
 
-	// const userList = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven'];
-
 	// state for holding the data of the tree, triggers updates to the tree if the data changes
 	const [userListState, setUserListState] = React.useState<string[]>();
-
-	// explanation: see DeviceTreeView
-	// const [userListDataArrivedState, setUserListDataArrivedState] = React.useState<boolean>(false);
 
 	React.useEffect(() => {
 
@@ -56,18 +54,8 @@ function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element {
 
 			const userList = await response.json();
 
-			// TODO: error display
-			// if (!response.ok) {
-			// 	displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
-			// 	// abort tree view creation
-			// 	return;
-			// }
-
 			// set the state with it to trigger the tree to update
 			setUserListState(userList);
-
-			// set the state bool to trigger useLayoutEffect()
-			// setUserListDataArrivedState(true);
 		}
 
 		// start the async function, don't wait for it to finish
@@ -83,13 +71,6 @@ function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element {
 			const userData = JSON.parse(event.data) as string[];
 			setUserListState(userData);
 		});
-
-		// register a function to run when a SSE message arrives, converts the update to the tree view
-		// from JSON to interface and updates the state to trigger the tree to update
-		// eventSource.onmessage = function (event): void {
-		// 	const userData = JSON.parse(event.data);
-		// 	setUserListState(userData);
-		// };
 
 		// TODO: error handling
 		eventSource.onerror = function (): void {
