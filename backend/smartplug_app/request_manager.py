@@ -137,18 +137,6 @@ class RequestManager:
 
         self._logger.info("A /getusers request has been received.")
 
-        user_list: list[str] = [
-            "one",
-            "two",
-            "three",
-            "four",
-            "five",
-            "six",
-            "seven",
-            "eight",
-            "nine",
-            "ten",
-            "eleven",
-        ]
+        users = ["Isaac Newton", "Albert Einstein", "Marie Curie"]
 
-        return Response(user_list, status=status.HTTP_200_OK)
+        return Response(users, status=status.HTTP_200_OK)
