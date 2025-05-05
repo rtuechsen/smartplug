@@ -22,11 +22,13 @@ interface UserListItemProps {
 
 
 function UserListItem({ name }: UserListItemProps): JSX.Element {
+
 	return (
-		<ListItem>
-			<ListItemAvatar>
-				<Avatar>
-					<PersonRoundedIcon />
+		<ListItem sx={{ padding: '0.5rem' }}>
+			<ListItemAvatar sx={{ minWidth: '0rem', paddingRight: '0.7rem' }}>
+				<Avatar sx={{ width: 30, height: 30 }}>
+					{/* <PersonRoundedIcon /> */}
+					{name[0]}
 				</Avatar>
 			</ListItemAvatar>
 			<ListItemText primary={name} />
@@ -93,7 +95,7 @@ function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element {
 				<Typography variant="h5" sx={{ paddingBottom: '1rem', paddingLeft: '1rem' }}>
 					Active Users
 				</Typography>
-				<Paper sx={{ maxHeight: '30rem', padding: '0.5rem' }}>
+				<Paper sx={{ maxHeight: '30rem', padding: '0.7rem' }}>
 					<List sx={{ minWidth: '15rem', maxWidth: '25rem', maxHeight: '100%', overflow: 'auto', padding: '0rem' }}>
 						{userListState.map((name) => (<UserListItem key={name} name={name} />))}
 					</List>
