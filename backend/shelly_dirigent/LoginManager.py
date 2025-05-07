@@ -21,14 +21,10 @@ class LoginManager:
     def _validate_request_origin(request: Request) -> bool:
         user_agent = request.session['HTTP_USER_AGENT']
         accept_language = request.session['HTTP_ACCEPT_LANGUAGE']
-        http_cookie = request.session['HTTP_COOKIE']
-        csrf_cookie = request.session['CSRF_COOKIE']
         ip_address = request.session['REMOTE_ADDR']
         return all([
             user_agent == request.META.get('HTTP_USER_AGENT'),
             accept_language == request.META.get('HTTP_ACCEPT_LANGUAGE'),
-            http_cookie == request.META.get('HTTP_COOKIE'),
-            csrf_cookie == request.META.get('CSRF_COOKIE'),
             ip_address == request.META.get('REMOTE_ADDR'),
         ])
 
@@ -41,8 +37,6 @@ class LoginManager:
             request.session['USERNAME'] = username
             request.session['HTTP_USER_AGENT'] = request.META['HTTP_USER_AGENT']
             request.session['HTTP_ACCEPT_LANGUAGE'] = request.META['HTTP_ACCEPT_LANGUAGE']
-            request.session['HTTP_COOKIE'] = request.META['HTTP_COOKIE']
-            request.session['CSRF_COOKIE'] = request.META['CSRF_COOKIE']
             request.session['REMOTE_ADDR'] = request.META['REMOTE_ADDR']
             return True
         else:
@@ -61,7 +55,7 @@ class LoginManager:
         # stored server-side and referenced by the session-id.
         # https://stackoverflow.com/questions/5113421/what-is-the-difference-between-a-cookie-and-a-session-in-django
         # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
-        user = request.session.get('username')
+        user = request.session.get('USERNAME')
         if user:
             # If there is a user and the user needs permission, it means an action happened.
             # We therefor reset the expiry using the value in our settings.
