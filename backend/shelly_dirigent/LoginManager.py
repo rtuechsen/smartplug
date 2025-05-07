@@ -14,19 +14,28 @@ async def authenticate(username: str, password: str) -> bool:
     else:
         return False
 
-class LoginManager:
-    def __init__(self):
-        pass
-
-    def _validate_request_origin(request: Request) -> bool:
+def _validate_request_origin(request: Request) -> bool:
+    # Check that the values from the start of the session match
+    # with the values of this request.
+    try:
         user_agent = request.session['HTTP_USER_AGENT']
         accept_language = request.session['HTTP_ACCEPT_LANGUAGE']
         ip_address = request.session['REMOTE_ADDR']
+        
         return all([
             user_agent == request.META.get('HTTP_USER_AGENT'),
             accept_language == request.META.get('HTTP_ACCEPT_LANGUAGE'),
             ip_address == request.META.get('REMOTE_ADDR'),
         ])
+    # When this occurs, the user tried to make a call without being
+    # signed in.
+    except KeyError:
+        return False
+
+
+class LoginManager:
+    def __init__(self):
+        pass
 
         # TODO: Integrate LDAP into login logic
         # TODO: Throw exception on login fail
@@ -55,6 +64,10 @@ class LoginManager:
         # stored server-side and referenced by the session-id.
         # https://stackoverflow.com/questions/5113421/what-is-the-difference-between-a-cookie-and-a-session-in-django
         # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
+        if not _validate_request_origin(request):
+            print("WRONG ORIGIN")
+            return False
+        
         user = request.session.get('USERNAME')
         if user:
             # If there is a user and the user needs permission, it means an action happened.
