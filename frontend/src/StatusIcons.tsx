@@ -285,7 +285,7 @@ export function AvilableIcon2({ isAvailable, isGroup }: AvilableIconProps): JSX.
 			break;
 		default:
 			tooltip = 'Devices in group are partially available';
-			icon = <WifiOffRoundedIcon />;
+			icon = <IndeterminateCheckBoxIcon />;
 			break;
 	}
 
