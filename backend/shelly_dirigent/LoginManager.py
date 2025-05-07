@@ -18,12 +18,29 @@ class LoginManager:
     def __init__(self):
         pass
 
+    def _validate_request_origin(request: Request) -> bool:
+        user_agent = request.session['HTTP_USER_AGENT']
+        accept_language = request.session['HTTP_ACCEPT_LANGUAGE']
+        http_cookie = request.session['HTTP_COOKIE']
+        csrf_cookie = request.session['CSRF_COOKIE']
+        return all([
+            user_agent == request.META.get('HTTP_USER_AGENT'),
+            accept_language == request.META.get('HTTP_ACCEPT_LANGUAGE'),
+            http_cookie == request.META.get('HTTP_COOKIE'),
+            csrf_cookie == request.META.get('CSRF_COOKIE'),
+        ])
+
         # TODO: Integrate LDAP into login logic
         # TODO: Throw exception on login fail
     async def login(self, username: str, password: str, request: Request) -> bool:
+        print(request.META['HTTP_USER_AGENT'])
         is_verified = await authenticate(username=username, password=password)
         if is_verified:
             request.session['username'] = username
+            request.session['HTTP_USER_AGENT'] = request.META['HTTP_USER_AGENT']
+            request.session['HTTP_ACCEPT_LANGUAGE'] = request.META['HTTP_ACCEPT_LANGUAGE']
+            request.session['HTTP_COOKIE'] = request.META['HTTP_COOKIE']
+            request.session['CSRF_COOKIE'] = request.META['CSRF_COOKIE']
             return True
         else:
             return False

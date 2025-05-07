@@ -51,6 +51,9 @@ function App(): JSX.Element {
 			<Box sx={{ padding: '1.5rem' }}>
 				{isLoggedIn ? <DeviceTreeView /> : <Login callback={onLoginSuccess} />}
 			</Box>
+			<Box sx={{ padding: '1.5rem' }}>
+				<DeviceTreeView />
+			</Box>
 		</ThemeProvider >
 	);
 }
