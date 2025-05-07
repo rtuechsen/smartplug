@@ -23,11 +23,13 @@ class LoginManager:
         accept_language = request.session['HTTP_ACCEPT_LANGUAGE']
         http_cookie = request.session['HTTP_COOKIE']
         csrf_cookie = request.session['CSRF_COOKIE']
+        ip_address = request.session['REMOTE_ADDR']
         return all([
             user_agent == request.META.get('HTTP_USER_AGENT'),
             accept_language == request.META.get('HTTP_ACCEPT_LANGUAGE'),
             http_cookie == request.META.get('HTTP_COOKIE'),
             csrf_cookie == request.META.get('CSRF_COOKIE'),
+            ip_address == request.META.get('REMOTE_ADDR'),
         ])
 
         # TODO: Integrate LDAP into login logic
@@ -36,11 +38,12 @@ class LoginManager:
         print(request.META['HTTP_USER_AGENT'])
         is_verified = await authenticate(username=username, password=password)
         if is_verified:
-            request.session['username'] = username
+            request.session['USERNAME'] = username
             request.session['HTTP_USER_AGENT'] = request.META['HTTP_USER_AGENT']
             request.session['HTTP_ACCEPT_LANGUAGE'] = request.META['HTTP_ACCEPT_LANGUAGE']
             request.session['HTTP_COOKIE'] = request.META['HTTP_COOKIE']
             request.session['CSRF_COOKIE'] = request.META['CSRF_COOKIE']
+            request.session['REMOTE_ADDR'] = request.META['REMOTE_ADDR']
             return True
         else:
             return False
