@@ -1,9 +1,14 @@
 from rest_framework.request import Request
 from django.conf import settings
+import asyncio
 
 # simulates LDAP-Process
 # TODO: Implement LDAP
-def VerifyLogin(username: str, password: str) -> bool:
+# This function may have latency as it connects to another server.
+# Just in case it does, it is async for now
+# TODO: Verify that async is necessary
+async def authenticate(username: str, password: str) -> bool:
+    await asyncio.sleep(5)
     if username == 'user' and password == 'pass':
         return True
     else:
@@ -15,8 +20,9 @@ class LoginManager:
 
         # TODO: Integrate LDAP into login logic
         # TODO: Throw exception on login fail
-    def login(self, username: str, password: str, request: Request) -> bool:
-        if VerifyLogin(username=username, password=password):
+    async def login(self, username: str, password: str, request: Request) -> bool:
+        is_verified = await authenticate(username=username, password=password)
+        if is_verified:
             request.session['username'] = username
             return True
         else:

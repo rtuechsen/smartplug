@@ -41,11 +41,11 @@ class RequestManager:
     def csrf(self, request: Request) -> Response:
         return Response({"csrfToken": get_token(request)}, status=status.HTTP_200_OK)
 
-    def login(self, request: Request) -> Response:
+    async def login(self, request: Request) -> Response:
         username = request.data.get('username')
         password = request.data.get('password')
-
-        if login_manager.login(username, password, request):
+        is_verified = await login_manager.login(username, password, request)
+        if is_verified:
             return Response(None, status=status.HTTP_200_OK)
         else:
             return Response(None, status=status.HTTP_401_UNAUTHORIZED)
