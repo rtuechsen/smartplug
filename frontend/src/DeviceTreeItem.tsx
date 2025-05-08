@@ -35,19 +35,11 @@ function DeviceTreeItem(props: DeviceTreeItemProps, ref: React.Ref<HTMLLIElement
 	const [isOnState, setIsOnState] = React.useState<boolean>(itemData.isOn);
 	const [isAvailableState, setIsAvailableState] = React.useState<boolean>(itemData.isAvailable);
 
-	// When we pass new data to the tree this will trigger this function to set the item state isOn accordingly.
+	// When we pass new data to the tree, this will trigger this function to set the item state isOn and isAvailable accordingly.
 	React.useEffect(() => {
-		if (itemData.isOn !== isOnState) {
-			setIsOnState(itemData.isOn);
-		}
-	}, [itemData.isOn]);	// watches for changes of isOn in tree data
-
-	// When we pass new data to the tree this will trigger this function to set the item state isAvailable accordingly
-	React.useEffect(() => {
-		if (itemData.isAvailable !== isAvailableState) {
-			setIsAvailableState(itemData.isAvailable);
-		}
-	}, [itemData.isAvailable]);	// watches for changes of isAvailable in tree data
+		setIsOnState(itemData.isOn);
+		setIsAvailableState(itemData.isAvailable);
+	}, [itemData.isOn, itemData.isAvailable]); // watches for changes of isOn and isAvailable in tree data
 
 	// Because TreeItem2 expects only TreeItem2Props as props, we need to split off our own props. Then we can pass each one spearately to the label.
 	const { displayError, ...treeItem2Props } = props;

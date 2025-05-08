@@ -12,12 +12,12 @@ class TreeItem:
         ## The human readable label of the item. Used when displaying the item in a UI.
         self.label: str
 
-        ## The unique id of the item. A string of hexadecimal digits of lenght 64.
+        ## The unique id of the item. A string of hexadecimal digits of length 64.
         self.id: str
 
 
 class TreeItemDevice(TreeItem):
-    """A data class that groups common properties of a devices."""
+    """A data class that groups common properties of a device."""
 
     def __init__(self):
         """Constructor for the class."""
@@ -47,7 +47,7 @@ class TreeItemDevice(TreeItem):
 
 
 class TreeItemGroup(TreeItem):
-    """A data class that groups common properties of a groups."""
+    """A data class that groups common properties of a group."""
 
     def __init__(self):
         """Constructor for the class."""
@@ -96,7 +96,7 @@ class TreeItemGroup(TreeItem):
                 return None
 
         if len(children_isOn) != 0:
-            # TODO: improve exlanation
+            # TODO: improve explanation
             # no initial value passed to reduce() because desired behavior cannot be achieved using reduce
             isOn: bool = reduce(combine_bools, children_isOn)
         else:

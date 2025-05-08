@@ -22,7 +22,7 @@ class BackendError(Exception):
 
         @param status_code An optional HTTP error code that matches the error best. Should be used if the error occured while processing a REST API request.
 
-        @param user_message An optional user facing message. Should be used if the error occured while processing a REST API request and the main message might contain either information about the backends implementation or contains user input. Sending repsonses with user input might open the door for injection attacks.
+        @param user_message An optional user facing message. Should be used if the error occured while processing a REST API request and the main message might contain either information about the backends implementation or contains user input. Sending responses with user input might open the door for injection attacks.
         """
         # Calling the base class constructor with the arguments it needs.
         super().__init__(message)
