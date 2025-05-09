@@ -40,14 +40,14 @@ class BackendError(Exception):
         self.message = message
 
         ## An optional HTTP error code that matches the error best. Should be
-        # used if the error occured while processing a REST API request.
+        ## used if the error occured while processing a REST API request.
         self.status_code = status_code
 
         ## An optional user facing message. Should be used if the error occured
-        # while processing a REST API request and the main message might
-        # contain either information about the backends implementation or
-        # contains user input. Sending repsonses with user input might open the
-        # door for injection attacks.
+        ## while processing a REST API request and the main message might
+        ## contain either information about the backends implementation or
+        ## contains user input. Sending repsonses with user input might open the
+        ## door for injection attacks.
         self.user_message = user_message
 
 
