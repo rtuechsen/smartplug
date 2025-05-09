@@ -15,14 +15,23 @@ class BackendError(Exception):
     an alternative user facing message.
     """
 
-    def __init__(self, message: str, status_code: int = None, user_message: str = None):
+    def __init__(
+        self, message: str, status_code: int = None, user_message: str = None
+    ):
         """Constructor for the class.
 
-        @param message The main message. Usually includes technical details aimed at admins.
+        @param message The main message. Usually includes technical details
+        aimed at admins.
 
-        @param status_code An optional HTTP error code that matches the error best. Should be used if the error occured while processing a REST API request.
+        @param status_code An optional HTTP error code that matches the error
+        best. Should be used if the error occured while processing a REST API
+        request.
 
-        @param user_message An optional user facing message. Should be used if the error occured while processing a REST API request and the main message might contain either information about the backends implementation or contains user input. Sending responses with user input might open the door for injection attacks.
+        @param user_message An optional user facing message. Should be used if
+        the error occured while processing a REST API request and the main
+        message might contain either information about the backends
+        implementation or contains user input. Sending responses with user
+        input might open the door for injection attacks.
         """
         # Calling the base class constructor with the arguments it needs.
         super().__init__(message)
@@ -30,10 +39,15 @@ class BackendError(Exception):
         ## The main message. Usually includes technical details aimed at admins.
         self.message = message
 
-        ## An optional HTTP error code that matches the error best. Should be used if the error occured while processing a REST API request.
+        ## An optional HTTP error code that matches the error best. Should be
+        # used if the error occured while processing a REST API request.
         self.status_code = status_code
 
-        ## An optional user facing message. Should be used if the error occured while processing a REST API request and the main message might contain either information about the backends implementation or contains user input. Sending repsonses with user input might open the door for injection attacks.
+        ## An optional user facing message. Should be used if the error occured
+        # while processing a REST API request and the main message might
+        # contain either information about the backends implementation or
+        # contains user input. Sending repsonses with user input might open the
+        # door for injection attacks.
         self.user_message = user_message
 
 
@@ -52,13 +66,21 @@ class ErrorHandler:
     ) -> Response:
         """Generates an error response and logs the error.
 
-        @param message The message that will be logged. If 'user_message' is not set, 'message' will also be used for the response. Please formulate a complete sentence starting with a capital letter and ending with a period.
+        @param message The message that will be logged. If 'user_message' is
+        not set, 'message' will also be used for the response. Please formulate
+        a complete sentence starting with a capital letter and ending with a
+        period.
 
-        @param status_code The desired HTTP status code of the error. Choose a fitting one, preferably from 'rest_framework.status'. If not set '500 Internal Server Error' will be used.
+        @param status_code The desired HTTP status code of the error. Choose a
+        fitting one, preferably from 'rest_framework.status'. If not set
+        '500 Internal Server Error' will be used.
 
-        @param user_message The message for the response. If not set, 'message' will be used for the response. Please formulate a complete sentence starting with a capital letter and ending with a period.
+        @param user_message The message for the response. If not set, 'message'
+        will be used for the response. Please formulate a complete sentence
+        starting with a capital letter and ending with a period.
 
-        @return Repsonse (from Django Rest Framework) containing the error message.
+        @return Repsonse (from Django Rest Framework) containing the error
+        message.
         """
 
         # in any case log the error
@@ -69,7 +91,10 @@ class ErrorHandler:
 
         if user_message is None:
             user_message = (
-                "The server encountered an internal error, please contact the admin."
+                "The server encountered an internal error, please"
+                "contact the admin."
             )
 
-        return Response({"message": "ERROR: " + user_message}, status=status_code)
+        return Response(
+            {"message": "ERROR: " + user_message}, status=status_code
+        )

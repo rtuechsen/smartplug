@@ -7,10 +7,12 @@ class TreeItem:
     def __init__(self):
         """Constructor for the class."""
 
-        ## The human readable label of the item. Used when displaying the item in a UI.
+        ## The human readable label of the item. Used when displaying the item
+        ## in a UI.
         self.label: str
 
-        ## The unique id of the item. A string of hexadecimal digits of length 64.
+        ## The unique id of the item. A string of hexadecimal digits of length
+        ## 64.
         self.id: str
 
 
@@ -22,13 +24,18 @@ class TreeItemDevice(TreeItem):
 
         super().__init__()
 
-        ## The unique id that is set on the smartplug. Ignores PEP8 naming convention to match the name of the variable across the project.
+        ## The unique id that is set on the smartplug. Ignores PEP8 naming
+        ## convention to match the name of the variable across the project.
         self.deviceId: str
 
-        ## A boolean indicating if the item should be turned on (True) or off (False). Ignores PEP8 naming convention to match the name of the variable across the project.
+        ## A boolean indicating if the item should be turned on (True) or off
+        ## (False). Ignores PEP8 naming convention to match the name of the
+        ## variable across the project.
         self.isOn: bool
 
-        ## A boolean indicating if the item is currently reachable. Ignores PEP8 naming convention to match the name of the variable across the project.
+        ## A boolean indicating if the item is currently reachable. Ignores
+        ## PEP8 naming convention to match the name of the variable across the
+        ## project.
         self.isAvailable: bool
 
     def to_dict(self) -> dict:
@@ -54,7 +61,8 @@ class TreeItemGroup(TreeItem):
         ## A list of TreeItems that this group combines.
         self.children: "list[TreeItemDevice|TreeItemGroup]"
 
-    # note: does not hold isOn or isAvailable, those will be evaluated from its children before send out to the API
+    # note: does not hold isOn or isAvailable, those will be evaluated from its
+    # children before send out to the API
 
     def to_dict(self) -> dict:
         """Converts the class to a hierarchy of dictionaries and lists.
@@ -95,7 +103,8 @@ class TreeItemGroup(TreeItem):
             not item for item in children_isAvailable
         ]
 
-        # if all children states are False (i.e. all children states negated are True), so is the group
+        # if all children states are False (i.e. all children states negated
+        # are True), so is the group
 
         if all(children_isOn_negated):
             isOn = False
