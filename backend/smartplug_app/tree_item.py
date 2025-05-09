@@ -29,8 +29,8 @@ class TreeItem:
 
         self.parent: TreeItemGroup
 
-        ## TODO: list of deviceIds
-        self.turn_off_if_all_in_list_are_off: list[str]
+        ## TODO: list of TreeItemDevices
+        self.turn_off_if_all_in_list_are_off: list[TreeItemDevice] = []
 
     def get_isOn(self) -> bool:
         return self._isOn
@@ -55,6 +55,19 @@ class TreeItem:
             if self.parent is not None:
                 self.parent.update_isAvailable_child(self._isAvailable)
 
+    def should_switch_off_based_on_dependencies(self) -> bool:
+
+        if self._isOn is False:
+            return False
+
+        are_all_depedencies_off: bool = all(
+            [
+                not item.get_isOn()
+                for item in self.turn_off_if_all_in_list_are_off
+            ]
+        )
+        return are_all_depedencies_off
+
 
 class TreeItemDevice(TreeItem):
     """A data class that groups common properties of a device."""
@@ -69,6 +82,11 @@ class TreeItemDevice(TreeItem):
         self.deviceId: str
 
         self.time_last_switched: datetime.datetime = datetime.datetime.now()
+
+        ## TODO: list of TreeItems
+        self.other_items_listening_for_this_device_switching_off: list[
+            TreeItem
+        ] = []
 
     def to_dict(self) -> dict:
         """Converts the class to a dictionary.
