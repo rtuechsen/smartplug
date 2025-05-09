@@ -50,5 +50,6 @@ Requires the extension `ESLint` for in-code-linting in VSCode.
 
 ## Documentation
 
-- Python: [Doxygen](https://www.doxygen.nl/manual/docblocks.html#pythonblocks)
-- Typescript: [TypeDoc](https://typedoc.org/documents/Overview.html)
+- backend: [./backend/docs/html/index.html](./backend/docs/html/index.html)
+- frontend: [./frontend/docs/index.html](./frontend/docs/index.html)
+- API: [./openapi.yaml](./openapi.yaml)

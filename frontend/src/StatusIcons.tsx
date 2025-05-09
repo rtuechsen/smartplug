@@ -76,9 +76,9 @@ export function OnIcon({ isOn, isGroup }: OnIconProps): JSX.Element {
 
 
 /**
- * A data structure to pass information to an AvilableIcon.  
+ * A data structure to pass information to an AvailableIcon.  
  */
-export interface AvilableIconProps {
+export interface AvailableIconProps {
 
 	/**
 	 * A boolean indicating if the item is currently reachable.
@@ -102,7 +102,7 @@ export interface AvilableIconProps {
  * 
  * @return The react component of the icon.
  */
-export function AvilableIcon({ isAvailable, isGroup }: AvilableIconProps): JSX.Element {
+export function AvailableIcon({ isAvailable, isGroup }: AvailableIconProps): JSX.Element {
 
 	let tooltip: string;
 	let icon: JSX.Element;
@@ -265,7 +265,7 @@ export function OnIcon2({ isOn, isGroup }: OnIconProps): JSX.Element {
 }
 
 
-export function AvilableIcon2({ isAvailable, isGroup }: AvilableIconProps): JSX.Element {
+export function AvailableIcon2({ isAvailable, isGroup }: AvilableIconProps): JSX.Element {
 
 	let tooltip: string;
 	let icon: JSX.Element;

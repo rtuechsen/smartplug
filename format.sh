@@ -1,0 +1,1 @@
+docformatter -i ./backend/smartplug_app/*.py && black ./backend/smartplug_app/

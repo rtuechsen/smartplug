@@ -1,6 +1,8 @@
 """Contains the callbacks for the endpoints of the backend.
 
-Django requires the endpoints to be defined in this file on file level. In order to combine the handling of the endpoints in a class we forward all requests to an instance of RequestManager.
+Django requires the endpoints to be defined in this file on file level.
+In order to combine the handling of the endpoints in a class we forward
+all requests to an instance of RequestManager.
 """
 
 from rest_framework.response import Response
@@ -16,7 +18,8 @@ request_manager = RequestManager()
 def csrf(request: Request) -> Response:
     """Callback for the /csrf endpoint.
 
-    Forwards its requests to the request manager. Forwards the responses received from the request manager back to the REST API.
+    Forwards its requests to the request manager. Forwards the responses
+    received from the request manager back to the REST API.
 
     @param request The request from the REST API.
 
@@ -29,7 +32,8 @@ def csrf(request: Request) -> Response:
 def login(request: Request) -> Response:
     """Callback for the /login endpoint.
 
-    Forwards its requests to the request manager. Forwards the responses received from the request manager back to the REST API.
+    Forwards its requests to the request manager. Forwards the responses
+    received from the request manager back to the REST API.
 
     @param request The request from the REST API.
 
@@ -42,7 +46,8 @@ def login(request: Request) -> Response:
 def logout(request: Request) -> Response:
     """Callback for the /logout endpoint.
 
-    Forwards its requests to the request manager. Forwards the responses received from the request manager back to the REST API.
+    Forwards its requests to the request manager. Forwards the responses
+    received from the request manager back to the REST API.
 
     @param request The request from the REST API.
 
@@ -55,7 +60,8 @@ def logout(request: Request) -> Response:
 def gettree(request: Request) -> Response:
     """Callback for the /gettree endpoint.
 
-    Forwards its requests to the request manager. Forwards the responses received from the request manager back to the REST API.
+    Forwards its requests to the request manager. Forwards the responses
+    received from the request manager back to the REST API.
 
     @param request The request from the REST API.
 
@@ -68,7 +74,8 @@ def gettree(request: Request) -> Response:
 def switch(request: Request) -> Response:
     """Callback for the /switch endpoint.
 
-    Forwards its requests to the request manager. Forwards the responses received from the request manager back to the REST API.
+    Forwards its requests to the request manager. Forwards the responses
+    received from the request manager back to the REST API.
 
     @param request The request from the REST API.
 

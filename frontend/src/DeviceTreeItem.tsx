@@ -42,7 +42,7 @@ function DeviceTreeItem(props: DeviceTreeItemProps, ref: React.Ref<HTMLLIElement
 		}
 	}, [itemData.isOn]);	// watches for changes of isOn in tree data
 
-	// When we pass new data to the tree this will trigger this function to set the item state isAvailable accordingly
+	// When we pass new data to the tree this will trigger this function to set the item state isAvailable accordingly.
 	React.useEffect(() => {
 		if (itemData.isAvailable !== isAvailableState) {
 			setIsAvailableState(itemData.isAvailable);
