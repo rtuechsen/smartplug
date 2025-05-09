@@ -3,7 +3,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { JSX } from '@emotion/react/jsx-runtime';
 import LoadingButtonGroup from './LoadingButtonGroup';
-import { AvilableIcon, OnIcon } from './StatusIcons';
+import { AvailableIcon, OnIcon } from './StatusIcons';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 
@@ -18,7 +18,7 @@ export interface DeviceTreeItemLabelProps extends DisplayErrorCallbackProps {
 	label: string;
 
 	/**
-	 * The unique id of the item. A string of hexadecimal digits of lenght 64.
+	 * The unique id of the item. A string of hexadecimal digits of length 64.
 	 */
 	id: string;
 
@@ -69,7 +69,7 @@ export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, dis
 				flexGrow={1}
 				alignItems='center'
 			>
-				<AvilableIcon isAvailable={isAvailable} isGroup={isGroup} />
+				<AvailableIcon isAvailable={isAvailable} isGroup={isGroup} />
 				<OnIcon isOn={isOn} isGroup={isGroup} />
 				<LoadingButtonGroup id={id} displayError={displayError} />
 			</Stack>

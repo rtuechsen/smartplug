@@ -4,7 +4,8 @@ also handles background tasks the REST API does not handle.
 TODO: more details ???
 """
 
-# TODO: we need a tool to wrap comments and docstrings to the maximum line lenght of PEP8, black formatter does not handle those
+# TODO: we need a tool to wrap comments and docstrings to the maximum line
+# lenght of PEP8, black formatter does not handle those
 
 import time
 import json
@@ -20,7 +21,6 @@ from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
 
 
-# TODO: better name for class
 class SmartplugApp(AppConfig):
     """The main class for storing data about devices and groups as well as
     their state. Also handles background tasks the REST API does not handle.
@@ -42,17 +42,19 @@ class SmartplugApp(AppConfig):
     ready()-function of all apps are called.
     """
 
-    # TODO: consider renaming as well (has to match the folder!)
     ## The name of the app (required by Django).
     name: str = "smartplug_app"
 
     ## Boolean needed to avoid starting background task multiple times.
     _background_task_started: bool = False
 
-    ## The main data structure to hold the hierarchy of devices and groups and their current state.
+    ## The main data structure to hold the hierarchy of devices and groups and
+    ## their current state.
     _device_tree: list[TreeItemDevice | TreeItemGroup]
 
-    ## A mutex to avoid race conditions on the device tree. Needed because async calls from the REST API are possible. ALWAYS lock this mutex when reading or manipulating the device tree!
+    ## A mutex to avoid race conditions on the device tree. Needed because
+    ## async calls from the REST API are possible. ALWAYS lock this mutex when
+    ## reading or manipulating the device tree!
     _device_tree_mutex: threading.Lock = threading.Lock()
 
     ## A mapping to get the TreeItem for a given id.
@@ -72,10 +74,10 @@ class SmartplugApp(AppConfig):
         self._load_labor_config()
 
         # TODO: remove, used for debugging only
-        if not SmartplugApp._background_task_started:
-            SmartplugApp._background_task_started = True
-            thread = threading.Thread(target=self.loop, daemon=True)
-            thread.start()
+        # if not SmartplugApp._background_task_started:
+        #     SmartplugApp._background_task_started = True
+        #     thread = threading.Thread(target=self.loop, daemon=True)
+        #     thread.start()
 
     # TODO: remove, used for debugging only
     def loop(self) -> None:
@@ -127,7 +129,8 @@ class SmartplugApp(AppConfig):
     def _load_labor_config(self) -> list[TreeItemDevice | TreeItemGroup]:
         """Loads the hierarchy of devices and groups from `labor-config.json`.
 
-        The file 'labor-config.json' is expected to be located in the root directory of this project.
+        The file 'labor-config.json' is expected to be located in the root
+        directory of this project.
 
         @return The hierarchy of devices and groups.
         """
@@ -149,7 +152,8 @@ class SmartplugApp(AppConfig):
             )
         except IOError:
             self._logger.error(
-                f"Error while reading the file labor-config at {lab_config_path}."
+                f"Error while reading the file labor-config at "
+                f"{lab_config_path}."
             )
 
         # 2. convert string from file to JSON (dicts and lists)
@@ -158,13 +162,15 @@ class SmartplugApp(AppConfig):
             lab_config_python_obj = json.loads(lab_config_json_string)
         except ValueError as e:
             self._logger.error(
-                f"Could not parse the labor-config to JSON because {e}: {lab_config_json_string}."
+                "Could not parse the labor-config to JSON because "
+                f"{e}: {lab_config_json_string}."
             )
 
         # 3. convert to classes
 
         with SmartplugApp._device_tree_mutex:
-            # errors from parsing will not be logged but will result in an unhandled exception immediately after starting the server
+            # errors from parsing will not be logged but will result in an
+            # unhandled exception immediately after starting the server
             SmartplugApp._device_tree = self._object_list_to_tree_item_list(
                 lab_config_python_obj
             )
@@ -188,8 +194,10 @@ class SmartplugApp(AppConfig):
         @return A list of TreeItems.
         """
 
-        # Note: passing a member function as a callback causes doxygen to think it is a new attribute.
-        # Seems to be a bug fixed in doxygen 1.13 but that is not available to linux via apt.
+        # Note: passing a member function as a callback causes doxygen to think
+        # it is a new attribute.
+        # Seems to be a bug fixed in doxygen 1.13 but that is not available to
+        # linux via apt.
         return list(map(self._object_to_tree_item, object_list))
 
     def _object_to_tree_item(self, obj: dict) -> TreeItem:
@@ -198,12 +206,14 @@ class SmartplugApp(AppConfig):
 
         Verifies the structure of the data and provides feedback.
 
-        @param obj A dictionary representing a tree item, possibly with more tree items as childrens.
+        @param obj A dictionary representing a tree item, possibly with more
+        tree items as childrens.
 
         @return A TreeItem with possibly more TreeItems as its children.
         """
 
-        # also verifies the correctness of the data, providing feedback to the admin using error messages
+        # also verifies the correctness of the data, providing feedback to the
+        # admin using error messages
 
         if len(obj.keys()) != 2:
             raise BackendError(f"Object {obj} has not exactly two properties.")
@@ -238,12 +248,15 @@ class SmartplugApp(AppConfig):
 
         tree_item.label = obj["label"]
 
-        # Use (cryptographic) hash of the items label for the id in order to keep the same id across runs.
-        # This hides the deviceId of the smartplugs from the clients and gives ids to groups as well.
+        # Use (cryptographic) hash of the items label for the id in order to
+        # keep the same id across runs.
+        # This hides the deviceId of the smartplugs from the clients and gives
+        # ids to groups as well.
         hash_source: str = tree_item.label
         tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
         while tree_item.id in SmartplugApp._id_to_tree_item_mapping:
-            # if the label is not unique in the file change the hash source (deterministically) until a unique hash is created
+            # if the label is not unique in the file change the hash source
+            # (deterministically) until a unique hash is created
             hash_source += "0"
             tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
 
@@ -276,7 +289,8 @@ class SmartplugApp(AppConfig):
         """Function to answer a call to /gettree, returns the current state of
         the tree.
 
-        @return A hierarchy of dictionaries and lists representing the current state of the device tree.
+        @return A hierarchy of dictionaries and lists representing the current
+        state of the device tree.
         """
 
         device_tree_dict: list[dict] = []
@@ -298,7 +312,9 @@ class SmartplugApp(AppConfig):
 
         @param id The id of the device or group to switch.
 
-        @param isOn A boolean indicating if the item should be turned on (True) or off (False). Ignores PEP8 naming convention to match the name of the variable across the project.
+        @param isOn A boolean indicating if the item should be turned on (True)
+        or off (False). Ignores PEP8 naming convention to match the name of the
+        variable across the project.
         """
 
         def switch_recursive(id: str, isOn: bool):
@@ -307,7 +323,9 @@ class SmartplugApp(AppConfig):
 
             @param id The id of the device or group to switch.
 
-            @param isOn A boolean indicating if the item should be turned on (True) or off (False). Ignores PEP8 naming convention to match the name of the variable across the project.
+            @param isOn A boolean indicating if the item should be turned on
+            (True) or off (False). Ignores PEP8 naming convention to match the
+            name of the variable across the project.
             """
 
             if id not in SmartplugApp._id_to_tree_item_mapping:
@@ -328,7 +346,8 @@ class SmartplugApp(AppConfig):
                     switch_recursive(child.id, isOn)
             else:
                 raise BackendError(
-                    f"Implementation error, 'tree_item' {tree_item} is of unknown class: {type(tree_item)}."
+                    f"Implementation error, 'tree_item' {tree_item} is of "
+                    f"unknown class: {type(tree_item)}."
                 )
 
         # TODO: remove, simulating latency
