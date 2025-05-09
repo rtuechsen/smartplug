@@ -17,7 +17,43 @@ class TreeItem:
         ## 64.
         self.id: str
 
+        ## A boolean indicating if the item should be turned on (True) or off
+        ## (False). Ignores PEP8 naming convention to match the name of the
+        ## variable across the project.
+        self._isOn: bool = False
+
+        ## A boolean indicating if the item is currently reachable. Ignores
+        ## PEP8 naming convention to match the name of the variable across the
+        ## project.
+        self._isAvailable: bool = False
+
+        self.parent: TreeItemGroup
+
+        ## TODO: list of deviceIds
         self.turn_off_if_all_in_list_are_off: list[str]
+
+    def get_isOn(self) -> bool:
+        return self._isOn
+
+    def set_isOn(self, new_isOn: bool) -> None:
+
+        if new_isOn != self._isOn:
+            self._isOn = new_isOn
+
+            if self.parent is not None:
+                self.parent.update_isOn_child(self._isOn)
+
+    def get_isAvailable(self) -> bool:
+        return self._isAvailable
+
+    def set_isAvailable(self, new_isAvailable: bool) -> None:
+
+        if new_isAvailable != self._isAvailable:
+
+            self._isAvailable = new_isAvailable
+
+            if self.parent is not None:
+                self.parent.update_isAvailable_child(self._isAvailable)
 
 
 class TreeItemDevice(TreeItem):
@@ -32,16 +68,6 @@ class TreeItemDevice(TreeItem):
         ## convention to match the name of the variable across the project.
         self.deviceId: str
 
-        ## A boolean indicating if the item should be turned on (True) or off
-        ## (False). Ignores PEP8 naming convention to match the name of the
-        ## variable across the project.
-        self.isOn: bool
-
-        ## A boolean indicating if the item is currently reachable. Ignores
-        ## PEP8 naming convention to match the name of the variable across the
-        ## project.
-        self.isAvailable: bool
-
         self.time_last_switched: datetime.datetime = datetime.datetime.now()
 
     def to_dict(self) -> dict:
@@ -52,8 +78,8 @@ class TreeItemDevice(TreeItem):
         return {
             "label": self.label,
             "id": self.id,
-            "isOn": self.isOn,
-            "isAvailable": self.isAvailable,
+            "isOn": self._isOn,
+            "isAvailable": self._isAvailable,
         }
 
 
@@ -75,53 +101,60 @@ class TreeItemGroup(TreeItem):
 
         @return A dictionary representing the current state of the class.
         """
-        children_dict: list[dict] = []
-        children_isOn: list[bool] = []
-        children_isAvailable: list[bool] = []
 
         # collect the data from all direct children
-        for child in self.children:
-            child_dict = (
-                child.to_dict()
-            )  # recursive call, will travel down the hierarchy
-            children_dict.append(child_dict)
-            children_isOn.append(child_dict["isOn"])
-            children_isAvailable.append(child_dict["isAvailable"])
-
-        # decide state of group based on children
-
-        isOn: bool = None
-        isAvailable: bool = None
-
-        # if all children states are True, so is the group
-
-        if all(children_isOn):
-            isOn = True
-
-        if all(children_isAvailable):
-            isAvailable = True
-
-        children_isOn_negated: list[bool] = [
-            not item for item in children_isOn
+        # recursive call, will travel down the hierarchy
+        children_dict: list[dict] = [
+            child.to_dict() for child in self.children
         ]
-
-        children_isAvailable_negated: list[bool] = [
-            not item for item in children_isAvailable
-        ]
-
-        # if all children states are False (i.e. all children states negated
-        # are True), so is the group
-
-        if all(children_isOn_negated):
-            isOn = False
-
-        if all(children_isAvailable_negated):
-            isAvailable = False
 
         return {
             "label": self.label,
             "id": self.id,
-            "isOn": isOn,
-            "isAvailable": isAvailable,
+            "isOn": self._isOn,
+            "isAvailable": self._isAvailable,
             "children": children_dict,
         }
+
+    def _compute_state(self, state_name: str, child_state: bool) -> bool:
+
+        self_state: bool = getattr(self, state_name)
+
+        if len(self.children) == 1:
+            return child_state
+
+        if child_state is None:
+            return None
+
+        # need to compare children with each other
+
+        if self_state is None:
+            # need to compare with all children
+            all_children_have_same_state: bool = all(
+                [
+                    child_state == getattr(some_child, state_name)
+                    for some_child in self.children
+                ]
+            )
+            if all_children_have_same_state:
+                return child_state
+
+        # all children had the same state before
+
+        if self_state != child_state:
+            return None
+
+        # unusual, nothing changed
+        return self_state
+
+    def update_isOn_child(self, child_isOn: bool) -> None:
+
+        new_isOn = self._compute_state("_isOn", child_isOn)
+        self.set_isOn(new_isOn)
+
+    def update_isAvailable_child(self, child_isAvailable: bool) -> None:
+
+        new_isAvailable = self._compute_state(
+            "_isAvailable", child_isAvailable
+        )
+        self.set_isAvailable(new_isAvailable)

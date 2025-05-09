@@ -143,7 +143,7 @@ class SmartplugApp(AppConfig):
             # errors from parsing will not be logged but will result in an
             # unhandled exception immediately after starting the server
             SmartplugApp._device_tree = self._object_list_to_tree_item_list(
-                lab_config_python_obj
+                lab_config_python_obj, None
             )
 
         # TODO: get values (isOn, ...) from devices
@@ -156,7 +156,7 @@ class SmartplugApp(AppConfig):
         )
 
     def _object_list_to_tree_item_list(
-        self, object_list: list[dict]
+        self, object_list: list[dict], parent: TreeItemGroup
     ) -> list[TreeItem]:
         """Converts a list of dictionaries (JSON) to a list of TreeItems.
 
@@ -165,13 +165,25 @@ class SmartplugApp(AppConfig):
         @return A list of TreeItems.
         """
 
+        if not isinstance(object_list, list):
+            raise BackendError(
+                f"Object {object_list} should be a list, but isn't."
+            )
+
         # Note: passing a member function as a callback causes doxygen to think
         # it is a new attribute.
         # Seems to be a bug fixed in doxygen 1.13 but that is not available to
         # linux via apt.
-        return list(map(self._object_to_tree_item, object_list))
+        return list(
+            map(
+                lambda obj_list: self._object_to_tree_item(obj_list, parent),
+                object_list,
+            )
+        )
 
-    def _object_to_tree_item(self, obj: dict) -> TreeItem:
+    def _object_to_tree_item(
+        self, obj: dict, parent: TreeItemGroup
+    ) -> TreeItem:
         """Converts a (hierarchy of) dictionary(s) (aka JSON) to a (hierarchy
         of) TreeItem(s).
 
@@ -207,8 +219,6 @@ class SmartplugApp(AppConfig):
                 )
             tree_item = TreeItemDevice()
             tree_item.deviceId = obj["deviceId"]
-            tree_item.isOn = False
-            tree_item.isAvailable = False
             self._device_id_to_tree_item_mapping[tree_item.deviceId] = (
                 tree_item
             )
@@ -216,7 +226,7 @@ class SmartplugApp(AppConfig):
         elif "children" in obj.keys():
             tree_item = TreeItemGroup()
             tree_item.children = self._object_list_to_tree_item_list(
-                obj["children"]
+                obj["children"], tree_item
             )
             if len(tree_item.children) == 0:
                 self._logger.warn(f"Object {obj} is a group without children.")
@@ -227,6 +237,7 @@ class SmartplugApp(AppConfig):
             )
 
         tree_item.label = obj["label"]
+        tree_item.parent = parent
 
         if "turn_off_if_all_in_list_are_off" in obj.keys():
             tree_item.turn_off_if_all_in_list_are_off = obj[
@@ -268,9 +279,9 @@ class SmartplugApp(AppConfig):
             with SmartplugApp._device_tree_mutex:
 
                 if toggle_availability:
-                    tree_item.isAvailable = not tree_item.isAvailable
+                    tree_item.set_isAvailable(not tree_item.get_isAvailable())
                 else:
-                    tree_item.isOn = not tree_item.isOn
+                    tree_item.set_isOn(not tree_item.get_isOn())
 
     def get_device_tree_dicts(self) -> list[dict]:
         """Function to answer a call to /gettree, returns the current state of
@@ -334,13 +345,13 @@ class SmartplugApp(AppConfig):
 
                 with SmartplugApp._device_tree_mutex:
 
-                    if tree_item.isOn == isOn:
+                    if tree_item.get_isOn() == isOn:
                         # isOn is already in desired state, no switching needed
                         return
 
                     now = datetime.datetime.now()
 
-                    # TODO: need to save last 'switch ON time' (mutex), wait if
+                    # need to save last 'switch ON time' (mutex), wait if
                     # below delay
                     # TODO: only delay between device switches, not at
                     # beginning or end of request
@@ -377,12 +388,12 @@ class SmartplugApp(AppConfig):
                         < datetime.timedelta(seconds=SWITCHING_TOGGLE_DELAY)
                     ):
 
-                        # need to declare variable as 'nonlocal' to avoid 
+                        # need to declare variable as 'nonlocal' to avoid
                         # redefining it
                         nonlocal requests_dropped
                         requests_dropped = True
 
-                        # if last switch request was not that long ago -> drop 
+                        # if last switch request was not that long ago -> drop
                         # this request
                         return
 
@@ -390,10 +401,10 @@ class SmartplugApp(AppConfig):
 
                     # TODO: try sending MQTT request here !!!
 
-                    # TODO: do NOT set state here / send update event here, 
-                    # wait for signal from plug that it changed somewhere else 
+                    # TODO: do NOT set state / send update event here,
+                    # wait for signal from plug that it changed somewhere else
                     # in the code
-                    tree_item.isOn = isOn
+                    tree_item.set_isOn(isOn)
 
                 # notify SSE subscribers about changes to the device tree
                 django_eventstream.send_event(
@@ -454,7 +465,7 @@ class SmartplugApp(AppConfig):
 
                 if all_devices_are_off:
                     ids_to_switch_off.append(tree_item.id)
-                # TODO: problem: need to do this again and again, because 
+                # TODO: problem: need to do this again and again, because
                 # turning something off could trigger another dependency
 
             if isinstance(tree_item, TreeItemGroup):
@@ -519,7 +530,7 @@ class SmartplugApp(AppConfig):
             # go over all deps:
             # if dep is referenced in another dep:
 
-            # TODO: add dependencies of dependencies, detect circular 
+            # TODO: add dependencies of dependencies, detect circular
             # dependencies
 
         # TODO: check dependencies during switching
