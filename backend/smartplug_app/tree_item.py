@@ -1,6 +1,5 @@
 """Contains classes for storing the device tree."""
 
-from functools import reduce
 import datetime
 
 
@@ -10,30 +9,37 @@ class TreeItem:
     def __init__(self):
         """Constructor for the class."""
 
-        ## The human readable label of the item. Used when displaying the item in a UI.
+        ## The human readable label of the item. Used when displaying the item
+        ## in a UI.
         self.label: str
 
-        ## The unique id of the item. A string of hexadecimal digits of lenght 64.
+        ## The unique id of the item. A string of hexadecimal digits of length
+        ## 64.
         self.id: str
 
         self.turn_off_if_all_in_list_are_off: list[str]
 
 
 class TreeItemDevice(TreeItem):
-    """A data class that groups common properties of a devices."""
+    """A data class that groups common properties of a device."""
 
     def __init__(self):
         """Constructor for the class."""
 
         super().__init__()
 
-        ## The unique id that is set on the smartplug. Ignores PEP8 naming convention to match the name of the variable across the project.
+        ## The unique id that is set on the smartplug. Ignores PEP8 naming
+        ## convention to match the name of the variable across the project.
         self.deviceId: str
 
-        ## A boolean indicating if the item should be turned on (True) or off (False). Ignores PEP8 naming convention to match the name of the variable across the project.
+        ## A boolean indicating if the item should be turned on (True) or off
+        ## (False). Ignores PEP8 naming convention to match the name of the
+        ## variable across the project.
         self.isOn: bool
 
-        ## A boolean indicating if the item is currently reachable. Ignores PEP8 naming convention to match the name of the variable across the project.
+        ## A boolean indicating if the item is currently reachable. Ignores
+        ## PEP8 naming convention to match the name of the variable across the
+        ## project.
         self.isAvailable: bool
 
         self.time_last_switched: datetime.datetime = datetime.datetime.now()
@@ -52,7 +58,7 @@ class TreeItemDevice(TreeItem):
 
 
 class TreeItemGroup(TreeItem):
-    """A data class that groups common properties of a groups."""
+    """A data class that groups common properties of a group."""
 
     def __init__(self):
         """Constructor for the class."""
@@ -61,7 +67,8 @@ class TreeItemGroup(TreeItem):
         ## A list of TreeItems that this group combines.
         self.children: "list[TreeItemDevice|TreeItemGroup]"
 
-    # note: does not hold isOn or isAvailable, those will be evaluated from its children before send out to the API
+    # note: does not hold isOn or isAvailable, those will be evaluated from its
+    # children before send out to the API
 
     def to_dict(self) -> dict:
         """Converts the class to a hierarchy of dictionaries and lists.
@@ -83,33 +90,33 @@ class TreeItemGroup(TreeItem):
 
         # decide state of group based on children
 
-        def combine_bools(state_a: bool, state_b: bool) -> bool | None:
-            """Callback used for reduce(). Decides what the common state is given the state of two items.
+        isOn: bool = None
+        isAvailable: bool = None
 
-            @param state_a The state of the first item.
+        # if all children states are True, so is the group
 
-            @param state_b The state of the second item.
+        if all(children_isOn):
+            isOn = True
 
-            @return The common state of the items.
-            """
-            if state_a is True and state_b is True:
-                return True
-            elif state_a is False and state_b is False:
-                return False
-            else:
-                return None
+        if all(children_isAvailable):
+            isAvailable = True
 
-        if len(children_isOn) != 0:
-            # TODO: improve exlanation
-            # no initial value passed to reduce() because desired behavior cannot be achieved using reduce
-            isOn: bool = reduce(combine_bools, children_isOn)
-        else:
-            isOn: bool = None
+        children_isOn_negated: list[bool] = [
+            not item for item in children_isOn
+        ]
 
-        if len(children_isAvailable) != 0:
-            isAvailable: bool = reduce(combine_bools, children_isAvailable)
-        else:
-            isAvailable: bool = None
+        children_isAvailable_negated: list[bool] = [
+            not item for item in children_isAvailable
+        ]
+
+        # if all children states are False (i.e. all children states negated
+        # are True), so is the group
+
+        if all(children_isOn_negated):
+            isOn = False
+
+        if all(children_isAvailable_negated):
+            isAvailable = False
 
         return {
             "label": self.label,

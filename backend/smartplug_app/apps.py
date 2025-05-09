@@ -1,9 +1,11 @@
-"""Contains the TODO class which stores most of the data for the backend and also handles background tasks the REST API does not handle.
+"""Contains the TODO class which stores most of the data for the backend and
+also handles background tasks the REST API does not handle.
 
 TODO: more details ???
 """
 
-# TODO: we need a tool to wrap comments and docstrings to the maximum line lenght of PEP8, black formatter does not handle those
+# TODO: we need a tool to wrap comments and docstrings to the maximum line
+# lenght of PEP8, black formatter does not handle those
 
 import time
 import json
@@ -21,35 +23,40 @@ from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
 from .admin_settings import SWITCHING_TOGGLE_DELAY, INRUSH_CURRENT_DELAY
 
 
-# TODO: better name for class
 class SmartplugApp(AppConfig):
-    """The main class for storing data about devices and groups as well as their state. Also handles background tasks the REST API does not handle.
+    """The main class for storing data about devices and groups as well as
+    their state. Also handles background tasks the REST API does not handle.
 
-    This module is registered in the django settings as an app.
-    This means it is instanciated by django when the server starts.
+    This module is registered in the django settings as an app. This
+    means it is instanciated by django when the server starts.
 
-    It reads labor-config.json and holds the hierarchy of devices and groups as well as their current state.
-    It is used by the REST API to get or manipulate data from the device hierarchy.
-    It holds the mqtt client to communicate with the devices.
+    It reads labor-config.json and holds the hierarchy of devices and
+    groups as well as their current state. It is used by the REST API to
+    get or manipulate data from the device hierarchy. It holds the mqtt
+    client to communicate with the devices.
 
-    Functions that answer calls from the REST API should raise BackendError's.
-    Other function might do this as well if it makes sense.
+    Functions that answer calls from the REST API should raise
+    BackendError's. Other function might do this as well if it makes
+    sense.
 
-    Apps in Django usually define and initialize all their attributes as class attributes.
-    When Django has loaded all models the ready()-function of all apps are called.
+    Apps in Django usually define and initialize all their attributes as
+    class attributes. When Django has loaded all models the
+    ready()-function of all apps are called.
     """
 
-    # TODO: consider renaming as well (has to match the folder!)
     ## The name of the app (required by Django).
     name: str = "smartplug_app"
 
     ## Boolean needed to avoid starting background task multiple times.
     _background_task_started: bool = False
 
-    ## The main data structure to hold the hierarchy of devices and groups and their current state.
+    ## The main data structure to hold the hierarchy of devices and groups and
+    ## their current state.
     _device_tree: list[TreeItemDevice | TreeItemGroup]
 
-    ## A mutex to avoid race conditions on the device tree. Needed because async calls from the REST API are possible. ALWAYS lock this mutex when reading or manipulating the device tree!
+    ## A mutex to avoid race conditions on the device tree. Needed because
+    ## async calls from the REST API are possible. ALWAYS lock this mutex when
+    ## reading or manipulating the device tree!
     _device_tree_mutex: threading.Lock = threading.Lock()
 
     ## A mapping to get the TreeItem for a given id.
@@ -72,10 +79,29 @@ class SmartplugApp(AppConfig):
         # load the labor-config.json
         self._load_labor_config()
 
+        # TODO: remove, used for debugging only
+        # if not SmartplugApp._background_task_started:
+        #     SmartplugApp._background_task_started = True
+        #     thread = threading.Thread(target=self.loop, daemon=True)
+        #     thread.start()
+
+    # TODO: remove, used for debugging only
+    def loop(self) -> None:
+        time.sleep(2)
+        while True:
+            time.sleep(4)
+            print("\n\n -> Running background task ...\n\n")
+            # TODO: remove, used for debugging only
+            # self.change_device_tree_randomly(10)
+            django_eventstream.send_event(
+                "device_tree_update", "message", self.get_device_tree_dicts()
+            )
+
     def _load_labor_config(self) -> list[TreeItemDevice | TreeItemGroup]:
         """Loads the hierarchy of devices and groups from `labor-config.json`.
 
-        The file 'labor-config.json' is expected to be located in the root directory of this project.
+        The file 'labor-config.json' is expected to be located in the root
+        directory of this project.
 
         @return The hierarchy of devices and groups.
         """
@@ -97,7 +123,8 @@ class SmartplugApp(AppConfig):
             )
         except IOError:
             self._logger.error(
-                f"Error while reading the file labor-config at {lab_config_path}."
+                f"Error while reading the file labor-config at "
+                f"{lab_config_path}."
             )
 
         # 2. convert string from file to JSON (dicts and lists)
@@ -106,13 +133,15 @@ class SmartplugApp(AppConfig):
             lab_config_python_obj = json.loads(lab_config_json_string)
         except ValueError as e:
             self._logger.error(
-                f"Could not parse the labor-config to JSON because {e}: {lab_config_json_string}."
+                "Could not parse the labor-config to JSON because "
+                f"{e}: {lab_config_json_string}."
             )
 
         # 3. convert to classes
 
         with SmartplugApp._device_tree_mutex:
-            # errors from parsing will not be logged but will result in an unhandled exception immediately after starting the server
+            # errors from parsing will not be logged but will result in an
+            # unhandled exception immediately after starting the server
             SmartplugApp._device_tree = self._object_list_to_tree_item_list(
                 lab_config_python_obj
             )
@@ -136,21 +165,26 @@ class SmartplugApp(AppConfig):
         @return A list of TreeItems.
         """
 
-        # Note: passing a member function as a callback causes doxygen to think it is a new attribute.
-        # Seems to be a bug fixed in doxygen 1.13 but that is not available to linux via apt.
+        # Note: passing a member function as a callback causes doxygen to think
+        # it is a new attribute.
+        # Seems to be a bug fixed in doxygen 1.13 but that is not available to
+        # linux via apt.
         return list(map(self._object_to_tree_item, object_list))
 
     def _object_to_tree_item(self, obj: dict) -> TreeItem:
-        """Converts a (hierarchy of) dictionary(s) (aka JSON) to a (hierarchy of) TreeItem(s).
+        """Converts a (hierarchy of) dictionary(s) (aka JSON) to a (hierarchy
+        of) TreeItem(s).
 
         Verifies the structure of the data and provides feedback.
 
-        @param obj A dictionary representing a tree item, possibly with more tree items as childrens.
+        @param obj A dictionary representing a tree item, possibly with more
+        tree items as childrens.
 
         @return A TreeItem with possibly more TreeItems as its children.
         """
 
-        # also verifies the correctness of the data, providing feedback to the admin using error messages
+        # also verifies the correctness of the data, providing feedback to the
+        # admin using error messages
 
         if "label" not in obj.keys():
             raise BackendError(f"Object {obj} is missing property 'label'.")
@@ -201,12 +235,15 @@ class SmartplugApp(AppConfig):
         else:
             tree_item.turn_off_if_all_in_list_are_off = None
 
-        # Use (cryptographic) hash of the items label for the id in order to keep the same id across runs.
-        # This hides the deviceId of the smartplugs from the clients and gives ids to groups as well.
+        # Use (cryptographic) hash of the items label for the id in order to
+        # keep the same id across runs.
+        # This hides the deviceId of the smartplugs from the clients and gives
+        # ids to groups as well.
         hash_source: str = tree_item.label
         tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
         while tree_item.id in SmartplugApp._id_to_tree_item_mapping:
-            # if the label is not unique in the file change the hash source (deterministically) until a unique hash is created
+            # if the label is not unique in the file change the hash source
+            # (deterministically) until a unique hash is created
             hash_source += "0"
             tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
 
@@ -236,9 +273,11 @@ class SmartplugApp(AppConfig):
                     tree_item.isOn = not tree_item.isOn
 
     def get_device_tree_dicts(self) -> list[dict]:
-        """Function to answer a call to /gettree, returns the current state of the tree.
+        """Function to answer a call to /gettree, returns the current state of
+        the tree.
 
-        @return A hierarchy of dictionaries and lists representing the current state of the device tree.
+        @return A hierarchy of dictionaries and lists representing the current
+        state of the device tree.
         """
 
         device_tree_dict: list[dict] = []
@@ -255,11 +294,14 @@ class SmartplugApp(AppConfig):
         return device_tree_dict
 
     def switch(self, id: str, isOn: bool) -> None:
-        """Function to answer a call to /switch, turns devices and groups on/off according to the request.
+        """Function to answer a call to /switch, turns devices and groups
+        on/off according to the request.
 
         @param id The id of the device or group to switch.
 
-        @param isOn A boolean indicating if the item should be turned on (True) or off (False). Ignores PEP8 naming convention to match the name of the variable across the project.
+        @param isOn A boolean indicating if the item should be turned on (True)
+        or off (False). Ignores PEP8 naming convention to match the name of the
+        variable across the project.
         """
 
         # TODO: break function into smaller parts
@@ -268,11 +310,14 @@ class SmartplugApp(AppConfig):
         requests_dropped: bool = False
 
         def switch_recursive(id: str, isOn: bool):
-            """A helper function that switches the item as well as all children in case the item is a group.
+            """A helper function that switches the item as well as all children
+            in case the item is a group.
 
             @param id The id of the device or group to switch.
 
-            @param isOn A boolean indicating if the item should be turned on (True) or off (False). Ignores PEP8 naming convention to match the name of the variable across the project.
+            @param isOn A boolean indicating if the item should be turned on
+            (True) or off (False). Ignores PEP8 naming convention to match the
+            name of the variable across the project.
             """
 
             if id not in SmartplugApp._id_to_tree_item_mapping:
@@ -295,10 +340,13 @@ class SmartplugApp(AppConfig):
 
                     now = datetime.datetime.now()
 
-                    # TODO: need to save last 'switch ON time' (mutex), wait if below delay
-                    # TODO: only delay between device switches, not at beginning or end of request
+                    # TODO: need to save last 'switch ON time' (mutex), wait if
+                    # below delay
+                    # TODO: only delay between device switches, not at
+                    # beginning or end of request
                     if isOn:
-                        # only delay switching when switching ON (no inrush current when switching OFF)
+                        # only delay switching when switching ON (no inrush
+                        # current when switching OFF)
                         with SmartplugApp._last_switch_on_date_time_mutex:
 
                             time_passed_since_last_switch_on: (
@@ -329,18 +377,22 @@ class SmartplugApp(AppConfig):
                         < datetime.timedelta(seconds=SWITCHING_TOGGLE_DELAY)
                     ):
 
-                        # need to declare variable as 'nonlocal' to avoid redefining it
+                        # need to declare variable as 'nonlocal' to avoid 
+                        # redefining it
                         nonlocal requests_dropped
                         requests_dropped = True
 
-                        # if last switch request was not that long ago -> drop this request
+                        # if last switch request was not that long ago -> drop 
+                        # this request
                         return
 
                     tree_item.time_last_switched = now
 
                     # TODO: try sending MQTT request here !!!
 
-                    # TODO: do NOT set state here / send update event here, wait for signal from plug that it changed somewhere else in the code
+                    # TODO: do NOT set state here / send update event here, 
+                    # wait for signal from plug that it changed somewhere else 
+                    # in the code
                     tree_item.isOn = isOn
 
                 # notify SSE subscribers about changes to the device tree
@@ -356,7 +408,8 @@ class SmartplugApp(AppConfig):
                     switch_recursive(child.id, isOn)
             else:
                 raise BackendError(
-                    f"Implementation error, 'tree_item' {tree_item} is of unknown class: {type(tree_item)}."
+                    f"Implementation error, 'tree_item' {tree_item} is of "
+                    f"unknown class: {type(tree_item)}."
                 )
 
         # TODO: remove, simulating latency
@@ -367,9 +420,13 @@ class SmartplugApp(AppConfig):
         # TODO: add info about delay value
         if requests_dropped:
             raise BackendError(
-                f"Some switch requests were not executed in order to comply with the per device switching delay of {SWITCHING_TOGGLE_DELAY} seconds.",
+                f"Some switch requests were not executed in order to comply "
+                f"with the per device switching delay of "
+                f"{SWITCHING_TOGGLE_DELAY} seconds.",
                 status.HTTP_409_CONFLICT,
-                f"Some switch requests were not executed in order to comply with the per device switching delay of {SWITCHING_TOGGLE_DELAY} seconds.",
+                f"Some switch requests were not executed in order to comply "
+                f"with the per device switching delay of "
+                f"{SWITCHING_TOGGLE_DELAY} seconds.",
             )
 
     def _solve_item_dependencies(self):
@@ -397,14 +454,16 @@ class SmartplugApp(AppConfig):
 
                 if all_devices_are_off:
                     ids_to_switch_off.append(tree_item.id)
-                # TODO: problem: need to do this again and again, because turning something off could trigger another dependency
+                # TODO: problem: need to do this again and again, because 
+                # turning something off could trigger another dependency
 
             if isinstance(tree_item, TreeItemGroup):
                 for child in tree_item.children:
                     solve_recursive(child.id)
             else:
                 raise BackendError(
-                    f"Implementation error, 'tree_item' {tree_item} is of unknown class: {type(tree_item)}."
+                    f"Implementation error, 'tree_item' {tree_item} is of "
+                    f"unknown class: {type(tree_item)}."
                 )
 
         with SmartplugApp._device_tree_mutex:
@@ -445,7 +504,8 @@ class SmartplugApp(AppConfig):
                     collect_dependencies(child.id, add_to_all_children)
             else:
                 raise BackendError(
-                    f"Implementation error, 'tree_item' {tree_item} is of unknown class: {type(tree_item)}."
+                    f"Implementation error, 'tree_item' {tree_item} is of "
+                    f"unknown class: {type(tree_item)}."
                 )
 
         with SmartplugApp._device_tree_mutex:
@@ -459,6 +519,7 @@ class SmartplugApp(AppConfig):
             # go over all deps:
             # if dep is referenced in another dep:
 
-            # TODO: add dependencies of dependencies, detect circular dependencies
+            # TODO: add dependencies of dependencies, detect circular 
+            # dependencies
 
         # TODO: check dependencies during switching
