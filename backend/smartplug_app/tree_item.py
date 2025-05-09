@@ -1,7 +1,5 @@
 """Contains classes for storing the device tree."""
 
-from functools import reduce
-
 
 class TreeItem:
     """A pure data class that groups common properties of a tree items."""
@@ -78,34 +76,32 @@ class TreeItemGroup(TreeItem):
 
         # decide state of group based on children
 
-        def combine_bools(state_a: bool, state_b: bool) -> bool | None:
-            """Callback used for reduce(). Decides what the common state is
-            given the state of two items.
+        isOn: bool = None
+        isAvailable: bool = None
 
-            @param state_a The state of the first item.
+        # if all children states are True, so is the group
 
-            @param state_b The state of the second item.
+        if all(children_isOn):
+            isOn = True
 
-            @return The common state of the items.
-            """
-            if state_a is True and state_b is True:
-                return True
-            elif state_a is False and state_b is False:
-                return False
-            else:
-                return None
+        if all(children_isAvailable):
+            isAvailable = True
 
-        if len(children_isOn) != 0:
-            # TODO: improve explanation
-            # no initial value passed to reduce() because desired behavior cannot be achieved using reduce
-            isOn: bool = reduce(combine_bools, children_isOn)
-        else:
-            isOn: bool = None
+        children_isOn_negated: list[bool] = [
+            not item for item in children_isOn
+        ]
 
-        if len(children_isAvailable) != 0:
-            isAvailable: bool = reduce(combine_bools, children_isAvailable)
-        else:
-            isAvailable: bool = None
+        children_isAvailable_negated: list[bool] = [
+            not item for item in children_isAvailable
+        ]
+
+        # if all children states are False (i.e. all children states negated are True), so is the group
+
+        if all(children_isOn_negated):
+            isOn = False
+
+        if all(children_isAvailable_negated):
+            isAvailable = False
 
         return {
             "label": self.label,
