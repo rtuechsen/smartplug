@@ -8,6 +8,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { JSX } from '@emotion/react/jsx-runtime';
 import DeviceTreeView from './DeviceTreeView';
 import ErrorDisplay from './ErrorDisplay';
+import Login from './components/Login';
 
 
 /**
@@ -20,10 +21,13 @@ import ErrorDisplay from './ErrorDisplay';
  * @return The react component of the main app.
  */
 function App(): JSX.Element {
-
+	const [isLoggedIn, setLoggedInState] = React.useState(false);
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
-	const [isLoggedIn, setLoggedIn] = React.useState(false);
+
+	const onLoginSuccess = () => {
+		setLoggedInState(true)
+	}
 
 	async function displayError(message: string): Promise<void> {
 		if (isErrorOpen) {
@@ -42,10 +46,6 @@ function App(): JSX.Element {
 		},
 	});
 
-	const onLoginSuccess = () => {
-		setLoggedIn(true)
-	}
-
 	return (
 		// The ThemeProvider has to encapsulate the whole app.
 		// Then a paper area is added to the top of the page to hold the title.
@@ -60,7 +60,6 @@ function App(): JSX.Element {
 			<Box sx={{ padding: '1.5rem' }}>
 				{isLoggedIn ? <DeviceTreeView displayError={displayError} /> : <Login callback={onLoginSuccess} />}
 				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
-				<DeviceTreeView displayError={displayError} />
 				<ErrorDisplay message={currentErrorMessage} isErrorOpen={isErrorOpen} setIsErrorOpen={setIsErrorOpen} />
 			</Box>
 		</ThemeProvider >
