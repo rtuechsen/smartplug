@@ -60,6 +60,7 @@ function App(): JSX.Element {
 			<Box sx={{ padding: '1.5rem' }}>
 				{isLoggedIn ? <DeviceTreeView displayError={displayError} /> : <Login callback={onLoginSuccess} />}
 				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
+				<DeviceTreeView displayError={displayError} />
 				<ErrorDisplay message={currentErrorMessage} isErrorOpen={isErrorOpen} setIsErrorOpen={setIsErrorOpen} />
 			</Box>
 		</ThemeProvider >

@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import api_view
 from .request_manager import RequestManager
+from asgiref.sync import async_to_sync
 
 ## The instance of the RequestManager. All requests are forwared to it.
 request_manager = RequestManager()
@@ -39,7 +40,7 @@ def login(request: Request) -> Response:
 
     @return The response from the request manager for the REST API.
     """
-    return request_manager.login(request)
+    return async_to_sync(request_manager.login)(request)
 
 
 @api_view(["POST"])

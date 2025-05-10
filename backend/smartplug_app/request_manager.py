@@ -12,6 +12,9 @@ import yaml
 from .apps import SmartplugApp
 from .logger import Logger
 from .error_handler import ErrorHandler, BackendError
+from .login_manager import LoginManager
+
+login_manager = LoginManager()
 
 
 # rules for input validation (OWASP):
@@ -81,9 +84,15 @@ class RequestManager:
         """TODO: write docstring when merging login branch"""
         return Response(None, status=status.HTTP_200_OK)
 
-    def logout(self, request: Request) -> Response:
+    async def login(self, request: Request) -> Response:
         """TODO: write docstring when merging login branch"""
-        return Response(None, status=status.HTTP_200_OK)
+        username = request.data.get('username')
+        password = request.data.get('password')
+        is_verified = await login_manager.login(username, password, request)
+        if is_verified:
+            return Response(None, status=status.HTTP_200_OK)
+        else:
+            return Response(None, status=status.HTTP_401_UNAUTHORIZED)
 
     def gettree(self, _: Request) -> Response:
         """Function to process requests to /gettree .
