@@ -64,8 +64,10 @@ class LoginManager:
         # stored server-side and referenced by the session-id.
         # https://stackoverflow.com/questions/5113421/what-is-the-difference-between-a-cookie-and-a-session-in-django
         # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
+        
+        # If the user is not using the device that the session expects,
+        # terminate the process early and deny access.
         if not _validate_request_origin(request):
-            print("WRONG ORIGIN")
             return False
         
         user = request.session.get('USERNAME')
