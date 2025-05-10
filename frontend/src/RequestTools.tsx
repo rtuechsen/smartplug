@@ -1,25 +1,19 @@
 
-/******************************************************************************************
- * @packageDocumentation  RequestTools.tsx
- * 
- * # TODO
- ******************************************************************************************/
-
 /**
- * The CSRF token
+ * The CSRF token - needed to prevent CSRF. 
  *
- * Needed for requests to the API (except GET requests). Only fetched once. 
+ * Required for making requests to the API (except GET requests). Token is provided by the API itself.
  */
 let csrfToken: string = '';
 
 
 /**
- * A function that requests a CSRF token from the API
+ * A function that requests a CSRF token from the API.
  *
  * Requests the token when first called and simply returns the token on
  * subsequent calls.
  * 
- * @return the CSRF token
+ * @return The CSRF token.
  */
 export async function getCsrfToken(): Promise<string> {
 	if (csrfToken === '') {

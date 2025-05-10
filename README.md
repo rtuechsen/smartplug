@@ -13,9 +13,9 @@ To store your git password (AS PLAINTEXT - DO NOT USE A PASSWORD YOU ARE USING S
 `git config --global user.password YOUR_PASSWORD`  
 Note that there are no Quotes around the password in contrast to user name or email.  
 
-Clone this repo using: `git clone https://gitlab.com/proi3/shelly-dirigent.git`  
+Clone this repo using: `git clone https://gitlab.com/proi3/smartplug-dirigent.git`  
 
-Enter project folder with `cd shelly-dirigent`.  
+Enter project folder with `cd smartplug-dirigent`.  
 Run `bash install.sh` to install the project.  
 VSCode should find the python virtual environment automatically ONCE you have opened a python file. For existing terminals VSCode will ask you to reload them.  
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
@@ -50,5 +50,10 @@ Requires the extension `ESLint` for in-code-linting in VSCode.
 
 ## Documentation
 
-- Python: [Doxygen](https://www.doxygen.nl/manual/docblocks.html#pythonblocks)
-- Typescript: [TypeDoc](https://typedoc.org/documents/Overview.html)
+After building the documentation using `bash generate_documentation.sh` the docs can be found at:
+
+- backend: [./backend/docs/html/index.html](./backend/docs/html/index.html)
+- frontend: [./frontend/docs/index.html](./frontend/docs/index.html)
+
+The API is not documented using html but as an OpenAPI document in YAML format:
+- API: [./openapi.yaml](./openapi.yaml)

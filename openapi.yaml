@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: Shelly Dirigent
+  title: Smartplug Dirigent
   description: |
-    This API allows to view and control shelly plugs.
+    This API allows to view and control smartplugs.
   version: 0.1.0
 paths:
   /:
