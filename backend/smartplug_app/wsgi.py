@@ -1,5 +1,4 @@
-"""
-WSGI config for smartplug_app project.
+"""WSGI config for smartplug_app project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

@@ -1,5 +1,4 @@
-"""
-ASGI config for smartplug_app project.
+"""ASGI config for smartplug_app project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

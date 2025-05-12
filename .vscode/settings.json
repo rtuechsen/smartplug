@@ -24,7 +24,12 @@
 		"editor.defaultFormatter": "ms-python.black-formatter",
 		"editor.detectIndentation": false,
 		"editor.insertSpaces": true,
-		"editor.tabSize": 4
+		"editor.tabSize": 4,
+		"editor.rulers": [
+			{
+				"column": 79
+			}
+		]
 	},
 	"git.mergeEditor": true,
 	"typescript.validate.enable": false,
@@ -45,5 +50,6 @@
 	"black-formatter.args": [
 		"--line-length",
 		"79"
-	]
+	],
+	"editor.wordWrap": "off"
 }

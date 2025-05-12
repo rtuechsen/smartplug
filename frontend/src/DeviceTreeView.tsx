@@ -21,7 +21,7 @@ export interface RichTreeViewItemSlotOwnerState {
 /**
  * The Tree View that displays all devices and groups in a hierarchy
  *
- * Allows to view and controll devices and groups.
+ * Allows to view and control devices and groups.
  * 
  * @param props The properties needed to construct the tree view.
  * 
@@ -43,7 +43,7 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 	// take changes to the tree labels into account and requires a page reload to display the changes properly
 	// if the admin changes the configuration while the site is displayed).
 	// useLayoutEffect() (in contrast to useEffect() ) runs at a point in time where the components and their 
-	// dimensions are already knwon. This is needed to measure the width of the tree. But because the data for
+	// dimensions are already known. This is needed to measure the width of the tree. But because the data for
 	// the tree needs to be fetched from the backend this function has already run by the time the data is available.
 	// To trigger that function again after the data arrived we use the following state bool as a dependency 
 	// for useLayoutEffect(). Changes to that state bool will trigger the function again.  

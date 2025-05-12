@@ -1,5 +1,5 @@
 
-// TODO: de-duplicate DeviceTreeItemData, DeviceTreeItemLabelProps, OnIconProps, AvilableIconProps ???
+// TODO: de-duplicate DeviceTreeItemData, DeviceTreeItemLabelProps, OnIconProps, AvailableIconProps ???
 
 /**
  * The definition of the main (hierarchical) data structure for holding the tree data in the frontend.
@@ -14,7 +14,7 @@ interface DeviceTreeItemData {
 	label: string;
 
 	/**
-	 * The unique id of the item. A string of hexadecimal digits of lenght 64.
+	 * The unique id of the item. A string of hexadecimal digits of length 64.
 	 */
 	id: string;
 
@@ -29,7 +29,7 @@ interface DeviceTreeItemData {
 	isAvailable: boolean;
 
 	/**
-	 * A list of TreeItems that this group combines. If defined the item is considered a group, not a device. While it does not make a lot of sense, the array can be emtpy.
+	 * A list of TreeItems that this group combines. If defined the item is considered a group, not a device. While it does not make a lot of sense, the array can be empty.
 	 */
 	children?: DeviceTreeItemData[];
 }

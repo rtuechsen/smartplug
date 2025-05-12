@@ -1,6 +1,6 @@
 
 /**
- * The CSRF token - needed to prevent CRSF. 
+ * The CSRF token - needed to prevent CSRF. 
  *
  * Required for making requests to the API (except GET requests). Token is provided by the API itself.
  */

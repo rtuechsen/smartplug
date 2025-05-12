@@ -50,5 +50,10 @@ Requires the extension `ESLint` for in-code-linting in VSCode.
 
 ## Documentation
 
-- Python: [Doxygen](https://www.doxygen.nl/manual/docblocks.html#pythonblocks)
-- Typescript: [TypeDoc](https://typedoc.org/documents/Overview.html)
+After building the documentation using `bash generate_documentation.sh` the docs can be found at:
+
+- backend: [./backend/docs/html/index.html](./backend/docs/html/index.html)
+- frontend: [./frontend/docs/index.html](./frontend/docs/index.html)
+
+The API is not documented using html but as an OpenAPI document in YAML format:
+- API: [./openapi.yaml](./openapi.yaml)
