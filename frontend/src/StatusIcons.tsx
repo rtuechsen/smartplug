@@ -281,7 +281,7 @@ export function AvailableIcon2({ isAvailable, isGroup }: AvilableIconProps): JSX
 			break;
 		case false:
 			tooltip += 'not available';
-			icon = <WifiOffOutlinedIcon />;
+			icon = <WifiOffRoundedIcon />;
 			break;
 		default:
 			tooltip = 'Devices in group are partially available';
