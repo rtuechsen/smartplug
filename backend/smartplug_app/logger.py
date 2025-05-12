@@ -51,6 +51,8 @@ class Logger:
     ## '/var/log/smartplugdirigent/'.
     _output_folder: Path = Path("/var/log/smartplugdirigent/")
 
+    _log_file_path: Path = _output_folder / "smartplugdirigent.log"
+
     def __new__(cls):
         """Creates an instance of the class.
 
@@ -131,63 +133,48 @@ class Logger:
     def _write_queue_to_file(self) -> None:
         """Function for the worker thread.
 
-        Takes incoming logs from the log_queue and writes them to a log
-        file.
+        Takes incoming logs from the log_queue and writes them to a log file.
         """
+        try:
+            with open(
+                self._log_file_path, mode="a", encoding="utf-8"
+            ) as log_file:
 
-        last_filename: str = None
-        log_file: TextIOWrapper = None
+                while True:
 
-        while True:
-            log: Log = self._log_queue.get()
+                    log: Log = self._log_queue.get()
+                    log_str: str = f"{log.date} {log.time} {log.message}\n"
 
-            filename: str = log.date.replace("-", "_") + ".log"
+                    # log to console
+                    print(log_str)
+                    # log to file
+                    log_file.write(log_str)
 
-            # check if the currently open log file is matches the log date
-            if filename != last_filename:
+                    # better to write to file immediatly so that logs don't get
+                    # lost if something happens
+                    log_file.flush()
 
-                # file is not open currently
+                    self._log_queue.task_done()
 
-                # close open file if exists
-                if log_file:
-                    log_file.close()
-
-                # open the new file
-                log_file_path: Path = self._output_folder / filename
-                try:
-                    log_file = open(log_file_path, mode="a", encoding="UTF-8")
-                except FileNotFoundError:
-                    # these errors are printed to console directly as logging
-                    # obviously does not work properly
-                    print(
-                        f"ERROR: Could not find the log file {log_file_path}. "
-                        "Logging will not work until this issue is fixed and "
-                        "the server is restarted."
-                    )
-                    # end the logging process, but keep the server running as
-                    # this is not a fatal error
-                    return
-                except IOError:
-                    # these errors are printed to console directly as logging
-                    # obviously does not work properly
-                    print(
-                        f"ERROR: While reading the log file {log_file_path}. "
-                        "Logging will not work until this issue is fixed and "
-                        "the server is restarted."
-                    )
-                    # end the logging process, but keep the server running as
-                    # this is not a fatal error
-                    return
-
-            last_filename = filename
-
-            log_str: str = f"{log.date} {log.time} {log.message}\n"
-
-            print(log_str)
-            log_file.write(log_str)
-
-            # better to write to file immediatly so that logs don't get lost
-            # if something happens
-            log_file.flush()
-
-            self._log_queue.task_done()
+        except FileNotFoundError:
+            # these errors are printed to console directly as logging obviously
+            # does not work properly
+            print(
+                f"ERROR: Could not find the log file {self._log_file_path}. "
+                "Logging will not work until this issue is fixed and the "
+                "server is restarted."
+            )
+            # end the logging process, but keep the server running as this is
+            # not a fatal error
+            return
+        except IOError:
+            # these errors are printed to console directly as logging obviously
+            # does not work properly
+            print(
+                f"ERROR: While reading the log file {self._log_file_path}. "
+                "Logging will not work until this issue is fixed and the "
+                "server is restarted."
+            )
+            # end the logging process, but keep the server running as this is
+            # not a fatal error
+            return
