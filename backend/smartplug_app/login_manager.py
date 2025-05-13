@@ -1,6 +1,11 @@
 from rest_framework.request import Request
 from django.conf import settings
 import asyncio
+from .error_handler import BackendError
+from rest_framework import status
+
+_ERROR_CREDENTIAL_MISMATCH: str = "User credentials do not match."
+_ERROR_BAD_REQUEST: str         = "There is an issue with the request."
 
 # simulates LDAP-Process
 # TODO: Implement LDAP
@@ -8,11 +13,11 @@ import asyncio
 # Just in case it does, it is async for now
 # TODO: Verify that async is necessary
 async def authenticate(username: str, password: str) -> bool:
-    await asyncio.sleep(5)
+    await asyncio.sleep(2)
     if username == 'user' and password == 'pass':
         return True
     else:
-        return False
+        raise BackendError(message=_ERROR_CREDENTIAL_MISMATCH, status_code=status.HTTP_401_UNAUTHORIZED, user_message="TEST")
 
 def _validate_request_origin(request: Request) -> bool:
     # Check that the values from the start of the session match
@@ -22,15 +27,18 @@ def _validate_request_origin(request: Request) -> bool:
         accept_language = request.session['HTTP_ACCEPT_LANGUAGE']
         ip_address = request.session['REMOTE_ADDR']
         
-        return all([
+        if all([
             user_agent == request.META.get('HTTP_USER_AGENT'),
             accept_language == request.META.get('HTTP_ACCEPT_LANGUAGE'),
             ip_address == request.META.get('REMOTE_ADDR'),
-        ])
-    # When this occurs, the user tried to make a call without being
-    # signed in.
+        ]):
+            return True
+        else:
+            raise BackendError(message=_ERROR_CREDENTIAL_MISMATCH, status_code=status.HTTP_401_UNAUTHORIZED, user_message="TEST")
+    # KeyError occurs when the request is missing necessary data for
+    # verification.
     except KeyError:
-        return False
+        raise BackendError(message=_ERROR_BAD_REQUEST, status_code=status.HTTP_400_BAD_REQUEST, user_message="TEST")
 
 
 class LoginManager:
@@ -39,8 +47,16 @@ class LoginManager:
 
         # TODO: Integrate LDAP into login logic
         # TODO: Throw exception on login fail
-    async def login(self, username: str, password: str, request: Request) -> bool:
-        print(request.META['HTTP_USER_AGENT'])
+    async def login(self, request: Request) -> bool:
+        username: str = None
+        password: str = None
+        try:
+            username = request.data.get('username')
+            password = request.data.get('password')
+        except KeyError:
+            raise BackendError(message=_ERROR_BAD_REQUEST, status_code=status.HTTP_400_BAD_REQUEST, user_message="TEST")
+
+        
         is_verified = await authenticate(username=username, password=password)
         if is_verified:
             request.session['USERNAME'] = username
@@ -49,7 +65,7 @@ class LoginManager:
             request.session['REMOTE_ADDR'] = request.META['REMOTE_ADDR']
             return True
         else:
-            return False
+            raise BackendError(message=_ERROR_CREDENTIAL_MISMATCH, status_code=status.HTTP_401_UNAUTHORIZED, user_message="TEST")
 
     def logout(self, request: Request):
         # Flushing the session will delete it and protects
@@ -65,16 +81,16 @@ class LoginManager:
         # https://stackoverflow.com/questions/5113421/what-is-the-difference-between-a-cookie-and-a-session-in-django
         # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
         
-        # If the user is not using the device that the session expects,
-        # terminate the process early and deny access.
-        if not _validate_request_origin(request):
-            return False
-        
-        user = request.session.get('USERNAME')
-        if user:
-            # If there is a user and the user needs permission, it means an action happened.
-            # We therefor reset the expiry using the value in our settings.
-            request.session.set_expiry(settings.SESSION_COOKIE_AGE)
-            return True
-        else:
-            return False
+        # We validate the origin of the request. _validate_request_origin()
+        # will throw an exception if anything is wrong.
+        if _validate_request_origin(request):
+            try:
+                user = request.session.get('USERNAME')
+            except KeyError:
+                raise BackendError(message=_ERROR_BAD_REQUEST, status_code=status.HTTP_400_BAD_REQUEST, user_message="TEST")
+
+            if user:
+                # If there is a user and the user needs permission, it means an action happened.
+                # We therefor reset the expiry using the value in our settings.
+                request.session.set_expiry(settings.SESSION_COOKIE_AGE)
+                return True

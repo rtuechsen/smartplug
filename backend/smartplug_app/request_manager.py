@@ -80,15 +80,15 @@ class RequestManager:
             {"csrfToken": get_token(request)}, status=status.HTTP_200_OK
         )
 
-    def login(self, request: Request) -> Response:
-        """TODO: write docstring when merging login branch"""
-        return Response(None, status=status.HTTP_200_OK)
-
     async def login(self, request: Request) -> Response:
         """TODO: write docstring when merging login branch"""
-        username = request.data.get('username')
-        password = request.data.get('password')
-        is_verified = await login_manager.login(username, password, request)
+        try:
+            is_verified = await login_manager.login(request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message, e.status_code, e.user_message
+            )
+        
         if is_verified:
             return Response(None, status=status.HTTP_200_OK)
         else:

@@ -8,6 +8,7 @@ import React from "react";
 
 interface LoginProps {
 	callback: () => void;
+	displayError: (message: string) => Promise<void>
 }
 
 const Login: React.FC<LoginProps> = ({ callback }) => {
@@ -43,6 +44,9 @@ const Login: React.FC<LoginProps> = ({ callback }) => {
 
 		if (response.ok) {
 			callback()
+		} else {
+			const responseData = await response.json();
+			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
 		}
 
 	}
