@@ -29,13 +29,10 @@ class TreeItem:
 
         self.parent: TreeItemGroup
 
-        ## TODO: list of TreeItemDevices
-        self.turn_off_if_all_in_list_are_off: list[TreeItemDevice] = []
-
     def get_isOn(self) -> bool:
         return self._isOn
 
-    def set_isOn(self, new_isOn: bool) -> None:
+    def set_isOn(self, new_isOn: bool):
 
         if new_isOn != self._isOn:
             self._isOn = new_isOn
@@ -55,19 +52,6 @@ class TreeItem:
             if self.parent is not None:
                 self.parent.update_isAvailable_child(self._isAvailable)
 
-    def should_switch_off_based_on_dependencies(self) -> bool:
-
-        if self._isOn is False:
-            return False
-
-        are_all_depedencies_off: bool = all(
-            [
-                not item.get_isOn()
-                for item in self.turn_off_if_all_in_list_are_off
-            ]
-        )
-        return are_all_depedencies_off
-
 
 class TreeItemDevice(TreeItem):
     """A data class that groups common properties of a device."""
@@ -83,9 +67,12 @@ class TreeItemDevice(TreeItem):
 
         self.time_last_switched: datetime.datetime = datetime.datetime.now()
 
-        ## TODO: list of TreeItems
-        self.other_items_listening_for_this_device_switching_off: list[
-            TreeItem
+        ## TODO: list of TreeItemDevices
+        self.turn_off_if_all_in_list_are_off: list[TreeItemDevice] = []
+
+        ## TODO: list of TreeItemDevices
+        self.other_devices_listening_for_this_device_switching_off: list[
+            TreeItemDevice
         ] = []
 
     def to_dict(self) -> dict:
@@ -134,7 +121,9 @@ class TreeItemGroup(TreeItem):
             "children": children_dict,
         }
 
-    def _compute_state_from_child_update(self, state_name: str, new_child_state: bool) -> bool:
+    def _compute_state_from_child_update(
+        self, state_name: str, new_child_state: bool
+    ) -> bool:
 
         self_state: bool = getattr(self, state_name)
 
@@ -167,7 +156,9 @@ class TreeItemGroup(TreeItem):
 
     def update_isOn_child(self, new_child_isOn: bool) -> None:
 
-        new_isOn = self._compute_state_from_child_update("_isOn", new_child_isOn)
+        new_isOn = self._compute_state_from_child_update(
+            "_isOn", new_child_isOn
+        )
         self.set_isOn(new_isOn)
 
     def update_isAvailable_child(self, new_child_isAvailable: bool) -> None:

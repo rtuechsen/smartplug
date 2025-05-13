@@ -63,7 +63,7 @@ class SmartplugApp(AppConfig):
     _id_to_tree_item_mapping: dict[str, TreeItem] = {}
 
     ## A mapping to get the TreeItem for a given deviceId.
-    _device_id_to_tree_item_mapping: dict[str, TreeItem] = {}
+    _device_id_to_tree_item_mapping: dict[str, TreeItemDevice] = {}
 
     ## The logger instance (singleton) to log events and errors.
     _logger: Logger = Logger()
@@ -143,7 +143,7 @@ class SmartplugApp(AppConfig):
             # errors from parsing will not be logged but will result in an
             # unhandled exception immediately after starting the server
             SmartplugApp._device_tree = self._object_list_to_tree_item_list(
-                lab_config_python_obj, None
+                lab_config_python_obj, None, []
             )
             self._collect_dependencies()
 
@@ -157,7 +157,10 @@ class SmartplugApp(AppConfig):
         )
 
     def _object_list_to_tree_item_list(
-        self, object_list: list[dict], parent: TreeItemGroup
+        self,
+        object_list: list[dict],
+        parent: TreeItemGroup,
+        turn_off_if_all_in_list_are_off: list[TreeItemDevice],
     ) -> list[TreeItem]:
         """Converts a list of dictionaries (JSON) to a list of TreeItems.
 
@@ -179,13 +182,18 @@ class SmartplugApp(AppConfig):
         # linux via apt.
         return list(
             map(
-                lambda obj_list: self._object_to_tree_item(obj_list, parent),
+                lambda obj_list: self._object_to_tree_item(
+                    obj_list, parent, turn_off_if_all_in_list_are_off
+                ),
                 object_list,
             )
         )
 
     def _object_to_tree_item(
-        self, obj: dict, parent: TreeItemGroup
+        self,
+        obj: dict,
+        parent: TreeItemGroup,
+        turn_off_if_all_in_list_are_off: list[TreeItemDevice],
     ) -> TreeItem:
         """Converts a (hierarchy of) dictionary(s) (aka JSON) to a (hierarchy
         of) TreeItem(s).
@@ -203,10 +211,10 @@ class SmartplugApp(AppConfig):
         # also verifies the correctness of the data, providing feedback to the
         # admin using error messages
 
-        if "label" not in obj.keys():
+        if "label" not in obj:
             raise BackendError(f"Object {obj} is missing property 'label'.")
 
-        if "turn_off_if_all_in_list_are_off" in obj.keys():
+        if "turn_off_if_all_in_list_are_off" in obj:
             if len(obj.keys()) != 3:
                 raise BackendError(
                     f"Object {obj} has wrong amount of properties."
@@ -217,21 +225,31 @@ class SmartplugApp(AppConfig):
                     f"Object {obj} has wrong amount of properties."
                 )
 
-        if "deviceId" in obj.keys():
+        if "deviceId" in obj:
             if obj["deviceId"] in self._device_id_to_tree_item_mapping:
                 raise BackendError(
                     f"Property 'deviceId' of {obj} is not unique."
                 )
             tree_item = TreeItemDevice()
             tree_item.deviceId = obj["deviceId"]
+            if "turn_off_if_all_in_list_are_off" in obj:
+                tree_item.turn_off_if_all_in_list_are_off = obj[
+                    "turn_off_if_all_in_list_are_off"
+                ]
+            else:
+                tree_item.turn_off_if_all_in_list_are_off = []
             self._device_id_to_tree_item_mapping[tree_item.deviceId] = (
                 tree_item
             )
 
-        elif "children" in obj.keys():
+        elif "children" in obj:
             tree_item = TreeItemGroup()
+            if "turn_off_if_all_in_list_are_off" in obj:
+                turn_off_if_all_in_list_are_off.extend(
+                    obj["turn_off_if_all_in_list_are_off"]
+                )
             tree_item.children = self._object_list_to_tree_item_list(
-                obj["children"], tree_item
+                obj["children"], tree_item, turn_off_if_all_in_list_are_off
             )
             if len(tree_item.children) == 0:
                 self._logger.warn(f"Object {obj} is a group without children.")
@@ -243,13 +261,6 @@ class SmartplugApp(AppConfig):
 
         tree_item.label = obj["label"]
         tree_item.parent = parent
-
-        if "turn_off_if_all_in_list_are_off" in obj.keys():
-            tree_item.turn_off_if_all_in_list_are_off = obj[
-                "turn_off_if_all_in_list_are_off"
-            ]
-        else:
-            tree_item.turn_off_if_all_in_list_are_off = []
 
         # Use (cryptographic) hash of the items label for the id in order to
         # keep the same id across runs.
@@ -309,6 +320,89 @@ class SmartplugApp(AppConfig):
 
         return device_tree_dict
 
+    def on_device_switch(self, deviceId: str, isOn: bool) -> None:
+
+        # TODO: validate deviceId does exist
+        device = SmartplugApp._device_id_to_tree_item_mapping[deviceId]
+
+        device.set_isOn(isOn)
+
+        if device.get_isOn() is True:
+            return
+
+        # only do single dependency step! further deps will be handled once their isOn state has been confirmed
+
+        for (
+            listener_device
+        ) in device.other_devices_listening_for_this_device_switching_off:
+
+            if listener_device.get_isOn() is False:
+                # already off, no action needed
+                continue
+
+            # listener_device is ON, need to check its dependencies to see if should be turned OFF after change
+
+            trigger_states = [
+                trigger_device.get_isOn()
+                for trigger_device in listener_device.turn_off_if_all_in_list_are_off
+            ]
+
+            if all(not state for state in trigger_states):
+                SmartplugApp.switch(self, listener_device.id, False)
+
+    def _filter_devices_not_allowed_to_switch_on(
+        self,
+        devices_to_switch: list[TreeItemDevice],
+    ):
+
+        # re-evaluating tree should not be necessary while resolving deps (because devices cannot depend on groups)
+
+        resolved_states: dict[str, bool] = {}
+
+        # only need to make sure that all the devices are allowed to switch, e.g. not switching monitor on without PC on
+
+        # traverse deps backwards: first leaves with no own deps, then their listeners
+
+        # returns the new state a device
+        def will_be_on(device: TreeItemDevice):
+
+            # check if device has already been checked, return that value in that case
+            if device.deviceId in resolved_states:
+                return resolved_states[device.deviceId]
+
+            if device.get_isOn() is True:
+                resolved_states[device.deviceId] = True
+                return True
+
+            # device is OFF -> only way it might be ON afterwards if it is amoung devices_to_switch
+            if device not in devices_to_switch:
+                resolved_states[device.deviceId] = False
+                return False
+
+            # device is OFF, but is scheduled to be switched ON -> can still fail if all dependencies are off
+
+            trigger_states: list[bool] = [
+                will_be_on(trigger_device)
+                for trigger_device in device.turn_off_if_all_in_list_are_off
+            ]
+
+            if all(not state for state in trigger_states):
+                # do not allow to switch on if all dependencies are off
+                # will also choose this path if device has no dependencies
+                resolved_states[device.deviceId] = False
+                return False
+
+            resolved_states[device.deviceId] = True
+            return True
+
+        devices_allowed_to_switch_on = []
+
+        for device in devices_to_switch:
+            if will_be_on(device):
+                devices_allowed_to_switch_on.append(device)
+
+        return devices_allowed_to_switch_on
+
     def switch(self, id: str, isOn: bool) -> None:
         """Function to answer a call to /switch, turns devices and groups
         on/off according to the request.
@@ -322,132 +416,126 @@ class SmartplugApp(AppConfig):
 
         # TODO: break function into smaller parts
 
-        # if requests are dropped due to SWITCHING_TOGGLE_DELAY
-        requests_dropped: bool = False
+        if id not in SmartplugApp._id_to_tree_item_mapping:
 
-        def switch_recursive(id: str, isOn: bool):
-            """A helper function that switches the item as well as all children
-            in case the item is a group.
+            raise BackendError(
+                f"Specified id {id} does not exist.",
+                status.HTTP_400_BAD_REQUEST,
+                "Specified id does not exist.",
+            )
 
-            @param id The id of the device or group to switch.
+        def choose_devices_to_switch(
+            id: str, isOn: bool
+        ) -> list[TreeItemDevice]:
 
-            @param isOn A boolean indicating if the item should be turned on
-            (True) or off (False). Ignores PEP8 naming convention to match the
-            name of the variable across the project.
-            """
+            def get_devices(tree_item: TreeItem):
 
-            if id not in SmartplugApp._id_to_tree_item_mapping:
+                if isinstance(tree_item, TreeItemDevice):
+                    return [tree_item]
 
-                raise BackendError(
-                    f"Specified id {id} does not exist.",
-                    status.HTTP_400_BAD_REQUEST,
-                    "Specified id does not exist.",
-                )
+                elif isinstance(tree_item, TreeItemGroup):
+                    devices = []
+                    for child in tree_item.children:
+                        devices.extend(get_devices(child))
+                    return devices
 
             tree_item = SmartplugApp._id_to_tree_item_mapping[id]
+            all_devices: list[TreeItemDevice] = get_devices(tree_item)
+            devices_to_switch: list[TreeItemDevice] = [
+                device
+                for device in all_devices
+                if device.get_isOn() is not isOn
+            ]
 
-            if isinstance(tree_item, TreeItemDevice):
+            if isOn is True:
+                devices_to_switch: list[TreeItemDevice] = (
+                    self._filter_devices_not_allowed_to_switch_on(
+                        devices_to_switch
+                    )
+                )
 
-                with SmartplugApp._device_tree_mutex:
+            return devices_to_switch
 
-                    if tree_item.get_isOn() == isOn:
-                        # isOn is already in desired state, no switching needed
-                        return
+        devices_to_switch: list[TreeItemDevice] = choose_devices_to_switch(
+            id, isOn
+        )
 
-                    now = datetime.datetime.now()
+        # if requests are dropped due to SWITCHING_TOGGLE_DELAY
+        were_requests_dropped: bool = False
 
-                    # need to save last 'switch ON time' (mutex), wait if
-                    # below delay
-                    # TODO: only delay between device switches, not at
-                    # beginning or end of request
-                    if isOn:
-                        # only delay switching when switching ON (no inrush
-                        # current when switching OFF)
-                        with SmartplugApp._last_switch_on_date_time_mutex:
+        for device in devices_to_switch:
 
-                            time_passed_since_last_switch_on: (
-                                datetime.timedelta
-                            ) = (now - SmartplugApp._last_switch_on_date_time)
+            with SmartplugApp._device_tree_mutex:
 
-                            if (
-                                time_passed_since_last_switch_on.seconds
-                                < INRUSH_CURRENT_DELAY
-                            ):
+                if device.get_isOn() is isOn:
+                    # isOn is already in desired state, no switching needed
+                    return
 
-                                time.sleep(
-                                    INRUSH_CURRENT_DELAY
-                                    - time_passed_since_last_switch_on.seconds
-                                )
+                now = datetime.datetime.now()
 
-                            SmartplugApp._last_switch_on_date_time = (
-                                datetime.datetime.now()
+                # need to save last 'switch ON time' (mutex), wait if
+                # below delay
+                # TODO: only delay between device switches, not at
+                # beginning or end of request
+                if isOn:
+                    # only delay switching when switching ON (no inrush
+                    # current when switching OFF)
+                    with SmartplugApp._last_switch_on_date_time_mutex:
+
+                        time_passed_since_last_switch_on: (
+                            datetime.timedelta
+                        ) = (now - SmartplugApp._last_switch_on_date_time)
+
+                        if (
+                            time_passed_since_last_switch_on.seconds
+                            < INRUSH_CURRENT_DELAY
+                        ):
+
+                            time.sleep(
+                                INRUSH_CURRENT_DELAY
+                                - time_passed_since_last_switch_on.seconds
                             )
 
-                    now = datetime.datetime.now()
-                    time_passed_since_last_switch_of_current_item: (
-                        datetime.timedelta
-                    ) = (now - tree_item.time_last_switched)
+                        SmartplugApp._last_switch_on_date_time = (
+                            datetime.datetime.now()
+                        )
 
-                    if (
-                        time_passed_since_last_switch_of_current_item
-                        < datetime.timedelta(seconds=SWITCHING_TOGGLE_DELAY)
-                    ):
+                now = datetime.datetime.now()
+                time_passed_since_last_switch_of_current_item: (
+                    datetime.timedelta
+                ) = (now - device.time_last_switched)
 
-                        # need to declare variable as 'nonlocal' to avoid
-                        # redefining it
-                        nonlocal requests_dropped
-                        requests_dropped = True
+                if (
+                    time_passed_since_last_switch_of_current_item
+                    < datetime.timedelta(seconds=SWITCHING_TOGGLE_DELAY)
+                ):
+                    were_requests_dropped = True
 
-                        # if last switch request was not that long ago -> drop
-                        # this request
-                        return
+                    # if last switch request was not that long ago -> drop
+                    # this request
+                    return
 
-                    tree_item.time_last_switched = now
+                device.time_last_switched = now
 
-                    # TODO: try sending MQTT request here !!!
+                # TODO: try sending MQTT request here !!!
 
-                    # TODO: do NOT set state here,
-                    # wait for signal from plug that it changed somewhere else
-                    # in the code
-                    tree_item.set_isOn(isOn)
-
-                # TODO: do NOT send update event here,
+                # TODO: do NOT set state here,
                 # wait for signal from plug that it changed somewhere else
                 # in the code
-                # notify SSE subscribers about changes to the device tree
-                django_eventstream.send_event(
-                    "device_tree_update",
-                    "message",
-                    self.get_device_tree_dicts(),
-                )
+                device.set_isOn(isOn)
 
-                if isOn is False:
-                    for listener_item in (
-                        tree_item.other_items_listening_for_this_device_switching_off
-                    ):
-                        # tell item to check its dependencies
-                        if listener_item.reevaluate_dependecies():
-
-                            # TODO: this device should switch off
-                            # TODO:
-                            pass
-
-            elif isinstance(tree_item, TreeItemGroup):
-                for child in tree_item.children:
-                    switch_recursive(child.id, isOn)
-            else:
-                raise BackendError(
-                    f"Implementation error, 'tree_item' {tree_item} is of "
-                    f"unknown class: {type(tree_item)}."
-                )
-
-        # TODO: remove, simulating latency
-        # time.sleep(1)
-
-        switch_recursive(id, isOn)
+            # TODO: do NOT send update event here,
+            # wait for signal from plug that it changed somewhere else
+            # in the code
+            # notify SSE subscribers about changes to the device tree
+            django_eventstream.send_event(
+                "device_tree_update",
+                "message",
+                self.get_device_tree_dicts(),
+            )
 
         # TODO: add info about delay value
-        if requests_dropped:
+        if were_requests_dropped:
             raise BackendError(
                 f"Some switch requests were not executed in order to comply "
                 f"with the per device switching delay of "
@@ -458,101 +546,6 @@ class SmartplugApp(AppConfig):
                 f"{SWITCHING_TOGGLE_DELAY} seconds.",
             )
 
-        # def _solve_item_dependencies(self):
-
-        #     ids_to_switch_off: list[str] = []
-
-        #     def solve_recursive(id: str):
-
-        #         tree_item = SmartplugApp._id_to_tree_item_mapping[id]
-
-        #         if tree_item.turn_off_if_all_in_list_are_off is not None:
-
-        #             # TODO: check status of all device_ids
-        #             all_devices_are_off = True
-        #             for deviceId in tree_item.turn_off_if_all_in_list_are_off:
-        #                 tree_item_dep: TreeItemDevice = (
-        #                     SmartplugApp._device_id_to_tree_item_mapping[deviceId]
-        #                 )
-        #                 if (
-        #                     tree_item_dep.isOn
-        #                     and tree_item_dep.id not in ids_to_switch_off
-        #                 ):
-        #                     all_devices_are_off = False
-        #                     break
-
-        #             if all_devices_are_off:
-        #                 ids_to_switch_off.append(tree_item.id)
-        #             # TODO: problem: need to do this again and again, because
-        #             # turning something off could trigger another dependency
-
-        #         if isinstance(tree_item, TreeItemGroup):
-        #             for child in tree_item.children:
-        #                 solve_recursive(child.id)
-        #         else:
-        #             raise BackendError(
-        #                 f"Implementation error, 'tree_item' {tree_item} is of "
-        #                 f"unknown class: {type(tree_item)}."
-        #             )
-
-        #     with SmartplugApp._device_tree_mutex:
-        #         for item in SmartplugApp._device_tree:
-        #             solve_recursive(item.id)
-
-        #     for id in ids_to_switch_off:
-        #         SmartplugApp.switch(self, id, False)
-
-        # def _build_dependency_tree(self):
-
-        # deviceId -> list[deviceId]
-        # if_I_turn_off -> those_might_turn_off
-        # e.g. PC1 -> [Monitor1, Monitor2]
-        dependencies: dict = {}
-
-        def collect_dependencies(id: str, add_to_all_children: list[str]):
-
-            tree_item = SmartplugApp._id_to_tree_item_mapping[id]
-
-            if tree_item.turn_off_if_all_in_list_are_off is not None:
-
-                add_to_all_children = (
-                    add_to_all_children
-                    + tree_item.turn_off_if_all_in_list_are_off
-                )
-
-            if isinstance(tree_item, TreeItemDevice):
-
-                for deviceId in add_to_all_children:
-                    if deviceId in dependencies:
-                        dependencies[deviceId].append(tree_item.deviceId)
-                    else:
-                        dependencies[deviceId] = [tree_item.deviceId]
-
-            elif isinstance(tree_item, TreeItemGroup):
-                for child in tree_item.children:
-                    collect_dependencies(child.id, add_to_all_children)
-            else:
-                raise BackendError(
-                    f"Implementation error, 'tree_item' {tree_item} is of "
-                    f"unknown class: {type(tree_item)}."
-                )
-
-        with SmartplugApp._device_tree_mutex:
-            for item in SmartplugApp._device_tree:
-                collect_dependencies(item.id, [])
-
-        another_dep_was_found = True
-        while another_dep_was_found:
-            another_dep_was_found = False
-
-            # go over all deps:
-            # if dep is referenced in another dep:
-
-            # TODO: add dependencies of dependencies, detect circular
-            # dependencies
-
-        # TODO: check dependencies during switching
-
     def _collect_dependencies(self):
         """
 
@@ -560,13 +553,18 @@ class SmartplugApp(AppConfig):
 
         """
 
+        # TODO: detect cyclic dependencies
+
         # TODO: do NOT re-use variable with different type !!!
-        # store deviceIds in dictionary during parsing
+        # store deviceIds in dictionary during parsing (local variable in load())
         def convert_ids_to_references(tree_item: TreeItem):
 
             for device_index, deviceId in enumerate(
                 tree_item.turn_off_if_all_in_list_are_off
             ):
+
+                # TODO: verify that deviceId exists
+
                 tree_item.turn_off_if_all_in_list_are_off[device_index] = (
                     SmartplugApp._device_id_to_tree_item_mapping[deviceId]
                 )
@@ -582,13 +580,14 @@ class SmartplugApp(AppConfig):
             item: TreeItemDevice | TreeItemGroup,
         ):
 
-            for dependency_item in item.turn_off_if_all_in_list_are_off:
+            if isinstance(item, TreeItemDevice):
+                for dependency_item in item.turn_off_if_all_in_list_are_off:
 
-                dependency_item.other_items_listening_for_this_device_switching_off.append(
-                    item
-                )
+                    dependency_item.other_devices_listening_for_this_device_switching_off.append(
+                        item
+                    )
 
-            if isinstance(item, TreeItemGroup):
+            elif isinstance(item, TreeItemGroup):
                 for child in item.children:
                     collect_dependencies_recursive(child)
 
