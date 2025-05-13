@@ -422,9 +422,7 @@ class SmartplugApp(AppConfig):
                 )
 
                 if isOn is False:
-                    for (
-                        listener_item
-                    ) in (
+                    for listener_item in (
                         tree_item.other_items_listening_for_this_device_switching_off
                     ):
                         # tell item to check its dependencies
