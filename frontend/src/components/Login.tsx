@@ -8,10 +8,10 @@ import React from "react";
 
 interface LoginProps {
 	callback: () => void;
-	displayError: (message: string) => Promise<void>
+	displayError: (message: string) => Promise<void>;
 }
 
-const Login: React.FC<LoginProps> = ({ callback }) => {
+const Login: React.FC<LoginProps> = ({ callback, displayError }) => {
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [password, setPassword] = React.useState('');
 	const [username, setUsername] = React.useState('');
@@ -46,7 +46,8 @@ const Login: React.FC<LoginProps> = ({ callback }) => {
 			callback()
 		} else {
 			const responseData = await response.json();
-			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+			console.log(`${response.status} ${response.statusText}: ${responseData.message}`);
+			displayError(`${responseData.message}`);
 		}
 
 	}

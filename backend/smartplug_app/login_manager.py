@@ -4,20 +4,22 @@ import asyncio
 from .error_handler import BackendError
 from rest_framework import status
 
-_ERROR_CREDENTIAL_MISMATCH: str = "User credentials do not match."
-_ERROR_BAD_REQUEST: str         = "There is an issue with the request."
-
 # simulates LDAP-Process
 # TODO: Implement LDAP
 # This function may have latency as it connects to another server.
 # Just in case it does, it is async for now
 # TODO: Verify that async is necessary
+
+
 async def authenticate(username: str, password: str) -> bool:
     await asyncio.sleep(2)
     if username == 'user' and password == 'pass':
         return True
     else:
-        raise BackendError(message=_ERROR_CREDENTIAL_MISMATCH, status_code=status.HTTP_401_UNAUTHORIZED, user_message="TEST")
+        raise BackendError(message=f'Credentials mismatch on user: {username}.',
+                           status_code=status.HTTP_401_UNAUTHORIZED,
+                           user_message='Either your password or username were incorrect.')
+
 
 def _validate_request_origin(request: Request) -> bool:
     # Check that the values from the start of the session match
@@ -26,7 +28,7 @@ def _validate_request_origin(request: Request) -> bool:
         user_agent = request.session['HTTP_USER_AGENT']
         accept_language = request.session['HTTP_ACCEPT_LANGUAGE']
         ip_address = request.session['REMOTE_ADDR']
-        
+
         if all([
             user_agent == request.META.get('HTTP_USER_AGENT'),
             accept_language == request.META.get('HTTP_ACCEPT_LANGUAGE'),
@@ -34,11 +36,14 @@ def _validate_request_origin(request: Request) -> bool:
         ]):
             return True
         else:
-            raise BackendError(message=_ERROR_CREDENTIAL_MISMATCH, status_code=status.HTTP_401_UNAUTHORIZED, user_message="TEST")
+            raise BackendError(message=f'Request origin mismatch on user: {request.session['USERNAME']}.',
+                               status_code=status.HTTP_401_UNAUTHORIZED)
     # KeyError occurs when the request is missing necessary data for
     # verification.
     except KeyError:
-        raise BackendError(message=_ERROR_BAD_REQUEST, status_code=status.HTTP_400_BAD_REQUEST, user_message="TEST")
+        raise BackendError(message=f'Backend received a malformed request.',
+                           status_code=status.HTTP_400_BAD_REQUEST,
+                           user_message="An error has occured with your request")
 
 
 class LoginManager:
@@ -54,9 +59,10 @@ class LoginManager:
             username = request.data.get('username')
             password = request.data.get('password')
         except KeyError:
-            raise BackendError(message=_ERROR_BAD_REQUEST, status_code=status.HTTP_400_BAD_REQUEST, user_message="TEST")
+            raise BackendError(message=f'Backend received invalid data on login request.',
+                               status_code=status.HTTP_400_BAD_REQUEST,
+                               user_message="There is an issue with your login request.")
 
-        
         is_verified = await authenticate(username=username, password=password)
         if is_verified:
             request.session['USERNAME'] = username
@@ -65,7 +71,10 @@ class LoginManager:
             request.session['REMOTE_ADDR'] = request.META['REMOTE_ADDR']
             return True
         else:
-            raise BackendError(message=_ERROR_CREDENTIAL_MISMATCH, status_code=status.HTTP_401_UNAUTHORIZED, user_message="TEST")
+            # authenticate will not return false, it will instead throw an
+            # exception. If this behaviour is changed, this block must be
+            # implemented too.
+            pass
 
     def logout(self, request: Request):
         # Flushing the session will delete it and protects
@@ -75,19 +84,22 @@ class LoginManager:
 
     # TODO: Throw exception on insufficient permission
     def get_user_permission(self, request: Request) -> bool:
-        # user will be null unless logged in. Per default we use a 
+        # user will be null unless logged in. Per default we use a
         # database-backed session management. The session data is
         # stored server-side and referenced by the session-id.
         # https://stackoverflow.com/questions/5113421/what-is-the-difference-between-a-cookie-and-a-session-in-django
         # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
-        
+
         # We validate the origin of the request. _validate_request_origin()
         # will throw an exception if anything is wrong.
         if _validate_request_origin(request):
             try:
                 user = request.session.get('USERNAME')
             except KeyError:
-                raise BackendError(message=_ERROR_BAD_REQUEST, status_code=status.HTTP_400_BAD_REQUEST, user_message="TEST")
+                raise BackendError(
+                    message=f'A request has been made by a user who is not signed in.',
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    user_message="Something went wrong. Are you signed in?")
 
             if user:
                 # If there is a user and the user needs permission, it means an action happened.
