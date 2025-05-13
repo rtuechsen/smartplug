@@ -134,14 +134,14 @@ class TreeItemGroup(TreeItem):
             "children": children_dict,
         }
 
-    def _compute_state(self, state_name: str, child_state: bool) -> bool:
+    def _compute_state_from_child_update(self, state_name: str, new_child_state: bool) -> bool:
 
         self_state: bool = getattr(self, state_name)
 
         if len(self.children) == 1:
-            return child_state
+            return new_child_state
 
-        if child_state is None:
+        if new_child_state is None:
             return None
 
         # need to compare children with each other
@@ -150,29 +150,29 @@ class TreeItemGroup(TreeItem):
             # need to compare with all children
             all_children_have_same_state: bool = all(
                 [
-                    child_state == getattr(some_child, state_name)
+                    new_child_state == getattr(some_child, state_name)
                     for some_child in self.children
                 ]
             )
             if all_children_have_same_state:
-                return child_state
+                return new_child_state
 
         # all children had the same state before
 
-        if self_state != child_state:
+        if self_state != new_child_state:
             return None
 
         # unusual, nothing changed
         return self_state
 
-    def update_isOn_child(self, child_isOn: bool) -> None:
+    def update_isOn_child(self, new_child_isOn: bool) -> None:
 
-        new_isOn = self._compute_state("_isOn", child_isOn)
+        new_isOn = self._compute_state_from_child_update("_isOn", new_child_isOn)
         self.set_isOn(new_isOn)
 
-    def update_isAvailable_child(self, child_isAvailable: bool) -> None:
+    def update_isAvailable_child(self, new_child_isAvailable: bool) -> None:
 
-        new_isAvailable = self._compute_state(
-            "_isAvailable", child_isAvailable
+        new_isAvailable = self._compute_state_from_child_update(
+            "_isAvailable", new_child_isAvailable
         )
         self.set_isAvailable(new_isAvailable)
