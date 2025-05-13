@@ -431,7 +431,7 @@ class SmartplugApp(AppConfig):
                         if listener_item.reevaluate_dependecies():
 
                             # TODO: this device should switch off
-                            # TODO: 
+                            # TODO:
                             pass
 
             elif isinstance(tree_item, TreeItemGroup):
@@ -562,6 +562,8 @@ class SmartplugApp(AppConfig):
 
         """
 
+        # TODO: do NOT re-use variable with different type !!!
+        # store deviceIds in dictionary during parsing
         def convert_ids_to_references(tree_item: TreeItem):
 
             for device_index, deviceId in enumerate(
