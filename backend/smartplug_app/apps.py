@@ -561,7 +561,7 @@ class SmartplugApp(AppConfig):
 
                 deviceIds = obj["turn_off_if_all_in_list_are_off"]
                 for deviceId in deviceIds:
-                    if id not in SmartplugApp._device_id_to_tree_item_mapping:
+                    if deviceId not in SmartplugApp._device_id_to_tree_item_mapping:
 
                         raise BackendError(
                             f"Specified deviceId {deviceId} in "
