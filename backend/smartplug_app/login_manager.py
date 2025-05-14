@@ -41,9 +41,9 @@ def _validate_request_origin(request: Request) -> bool:
     # KeyError occurs when the request is missing necessary data for
     # verification.
     except KeyError:
-        raise BackendError(message=f'Backend received a malformed request.',
+        raise BackendError(message=f'A request has been made by a user who is not signed in.',
                            status_code=status.HTTP_400_BAD_REQUEST,
-                           user_message="An error has occured with your request")
+                           user_message="Something went wrong. Are you signed in?")
 
 
 class LoginManager:
@@ -55,6 +55,8 @@ class LoginManager:
     async def login(self, request: Request) -> bool:
         username: str = None
         password: str = None
+        # TODO: format checking
+
         try:
             username = request.data.get('username')
             password = request.data.get('password')

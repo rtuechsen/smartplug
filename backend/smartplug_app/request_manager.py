@@ -39,14 +39,14 @@ class RequestManager:
     def __init__(self):
         """Constructor for the class."""
 
-        ## The logger instance (singleton) to log events and errors.
+        # The logger instance (singleton) to log events and errors.
         self._logger: Logger = Logger()
 
-        ## An instance of ErrorHandler to simultaneously log an error and
-        ## generate a response for the REST API.
+        # An instance of ErrorHandler to simultaneously log an error and
+        # generate a response for the REST API.
         self._error_handler: ErrorHandler = ErrorHandler()
 
-        ## The instance of TODO that manages the device tree.
+        # The instance of TODO that manages the device tree.
         self.smartplug_app: SmartplugApp = apps.get_app_config("smartplug_app")
 
         # Because openapi.yaml already contains schemas for the requests for
@@ -88,7 +88,7 @@ class RequestManager:
             return self._error_handler.response(
                 e.message, e.status_code, e.user_message
             )
-        
+
         if is_verified:
             return Response(None, status=status.HTTP_200_OK)
         else:
@@ -108,6 +108,15 @@ class RequestManager:
         # TODO: add more info to log: WHO has send that request?
         # ip, user name, ...
         self._logger.info("A /gettree request has been received.")
+
+        # Check and handle user permission
+        try:
+            login_manager.get_user_permission(request=_)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message, e.status_code, e.user_message
+            )
+
         # TODO: handle errors
         device_tree = self.smartplug_app.get_device_tree_dicts()
         return Response(device_tree, status=status.HTTP_200_OK)
@@ -122,6 +131,14 @@ class RequestManager:
         # TODO: log request: WHO requested WHAT - wait for session management
         # to identify user ???
         self._logger.info("A /switch request has been received.")
+
+        # Check and handle user permission
+        try:
+            login_manager.get_user_permission(request=request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message, e.status_code, e.user_message
+            )
 
         try:
             jsonschema.validate(
