@@ -80,21 +80,24 @@ class RequestManager:
             {"csrfToken": get_token(request)}, status=status.HTTP_200_OK
         )
 
-    async def login(self, request: Request) -> Response:
+    def login(self, request: Request) -> Response:
         """TODO: write docstring when merging login branch"""
+        # TODO: format checking
+
         try:
-            is_verified = await login_manager.login(request)
+            login_manager.login(request)
         except BackendError as e:
             return self._error_handler.response(
                 e.message, e.status_code, e.user_message
             )
 
-        if is_verified:
-            return Response(None, status=status.HTTP_200_OK)
-        else:
-            return Response(None, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(None, status=status.HTTP_200_OK)
 
-    def gettree(self, _: Request) -> Response:
+    def logout(self, request: Request) -> Response:
+        """TODO: write docstring when merging login branch"""
+        login_manager.logout(request)
+
+    def gettree(self, request: Request) -> Response:
         """Function to process requests to /gettree .
 
         @param request The incoming request.
@@ -111,7 +114,7 @@ class RequestManager:
 
         # Check and handle user permission
         try:
-            login_manager.get_user_permission(request=_)
+            login_manager.get_user_permission(request)
         except BackendError as e:
             return self._error_handler.response(
                 e.message, e.status_code, e.user_message
@@ -134,7 +137,7 @@ class RequestManager:
 
         # Check and handle user permission
         try:
-            login_manager.get_user_permission(request=request)
+            login_manager.get_user_permission(request)
         except BackendError as e:
             return self._error_handler.response(
                 e.message, e.status_code, e.user_message

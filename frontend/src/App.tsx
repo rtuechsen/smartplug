@@ -8,7 +8,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { JSX } from '@emotion/react/jsx-runtime';
 import DeviceTreeView from './DeviceTreeView';
 import ErrorDisplay from './ErrorDisplay';
-import Login from './components/Login';
+import Login from './Login';
 
 
 /**
