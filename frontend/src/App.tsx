@@ -58,7 +58,7 @@ function App(): JSX.Element {
 				</Typography>
 			</Paper>
 			<Box sx={{ padding: '1.5rem' }}>
-				{isLoggedIn ? <DeviceTreeView displayError={displayError} /> : <Login callback={onLoginSuccess} displayError={displayError} />}
+				{isLoggedIn ? <DeviceTreeView displayError={displayError} /> : <Login onLoginSuccess={onLoginSuccess} displayError={displayError} />}
 				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
 				<ErrorDisplay message={currentErrorMessage} isErrorOpen={isErrorOpen} setIsErrorOpen={setIsErrorOpen} />
 			</Box>

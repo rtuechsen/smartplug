@@ -114,13 +114,19 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-# TODO
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-SESSION_COOKIE_AGE = 20
+# Seconds until cookie expiry
+SESSION_COOKIE_AGE = 120
+
+# transfer cookie only using https
 SESSION_COOKIE_SECURE = True
+
+# Make cookie inaccesible to javascript.
 SESSION_COOKIE_HTTPONLY = True
+
+# TODO: more details
 SESSION_COOKIE_SAMESITE = 'Strict'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

@@ -16,38 +16,37 @@ def authenticate(username: str, password: str) -> None:
                        user_message='Either your password or username were incorrect.')
 
 
-def _validate_request_origin(request: Request) -> None:
-    # Check that the values from the start of the session match
-    # with the values of this request.
-    try:
-        # This data has been set on login and will be checked when verifying
-        # the request origin.
-        user_agent = request.session['HTTP_USER_AGENT']
-        accept_language = request.session['HTTP_ACCEPT_LANGUAGE']
-        ip_address = request.session['REMOTE_ADDR']
-
-        # Compare request header to origin of login.
-        if all([
-            user_agent == request.META.get('HTTP_USER_AGENT'),
-            accept_language == request.META.get('HTTP_ACCEPT_LANGUAGE'),
-            ip_address == request.META.get('REMOTE_ADDR'),
-        ]):
-            return
-
-        raise BackendError(message=f'Request origin mismatch on user: {request.session['USERNAME']}.',
-                           status_code=status.HTTP_401_UNAUTHORIZED)
-
-    # KeyError occurs when the request is missing necessary data for
-    # verification.
-    except KeyError:
-        raise BackendError(message=f'A request has been made by a user who is not signed in.',
-                           status_code=status.HTTP_400_BAD_REQUEST,
-                           user_message="Authentication failed. Are you signed in?")
-
-
 class LoginManager:
     def __init__(self):
         pass
+
+    def _validate_request_origin(request: Request) -> None:
+        # Check that the values from the start of the session match
+        # with the values of this request.
+        try:
+            # This data has been set on login and will be checked when verifying
+            # the request origin.
+            user_agent = request.session['HTTP_USER_AGENT']
+            accept_language = request.session['HTTP_ACCEPT_LANGUAGE']
+            ip_address = request.session['REMOTE_ADDR']
+
+            # Compare request header to origin of login.
+            if all([
+                user_agent == request.META.get('HTTP_USER_AGENT'),
+                accept_language == request.META.get('HTTP_ACCEPT_LANGUAGE'),
+                ip_address == request.META.get('REMOTE_ADDR'),
+            ]):
+                return
+
+            raise BackendError(message=f'Request origin mismatch on user: {request.session['USERNAME']}.',
+                               status_code=status.HTTP_401_UNAUTHORIZED)
+
+        # KeyError occurs when the request is missing necessary data for
+        # verification.
+        except KeyError:
+            raise BackendError(message=f'A request has been made by a user who is not signed in.',
+                               status_code=status.HTTP_400_BAD_REQUEST,
+                               user_message="Authentication failed. Are you signed in?")
 
         # TODO: Integrate LDAP into login logic
     def login(self, request: Request) -> None:
@@ -76,7 +75,7 @@ class LoginManager:
 
         # We validate the origin of the request. _validate_request_origin()
         # will throw an exception if anything is wrong.
-        _validate_request_origin(request)
+        self._validate_request_origin(request)
 
         try:
             user = request.session.get('USERNAME')

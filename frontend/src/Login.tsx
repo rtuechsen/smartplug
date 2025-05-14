@@ -7,11 +7,11 @@ import React from "react";
 
 
 interface LoginProps {
-	callback: () => void;
+	onLoginSuccess: () => void;
 	displayError: (message: string) => Promise<void>;
 }
 
-const Login: React.FC<LoginProps> = ({ callback, displayError }) => {
+function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [password, setPassword] = React.useState('');
 	const [username, setUsername] = React.useState('');
@@ -20,12 +20,7 @@ const Login: React.FC<LoginProps> = ({ callback, displayError }) => {
 	const handleClickShowPassword = () => setShowPassword((show) => !show);
 
 	// Prevents the browser from deselecting the input field when clicking a button
-	const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.preventDefault();
-	};
-
-	// Prevents the browser from deselecting the input field when clicking a button
-	const handleMouseUpPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+	const preventFieldDeselect = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 	};
 
@@ -57,8 +52,8 @@ const Login: React.FC<LoginProps> = ({ callback, displayError }) => {
 		<Paper
 			elevation={10}
 			sx={{
-				width: '300px',
-				height: '300px',
+				width: '30rem',
+				height: '30rem',
 				alignItems: 'flex-start',
 				justifyContent: 'center',
 			}}>
@@ -68,7 +63,8 @@ const Login: React.FC<LoginProps> = ({ callback, displayError }) => {
 				sx={{
 					justifyContent: 'space-evenly',
 				}}>
-				{/*Company Icon segment*/}
+
+				{/* TODO: Company Icon segment */}
 				<Box>
 
 				</Box>
@@ -82,7 +78,7 @@ const Login: React.FC<LoginProps> = ({ callback, displayError }) => {
 							display: 'flex',
 							alignItems: 'flex-end'
 						}}>
-						<PersonRounded sx={{ color: 'red', mr: 1, ml: 2 }} />
+						<PersonRounded sx={{ color: 'red', mr: '1rem', ml: '2rem' }} />
 						<TextField
 							id="input-username"
 							label="Username"
@@ -96,7 +92,7 @@ const Login: React.FC<LoginProps> = ({ callback, displayError }) => {
 							display: 'flex',
 							alignItems: 'flex-end'
 						}}>
-						<KeyRounded sx={{ color: 'red', mr: 1, ml: 2 }} />
+						<KeyRounded sx={{ color: 'red', mr: '1rem', ml: '2rem' }} />
 						<TextField
 							id="input-password"
 							label="Password"
@@ -106,8 +102,8 @@ const Login: React.FC<LoginProps> = ({ callback, displayError }) => {
 						/>
 						<IconButton
 							onClick={handleClickShowPassword}
-							onMouseDown={handleMouseDownPassword}
-							onMouseUp={handleMouseUpPassword}
+							onMouseDown={preventFieldDeselect}
+							onMouseUp={preventFieldDeselect}
 						>
 							{showPassword ? <VisibilityOff /> : <Visibility />}
 						</IconButton>
@@ -124,7 +120,7 @@ const Login: React.FC<LoginProps> = ({ callback, displayError }) => {
 						variant="contained"
 						onClick={() => signIn(username, password)}
 						sx={{
-							mr: 2,
+							mr: '2rem',
 							backgroundColor: 'red',
 						}}
 					> Sign In </Button>
