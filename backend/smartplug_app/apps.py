@@ -14,6 +14,7 @@ import hashlib
 import threading
 from pathlib import Path
 import datetime
+import networkx
 from django.apps import AppConfig
 import django_eventstream
 from rest_framework import status
@@ -130,7 +131,7 @@ class SmartplugApp(AppConfig):
         # 2. convert string from file to JSON (dicts and lists)
 
         try:
-            lab_config_python_obj = json.loads(lab_config_json_string)
+            lab_config_python_obj: list = json.loads(lab_config_json_string)
         except ValueError as e:
             self._logger.error(
                 "Could not parse the labor-config to JSON because "
@@ -145,7 +146,7 @@ class SmartplugApp(AppConfig):
             SmartplugApp._device_tree = self._object_list_to_tree_item_list(
                 lab_config_python_obj, None, []
             )
-            self._collect_dependencies()
+            self._collect_dependencies(lab_config_python_obj)
 
         # TODO: get values (isOn, ...) from devices
 
@@ -232,12 +233,6 @@ class SmartplugApp(AppConfig):
                 )
             tree_item = TreeItemDevice()
             tree_item.deviceId = obj["deviceId"]
-            if "turn_off_if_all_in_list_are_off" in obj:
-                tree_item.turn_off_if_all_in_list_are_off = obj[
-                    "turn_off_if_all_in_list_are_off"
-                ]
-            else:
-                tree_item.turn_off_if_all_in_list_are_off = []
             self._device_id_to_tree_item_mapping[tree_item.deviceId] = (
                 tree_item
             )
@@ -546,7 +541,7 @@ class SmartplugApp(AppConfig):
                 f"{SWITCHING_TOGGLE_DELAY} seconds.",
             )
 
-    def _collect_dependencies(self):
+    def _collect_dependencies(self, lab_config_python_obj: list):
         """
 
         TODO: warning: does not use mutex
@@ -555,41 +550,51 @@ class SmartplugApp(AppConfig):
 
         # TODO: detect cyclic dependencies
 
-        # TODO: do NOT re-use variable with different type !!!
-        # store deviceIds in dictionary during parsing (local variable in load())
-        def convert_ids_to_references(tree_item: TreeItem):
+        graph_edges: list[tuple[str]] = []
 
-            for device_index, deviceId in enumerate(
-                tree_item.turn_off_if_all_in_list_are_off
-            ):
+        def convert_ids_to_references(obj: dict, tree_item: TreeItem):
 
-                # TODO: verify that deviceId exists
+            if isinstance(tree_item, TreeItemDevice):
 
-                tree_item.turn_off_if_all_in_list_are_off[device_index] = (
-                    SmartplugApp._device_id_to_tree_item_mapping[deviceId]
-                )
+                if "turn_off_if_all_in_list_are_off" not in obj:
+                    return
 
-            if isinstance(tree_item, TreeItemGroup):
-                for child_item in tree_item.children:
-                    convert_ids_to_references(child_item)
+                deviceIds = obj["turn_off_if_all_in_list_are_off"]
+                for deviceId in deviceIds:
+                    if id not in SmartplugApp._device_id_to_tree_item_mapping:
 
-        for item in SmartplugApp._device_tree:
-            convert_ids_to_references(item)
-
-        def collect_dependencies_recursive(
-            item: TreeItemDevice | TreeItemGroup,
-        ):
-
-            if isinstance(item, TreeItemDevice):
-                for dependency_item in item.turn_off_if_all_in_list_are_off:
-
-                    dependency_item.other_devices_listening_for_this_device_switching_off.append(
-                        item
+                        raise BackendError(
+                            f"Specified deviceId {deviceId} in "
+                            f"turn_off_if_all_in_list_are_off of object "
+                            f"{tree_item} does not exist."
+                        )
+                    trigger_item: TreeItemDevice = (
+                        SmartplugApp._device_id_to_tree_item_mapping[deviceId]
+                    )
+                    tree_item.turn_off_if_all_in_list_are_off.append(
+                        trigger_item
+                    )
+                    trigger_item.other_devices_listening_for_this_device_switching_off.append(
+                        tree_item
+                    )
+                    graph_edges.append(
+                        (trigger_item.deviceId, tree_item.deviceId)
                     )
 
-            elif isinstance(item, TreeItemGroup):
-                for child in item.children:
-                    collect_dependencies_recursive(child)
+            elif isinstance(tree_item, TreeItemGroup):
+                for child_obj, child_item in zip(
+                    obj["children"], tree_item.children
+                ):
+                    convert_ids_to_references(child_obj, child_item)
 
-        for item in SmartplugApp._device_tree:
-            collect_dependencies_recursive(item)
+        for obj, item in zip(lab_config_python_obj, SmartplugApp._device_tree):
+            convert_ids_to_references(obj, item)
+
+        graph = networkx.DiGraph(graph_edges)
+        cycles = networkx.recursive_simple_cycles(graph)
+
+        if len(cycles) != 0:
+            raise BackendError(
+                f"The dependencies formed by 'turn_off_if_all_in_list_are_off' "
+                f"result in cyclic dependencies: {cycles}"
+            )
