@@ -37,14 +37,21 @@ def authenticate(username: str, password: str) -> None:
         search_attributes: list[str] = ["givenName", "sn"]
         result = conn.search_s(username, ldap.SCOPE_SUBTREE, f"(sAMAccountName={sAMAccountName})", search_attributes)
         
-        for dn, entry in result:
-            if dn is None:
-                continue  # skips LDAP references
-            print(f"DN: {dn}")
-            for attr, values in entry.items():
-                for value in values:
-                    print(f"  {attr}: {value.decode('utf-8')}")
+        if len(result) == 0:
+            # TODO: raise error
+            pass
 
+        if len(result) > 1:
+            # TODO: raise error
+            pass
+
+        _, entry = result[0]
+
+        # TODO: add these to the session management somehow ???
+        firstName = entry["givenName"]
+        lastName = entry["sn"]
+
+        # TODO: should we unbind in case an error happens after binding?
         conn.unbind_s()
 
 
