@@ -8,6 +8,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { JSX } from '@emotion/react/jsx-runtime';
 import DeviceTreeView from './DeviceTreeView';
 import ErrorDisplay from './ErrorDisplay';
+import Login from './Login';
 
 
 /**
@@ -20,9 +21,13 @@ import ErrorDisplay from './ErrorDisplay';
  * @return The react component of the main app.
  */
 function App(): JSX.Element {
-
+	const [isLoggedIn, setLoggedInState] = React.useState(false);
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
+
+	const onLoginSuccess = () => {
+		setLoggedInState(true)
+	}
 
 	async function displayError(message: string): Promise<void> {
 		if (isErrorOpen) {
@@ -53,7 +58,7 @@ function App(): JSX.Element {
 				</Typography>
 			</Paper>
 			<Box sx={{ padding: '1.5rem' }}>
-				<DeviceTreeView displayError={displayError} />
+				{isLoggedIn ? <DeviceTreeView displayError={displayError} /> : <Login onLoginSuccess={onLoginSuccess} displayError={displayError} />}
 				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
 				<ErrorDisplay message={currentErrorMessage} isErrorOpen={isErrorOpen} setIsErrorOpen={setIsErrorOpen} />
 			</Box>
