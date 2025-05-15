@@ -38,7 +38,7 @@ class TreeItem:
             self._isOn = new_isOn
 
             if self.parent is not None:
-                self.parent.update_isOn_child(self._isOn)
+                self.parent.update_isOn_from_children()
 
     def get_isAvailable(self) -> bool:
         return self._isAvailable
@@ -50,7 +50,7 @@ class TreeItem:
             self._isAvailable = new_isAvailable
 
             if self.parent is not None:
-                self.parent.update_isAvailable_child(self._isAvailable)
+                self.parent.update_isAvailable_from_children()
 
 
 class TreeItemDevice(TreeItem):
@@ -121,11 +121,11 @@ class TreeItemGroup(TreeItem):
             "children": children_dict,
         }
 
-    def _compute_state_from_child_update(
-        self, state_name: str, new_child_state: bool
-    ) -> bool:
+    def _compute_isOn_from_children(self) -> bool:
 
-        children_isOn: list[bool] = [getattr(child, state_name) for child in self.children]
+        children_isOn: list[bool] = [
+            child.get_isOn() for child in self.children
+        ]
 
         if all(children_isOn):
             return True
@@ -139,16 +139,31 @@ class TreeItemGroup(TreeItem):
 
         return None
 
-    def update_isOn_child(self, new_child_isOn: bool) -> None:
+    def _compute_isAvailable_from_children(self) -> bool:
 
-        new_isOn = self._compute_state_from_child_update(
-            "_isOn", new_child_isOn
-        )
+        children_isAvailable: list[bool] = [
+            child.get_isAvailable() for child in self.children
+        ]
+
+        if all(children_isAvailable):
+            return True
+
+        children_isAvailable_negated: list[bool] = [
+            None if state is None else not state
+            for state in children_isAvailable
+        ]
+
+        if all(children_isAvailable_negated):
+            return False
+
+        return None
+
+    def update_isOn_from_children(self) -> None:
+
+        new_isOn = self._compute_isOn_from_children()
         self.set_isOn(new_isOn)
 
-    def update_isAvailable_child(self, new_child_isAvailable: bool) -> None:
+    def update_isAvailable_from_children(self) -> None:
 
-        new_isAvailable = self._compute_state_from_child_update(
-            "_isAvailable", new_child_isAvailable
-        )
+        new_isAvailable = self._compute_isAvailable_from_children()
         self.set_isAvailable(new_isAvailable)
