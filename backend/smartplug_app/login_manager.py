@@ -38,7 +38,7 @@ def authenticate(username: str, password: str) -> None:
         result = conn.search_s(username, ldap.SCOPE_SUBTREE, f"(sAMAccountName={sAMAccountName})", search_attributes)
         
         if len(result) == 0:
-            # TODO: raise error
+            # TODO: simply use username instead of real names
             pass
 
         if len(result) > 1:
