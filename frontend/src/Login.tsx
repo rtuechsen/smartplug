@@ -17,15 +17,17 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 	const [username, setUsername] = React.useState('');
 
 	// Toggle the showing state for the password
-	const handleClickShowPassword = () => setShowPassword((show) => !show);
+	function handleClickShowPassword(): void {
+		setShowPassword((show) => !show);
+	}
 
 	// Prevents the browser from deselecting the input field when clicking a button
-	const preventFieldDeselect = (event: React.MouseEvent<HTMLButtonElement>) => {
+	function preventFieldDeselect(event: React.MouseEvent<HTMLButtonElement>): void {
 		event.preventDefault();
 	};
 
 	// Is executed when trying to sign in using the "Sign In"-button
-	const signIn = async (username: string, password: string) => {
+	async function signIn(username: string, password: string): Promise<void> {
 		const response: Response = await fetch('/api/login/', {
 			method: 'POST',
 			headers: {
@@ -35,17 +37,17 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 				username: username,
 				password: password,
 			}),
-		})
+		});
 
 		if (response.ok) {
-			callback()
+			onLoginSuccess();
 		} else {
 			const responseData = await response.json();
 			console.log(`${response.status} ${response.statusText}: ${responseData.message}`);
 			displayError(`${responseData.message}`);
 		}
 
-	}
+	};
 
 
 	return (
@@ -129,7 +131,7 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 
 			</Stack>
 		</Paper>
-	)
+	);
 }
 
 export default Login;

@@ -25,8 +25,8 @@ function App(): JSX.Element {
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
 
-	const onLoginSuccess = () => {
-		setLoggedInState(true)
+	function onLoginSuccess(): void {
+		setLoggedInState(true);
 	}
 
 	async function displayError(message: string): Promise<void> {
