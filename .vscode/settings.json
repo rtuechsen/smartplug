@@ -21,10 +21,15 @@
 	},
 	"python.defaultInterpreterPath": "./backend/django-env/bin/python3.12",
 	"[python]": {
-		"editor.defaultFormatter": "ms-python.black-formatter",
+		"editor.defaultFormatter": "ms-python.autopep8",
 		"editor.detectIndentation": false,
 		"editor.insertSpaces": true,
-		"editor.tabSize": 4
+		"editor.tabSize": 4,
+		"editor.rulers": [
+			{
+				"column": 79
+			}
+		]
 	},
 	"git.mergeEditor": true,
 	"typescript.validate.enable": false,
@@ -41,5 +46,10 @@
 	],
 	"eslint.options": {
 		"overrideConfigFile": "./eslint.config.js"
-	}
+	},
+	"black-formatter.args": [
+		"--line-length",
+		"79"
+	],
+	"editor.wordWrap": "off"
 }

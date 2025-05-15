@@ -1,29 +1,43 @@
 
-/******************************************************************************************
- * @packageDocumentation  App.tsx
- * 
- * # TODO
- ******************************************************************************************/
-
+import * as React from 'react';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import CssBaseline from '@mui/material/CssBaseline';	// used to remove default padding of html body
+import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { JSX } from '@emotion/react/jsx-runtime';
 import DeviceTreeView from './DeviceTreeView';
+import ErrorDisplay from './ErrorDisplay';
+import Login from './Login';
 
 
 /**
- * Main App component.
+ * The main App component.
  *
- * The app function component for this website that includes all other components.  
+ * The function component for this website that includes all other components.  
  * It Contains the header area and the device tree.  
  * Also contains the color mode / theme.  
  * 
- * @return the react component of the main app
+ * @return The react component of the main app.
  */
 function App(): JSX.Element {
+	const [isLoggedIn, setLoggedInState] = React.useState(false);
+	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
+	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
+
+	const onLoginSuccess = () => {
+		setLoggedInState(true)
+	}
+
+	async function displayError(message: string): Promise<void> {
+		if (isErrorOpen) {
+			// close previous error if still open
+			// TODO: check if this works properly
+			setIsErrorOpen(false);
+		}
+		setCurrentErrorMessage(message);
+		setIsErrorOpen(true);
+	}
 
 	const theme = createTheme({
 		// even though only the dark theme is mentioned here, this will use the system preference of the user
@@ -40,11 +54,13 @@ function App(): JSX.Element {
 			<CssBaseline />	 {/* used to remove default padding of html body */}
 			<Paper sx={{ padding: '2rem' }}>
 				<Typography variant="h2">
-					Shelly Dirigent
+					Smartplug Dirigent
 				</Typography>
 			</Paper>
 			<Box sx={{ padding: '1.5rem' }}>
-				<DeviceTreeView />
+				{isLoggedIn ? <DeviceTreeView displayError={displayError} /> : <Login onLoginSuccess={onLoginSuccess} displayError={displayError} />}
+				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
+				<ErrorDisplay message={currentErrorMessage} isErrorOpen={isErrorOpen} setIsErrorOpen={setIsErrorOpen} />
 			</Box>
 		</ThemeProvider >
 	);
