@@ -91,7 +91,7 @@ class ErrorHandler:
 
         if user_message is None:
             user_message = (
-                "The server encountered an internal error, please"
+                "The server encountered an internal error, please "
                 "contact the admin."
             )
 
