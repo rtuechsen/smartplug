@@ -1,7 +1,9 @@
+import ldap
 from rest_framework import status
 from rest_framework.request import Request
 from django.conf import settings
 from .error_handler import BackendError
+from .admin_settings import LDAP_SERVER_ADDRESS_AND_PORT
 
 
 # simulates LDAP-Process
