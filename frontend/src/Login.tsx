@@ -125,7 +125,7 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 							mr: '2rem',
 							backgroundColor: 'red',
 						}}
-					> Sign In </Button>
+					>Sign In</Button>
 				</Box>
 
 
