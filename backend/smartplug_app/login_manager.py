@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.request import Request
 from django.conf import settings
 from .error_handler import BackendError
-from .admin_settings import LDAP_SERVER_ADDRESS_AND_PORT
+from .admin_settings import USE_LDAP, LDAP_SERVER_ADDRESS_AND_PORT, LDAP_TIMEOUT_SECONDS
 
 
 # simulates LDAP-Process
@@ -11,14 +11,58 @@ from .admin_settings import LDAP_SERVER_ADDRESS_AND_PORT
 
 
 def authenticate(username: str, password: str) -> None:
-    if username == "user" and password == "pass":
-        return
+    
+    # TODO: remove, development code
+    if not USE_LDAP:
+        if username == "user" and password == "pass":
+            return
 
-    raise BackendError(
-        message=f"Credentials mismatch on user: {username}.",
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        user_message="Either your password or username were incorrect.",
-    )
+    try:
+        conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
+        conn.set_option(ldap.OPT_DEBUG_LEVEL, 255)
+
+        # LDAP 3 is necessary for active directory
+        conn.set_option(ldap.OPT_PROTOCOL_VERSION, ldap.VERSION3)
+
+        conn.set_option(ldap.OPT_NETWORK_TIMEOUT, LDAP_TIMEOUT_SECONDS)
+
+        # Important for AD: disable referrals
+        conn.set_option(ldap.OPT_REFERRALS, 0)
+
+        conn.simple_bind_s(username, password)
+
+        # get proper name of the user
+        # TODO: only works form email, make this work with 'DOMAIN_NAME\user'
+        sAMAccountName: str = username.split("@")[0]
+        search_attributes: list[str] = ["givenName", "sn"]
+        result = conn.search_s(username, ldap.SCOPE_SUBTREE, f"(sAMAccountName={sAMAccountName})", search_attributes)
+        
+        for dn, entry in result:
+            if dn is None:
+                continue  # skips LDAP references
+            print(f"DN: {dn}")
+            for attr, values in entry.items():
+                for value in values:
+                    print(f"  {attr}: {value.decode('utf-8')}")
+
+        conn.unbind_s()
+
+
+    except ldap.INVALID_CREDENTIALS as e:
+        raise BackendError(
+            message=f"Credentials mismatch on user: {username}.",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            user_message="Either your password or username were incorrect.",
+        ) from e
+
+    # TODO: add more granular exceptions what exactly failed
+    except ldap.LDAPError as e:
+        raise BackendError(
+            message=f"LDAP bind failed: {e}",
+            user_message="Verifying credentials using Active Directory failed. "
+            "Please contact the admin.",
+        ) from e
+    
 
 
 class LoginManager:
