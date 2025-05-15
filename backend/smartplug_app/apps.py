@@ -376,12 +376,16 @@ class SmartplugApp(AppConfig):
 
             # device is OFF, but is scheduled to be switched ON -> can still fail if all dependencies are off
 
+            if len(device.turn_off_if_all_in_list_are_off) == 0:
+                resolved_states[device.deviceId] = True
+                return True
+
             trigger_states: list[bool] = [
                 will_be_on(trigger_device)
                 for trigger_device in device.turn_off_if_all_in_list_are_off
             ]
 
-            if all(not state for state in trigger_states):
+            if all(state is False for state in trigger_states):
                 # do not allow to switch on if all dependencies are off
                 # will also choose this path if device has no dependencies
                 resolved_states[device.deviceId] = False
@@ -561,7 +565,10 @@ class SmartplugApp(AppConfig):
 
                 deviceIds = obj["turn_off_if_all_in_list_are_off"]
                 for deviceId in deviceIds:
-                    if deviceId not in SmartplugApp._device_id_to_tree_item_mapping:
+                    if (
+                        deviceId
+                        not in SmartplugApp._device_id_to_tree_item_mapping
+                    ):
 
                         raise BackendError(
                             f"Specified deviceId {deviceId} in "
