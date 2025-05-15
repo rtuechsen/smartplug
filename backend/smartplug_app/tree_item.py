@@ -125,34 +125,19 @@ class TreeItemGroup(TreeItem):
         self, state_name: str, new_child_state: bool
     ) -> bool:
 
-        self_state: bool = getattr(self, state_name)
+        children_isOn: list[bool] = [getattr(child, state_name) for child in self.children]
 
-        if len(self.children) == 1:
-            return new_child_state
+        if all(children_isOn):
+            return True
 
-        if new_child_state is None:
-            return None
+        children_isOn_negated: list[bool] = [
+            None if state is None else not state for state in children_isOn
+        ]
 
-        # need to compare children with each other
+        if all(children_isOn_negated):
+            return False
 
-        if self_state is None:
-            # need to compare with all children
-            all_children_have_same_state: bool = all(
-                [
-                    new_child_state == getattr(some_child, state_name)
-                    for some_child in self.children
-                ]
-            )
-            if all_children_have_same_state:
-                return new_child_state
-
-        # all children had the same state before
-
-        if self_state != new_child_state:
-            return None
-
-        # unusual, nothing changed
-        return self_state
+        return None
 
     def update_isOn_child(self, new_child_isOn: bool) -> None:
 
