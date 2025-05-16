@@ -139,6 +139,8 @@ class LoginManager:
         ]
         request.session["REMOTE_ADDR"] = request.META["REMOTE_ADDR"]
 
+        # TODO: send SSE event: list of active users
+
     def logout(self, request: Request) -> None:
         # Flushing the session will delete it and protects
         # from session fixation:

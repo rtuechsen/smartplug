@@ -70,6 +70,7 @@ class RequestManager:
 
         @return A response containing either the CSRF token or an error.
         """
+        # TODO: format checking -> should be no body
         # TODO: add more info to log: WHO has send that request?
         # ip, user name, ...
         self._logger.info("A /csrf request has been received.")
@@ -91,6 +92,7 @@ class RequestManager:
 
     def logout(self, request: Request) -> Response:
         """TODO: write docstring when merging login branch"""
+        # TODO: format checking
         login_manager.logout(request)
 
     def gettree(self, request: Request) -> Response:
@@ -101,8 +103,7 @@ class RequestManager:
         @return A response containing either the device tree as a JSON or an
         error.
         """
-        # No schema validation needed here a there is no payload expected in
-        # the request. Any payload in the request would be ignored.
+        # TODO: format checking -> should be no body
 
         # TODO: add more info to log: WHO has send that request?
         # ip, user name, ...
