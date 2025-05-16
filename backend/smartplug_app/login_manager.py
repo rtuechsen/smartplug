@@ -3,15 +3,19 @@ from rest_framework import status
 from rest_framework.request import Request
 from django.conf import settings
 from .error_handler import BackendError
-from .admin_settings import USE_LDAP, LDAP_SERVER_ADDRESS_AND_PORT, LDAP_TIMEOUT_SECONDS
+from .admin_settings import (
+    USE_LDAP,
+    LDAP_SERVER_ADDRESS_AND_PORT,
+    LDAP_TIMEOUT_SECONDS,
+)
 
 
 # simulates LDAP-Process
 # TODO: Implement LDAP
 
 
-def authenticate(username: str, password: str) -> None:
-    
+def authenticate(username: str, password: str) -> tuple[str, str]:
+
     # TODO: remove, development code
     if not USE_LDAP:
         if username == "user" and password == "pass":
@@ -35,8 +39,13 @@ def authenticate(username: str, password: str) -> None:
         # TODO: only works form email, make this work with 'DOMAIN_NAME\user'
         sAMAccountName: str = username.split("@")[0]
         search_attributes: list[str] = ["givenName", "sn"]
-        result = conn.search_s(username, ldap.SCOPE_SUBTREE, f"(sAMAccountName={sAMAccountName})", search_attributes)
-        
+        result = conn.search_s(
+            username,
+            ldap.SCOPE_SUBTREE,
+            f"(sAMAccountName={sAMAccountName})",
+            search_attributes,
+        )
+
         if len(result) == 0:
             # TODO: simply use username instead of real names
             pass
@@ -54,6 +63,7 @@ def authenticate(username: str, password: str) -> None:
         # TODO: should we unbind in case an error happens after binding?
         conn.unbind_s()
 
+        return (firstName, lastName)
 
     except ldap.INVALID_CREDENTIALS as e:
         raise BackendError(
@@ -69,7 +79,6 @@ def authenticate(username: str, password: str) -> None:
             user_message="Verifying credentials using Active Directory failed. "
             "Please contact the admin.",
         ) from e
-    
 
 
 class LoginManager:
@@ -90,7 +99,8 @@ class LoginManager:
             if all(
                 [
                     user_agent == request.META.get("HTTP_USER_AGENT"),
-                    accept_language == request.META.get("HTTP_ACCEPT_LANGUAGE"),
+                    accept_language
+                    == request.META.get("HTTP_ACCEPT_LANGUAGE"),
                     ip_address == request.META.get("REMOTE_ADDR"),
                 ]
             ):
@@ -116,11 +126,17 @@ class LoginManager:
         username = request.data.get("username")
         password = request.data.get("password")
 
-        authenticate(username=username, password=password)
+        firstName, lastName = authenticate(
+            username=username, password=password
+        )
 
         request.session["USERNAME"] = username
+        request.session["FIRSTNAME"] = firstName
+        request.session["LASTNAME"] = lastName
         request.session["HTTP_USER_AGENT"] = request.META["HTTP_USER_AGENT"]
-        request.session["HTTP_ACCEPT_LANGUAGE"] = request.META["HTTP_ACCEPT_LANGUAGE"]
+        request.session["HTTP_ACCEPT_LANGUAGE"] = request.META[
+            "HTTP_ACCEPT_LANGUAGE"
+        ]
         request.session["REMOTE_ADDR"] = request.META["REMOTE_ADDR"]
 
     def logout(self, request: Request) -> None:
