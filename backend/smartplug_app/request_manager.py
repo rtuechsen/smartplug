@@ -53,15 +53,17 @@ class RequestManager:
         # documentation purposes, we extract those schemas and use them for
         # validation
         openapi_rel_path: str = "./openapi.yaml"
-        openapi_abs_path: Path = Path(__file__).parent.parent.parent / openapi_rel_path
+        openapi_abs_path: Path = (
+            Path(__file__).parent.parent.parent / openapi_rel_path
+        )
 
         with open(openapi_abs_path, "r", encoding="UTF-8") as file:
             self._openapi: dict = yaml.safe_load(file)
             # TODO: handle errors
 
-        self._schema_switch: dict = self._openapi["paths"]["/api/switch"]["post"][
-            "requestBody"
-        ]["content"]["application/json"]["schema"]
+        self._schema_switch: dict = self._openapi["paths"]["/api/switch"][
+            "post"
+        ]["requestBody"]["content"]["application/json"]["schema"]
 
     def csrf(self, request: Request) -> Response:
         """Function to process requests to /csrf .
@@ -75,7 +77,9 @@ class RequestManager:
         # ip, user name, ...
         self._logger.info("A /csrf request has been received.")
 
-        return Response({"csrfToken": get_token(request)}, status=status.HTTP_200_OK)
+        return Response(
+            {"csrfToken": get_token(request)}, status=status.HTTP_200_OK
+        )
 
     def login(self, request: Request) -> Response:
         """TODO: write docstring when merging login branch"""
@@ -141,7 +145,9 @@ class RequestManager:
             )
 
         try:
-            jsonschema.validate(instance=request.data, schema=self._schema_switch)
+            jsonschema.validate(
+                instance=request.data, schema=self._schema_switch
+            )
         except jsonschema.exceptions.ValidationError as e:
             return self._error_handler.response(
                 e.message,

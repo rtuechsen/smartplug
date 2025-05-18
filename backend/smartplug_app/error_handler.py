@@ -15,7 +15,9 @@ class BackendError(Exception):
     an alternative user facing message.
     """
 
-    def __init__(self, message: str, status_code: int = None, user_message: str = None):
+    def __init__(
+        self, message: str, status_code: int = None, user_message: str = None
+    ):
         """Constructor for the class.
 
         @param message The main message. Usually includes technical details
@@ -89,7 +91,10 @@ class ErrorHandler:
 
         if user_message is None:
             user_message = (
-                "The server encountered an internal error, please " "contact the admin."
+                "The server encountered an internal error, please contact the "
+                "admin."
             )
 
-        return Response({"message": "ERROR: " + user_message}, status=status_code)
+        return Response(
+            {"message": "ERROR: " + user_message}, status=status_code
+        )

@@ -140,13 +140,13 @@ class LoginManager:
         username = request.data.get("username")
         password = request.data.get("password")
 
-        firstName, lastName = authenticate(
+        first_name, last_name = authenticate(
             username=username, password=password
         )
 
         request.session["USERNAME"] = username
-        request.session["FIRSTNAME"] = firstName
-        request.session["LASTNAME"] = lastName
+        request.session["FIRSTNAME"] = first_name
+        request.session["LASTNAME"] = last_name
         request.session["HTTP_USER_AGENT"] = request.META["HTTP_USER_AGENT"]
         request.session["HTTP_ACCEPT_LANGUAGE"] = request.META[
             "HTTP_ACCEPT_LANGUAGE"
