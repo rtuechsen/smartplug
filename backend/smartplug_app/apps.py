@@ -424,7 +424,7 @@ class SmartplugApp(AppConfig):
             )
 
         def choose_devices_to_switch(
-            id: str, isOn: bool
+            id: str, desired_isOn: bool
         ) -> list[TreeItemDevice]:
 
             def get_devices(tree_item: TreeItem):
@@ -443,10 +443,10 @@ class SmartplugApp(AppConfig):
             devices_to_switch: list[TreeItemDevice] = [
                 device
                 for device in all_devices
-                if device.get_isOn() is not isOn
+                if device.get_isOn() is not desired_isOn
             ]
 
-            if isOn is True:
+            if desired_isOn is True:
                 devices_to_switch: list[TreeItemDevice] = (
                     self._filter_devices_not_allowed_to_switch_on(
                         devices_to_switch
@@ -456,7 +456,7 @@ class SmartplugApp(AppConfig):
             return devices_to_switch
 
         devices_to_switch: list[TreeItemDevice] = choose_devices_to_switch(
-            id, isOn
+            id, desired_isOn
         )
 
         # if requests are dropped due to SWITCHING_TOGGLE_DELAY
@@ -466,7 +466,7 @@ class SmartplugApp(AppConfig):
 
             with SmartplugApp._device_tree_mutex:
 
-                if device.get_isOn() is isOn:
+                if device.get_isOn() is desired_isOn:
                     # isOn is already in desired state, no switching needed
                     return
 
@@ -476,7 +476,7 @@ class SmartplugApp(AppConfig):
                 # below delay
                 # TODO: only delay between device switches, not at
                 # beginning or end of request
-                if isOn:
+                if desired_isOn:
                     # only delay switching when switching ON (no inrush
                     # current when switching OFF)
                     with SmartplugApp._last_switch_on_date_time_mutex:
@@ -521,7 +521,7 @@ class SmartplugApp(AppConfig):
                 # TODO: do NOT set state here,
                 # wait for signal from plug that it changed somewhere else
                 # in the code
-                device.set_isOn(isOn)
+                device.set_isOn(desired_isOn)
 
             # TODO: do NOT send update event here,
             # wait for signal from plug that it changed somewhere else
