@@ -277,7 +277,7 @@ class SmartplugApp(AppConfig):
 
         @param id The id of the device or group to switch.
 
-        @param isOn A boolean indicating if the item should be turned on (True)
+        @param desired_isOn A boolean indicating if the item should be turned on (True)
         or off (False). Ignores PEP8 naming convention to match the name of the
         variable across the project.
         """
@@ -288,7 +288,7 @@ class SmartplugApp(AppConfig):
 
             @param id The id of the device or group to switch.
 
-            @param isOn A boolean indicating if the item should be turned on
+            @param desired_isOn A boolean indicating if the item should be turned on
             (True) or off (False). Ignores PEP8 naming convention to match the
             name of the variable across the project.
             """
