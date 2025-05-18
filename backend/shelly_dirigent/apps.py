@@ -118,8 +118,8 @@ class InternalApp(AppConfig):
 
         # load the labor-config.json
         self.load_labor_config()
-
-        self.mqtt_client = MQTTClient()
+        
+        self.mqtt_client = MQTTClient(on_update_callback=self.handle_mqtt_update)
 
         if not self.background_task_started:
             self.background_task_started = True
@@ -257,6 +257,19 @@ class InternalApp(AppConfig):
                 device_tree_dict.append(tree_item_dict)
 
         return device_tree_dict
+    
+    def handle_mqtt_update(self, id: str, kind: str, value: bool):
+       with self.device_tree_mutex:
+          tree_item = self.device_id_to_tree_item_mapping.get(id)
+          if not tree_item or not isinstance(tree_item, TreeItemDevice):
+              print(f"[MQTT Update] Kein TreeItemDevice für device_id={id}")
+              return
+
+          if kind == "online":
+             tree_item.isAvailable = value
+          elif kind == "output":
+            tree_item.isOn = value
+
 
     def switch(self, id: str, isOn: bool) -> None:
         """Function to answer a call to /switch, turns groups and devices on/off according to the request."""
@@ -273,7 +286,6 @@ class InternalApp(AppConfig):
 
             if isinstance(tree_item, TreeItemDevice):
                 self.mqtt_client.switch(tree_item.deviceId, isOn)
-                tree_item.isOn = isOn
             elif isinstance(tree_item, TreeItemGroup):
                 for child in tree_item.children:
                     switch_recursive(child.id, isOn)
@@ -281,7 +293,7 @@ class InternalApp(AppConfig):
                 raise RuntimeError(
                     f"Error: object {tree_item} has unexpected type {type(tree_item)}!"
                 )
-
+   
         # TODO: remove, simulating latency
         time.sleep(2)
 
