@@ -32,16 +32,16 @@ paths:
                   type: string
                   pattern: ^[a-f0-9]{64}$
                   description: The unique id of the item.
-                isOn:
+                desired_isOn:
                   type: boolean
                   description: Whether the goal is to turn the item ON (true) or OFF (false).
               required:
                 - id
-                - isOn
+                - desired_isOn
               additionalProperties: false
             example:
               id: f7f7a115bea9310b163934fb414de46009662610454c8a3a9bb2b823cc4aafb
-              isOn: true
+              desired_isOn: true
       responses:
         '200':
           description: 200 response

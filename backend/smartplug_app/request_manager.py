@@ -157,7 +157,9 @@ class RequestManager:
 
         try:
             # instruct the app to perform the switch
-            self.smartplug_app.switch(request.data["id"], request.data["isOn"])
+            self.smartplug_app.switch(
+                request.data["id"], request.data["desired_isOn"]
+            )
         except BackendError as e:
             return self._error_handler.response(
                 e.message, e.status_code, e.user_message
