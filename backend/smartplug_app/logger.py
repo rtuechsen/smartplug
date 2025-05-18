@@ -36,7 +36,7 @@ class Logger:
     threads. Logging using this class should be thread safe.
     Because the class is a singleton its attributes are all class attributes.
 
-    Log files are stored in '/var/log/smartplugdirigent/' with a file per day.
+    Log files are stored in '/var/log/smartplug_app/' with a file per day.
     TODO: add note about linux removing files from /var/log/ regularly.
     """
 
@@ -48,8 +48,8 @@ class Logger:
     _log_queue: Queue
 
     ## The output folder of log files. Set fixed to
-    ## '/var/log/smartplugdirigent/'.
-    _output_folder: Path = Path("/var/log/smartplugdirigent/")
+    ## '/var/log/smartplug_app/'.
+    _output_folder: Path = Path("/var/log/smartplug_app/")
 
     def __new__(cls):
         """Creates an instance of the class.
