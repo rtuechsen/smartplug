@@ -28,10 +28,10 @@ class SmartplugApp(AppConfig):
     This module is registered in the django settings as an app. This
     means it is instanciated by django when the server starts.
 
-    It reads config.json and holds the hierarchy of devices and
-    groups as well as their current state. It is used by the REST API to
-    get or manipulate data from the device hierarchy. It holds the mqtt
-    client to communicate with the devices.
+    It reads config.json and holds the hierarchy of devices and groups
+    as well as their current state. It is used by the REST API to get or
+    manipulate data from the device hierarchy. It holds the mqtt client
+    to communicate with the devices.
 
     Functions that answer calls from the REST API should raise
     BackendError's. Other function might do this as well if it makes
