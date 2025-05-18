@@ -28,7 +28,7 @@ class SmartplugApp(AppConfig):
     This module is registered in the django settings as an app. This
     means it is instanciated by django when the server starts.
 
-    It reads labor-config.json and holds the hierarchy of devices and
+    It reads config.json and holds the hierarchy of devices and
     groups as well as their current state. It is used by the REST API to
     get or manipulate data from the device hierarchy. It holds the mqtt
     client to communicate with the devices.
@@ -70,8 +70,8 @@ class SmartplugApp(AppConfig):
 
         SmartplugApp._logger.info("Server was started.")
 
-        # load the labor-config.json
-        self._load_labor_config()
+        # load the config.json
+        self._load_config()
 
         # TODO: remove, used for debugging only
         # if not SmartplugApp._background_task_started:
@@ -91,31 +91,34 @@ class SmartplugApp(AppConfig):
                 "device_tree_update", "message", self.get_device_tree_dicts()
             )
 
-    def _load_labor_config(self) -> list[TreeItemDevice | TreeItemGroup]:
-        """Loads the hierarchy of devices and groups from `labor-config.json`.
+    def _load_config(self) -> list[TreeItemDevice | TreeItemGroup]:
+        """Loads the hierarchy of devices and groups from `config.json`.
 
-        The file 'labor-config.json' is expected to be located in the root
+        The file 'config.json' is expected to be located in the root
         directory of this project.
 
         @return The hierarchy of devices and groups.
         """
 
-        # 1. read the labor-config.json file
+        # 1. read the config.json file
 
-        labor_config_file_path: str = "./labor-config.json"
+        config_file_path: str = "./config.json"
 
-        lab_config_path = Path(__file__).parent.parent.parent / labor_config_file_path
+        lab_config_path = (
+            Path(__file__).parent.parent.parent / config_file_path
+        )
 
         try:
             with open(lab_config_path, "r", encoding="utf8") as file:
                 lab_config_json_string = file.read()
         except FileNotFoundError:
             self._logger.error(
-                f"Could not find the file labor-config at {lab_config_path}."
+                f"Could not find the file config.json at {lab_config_path}."
             )
         except IOError:
             self._logger.error(
-                f"Error while reading the file labor-config at " f"{lab_config_path}."
+                f"Error while reading the file config.json at "
+                f"{lab_config_path}."
             )
 
         # 2. convert string from file to JSON (dicts and lists)
@@ -124,7 +127,7 @@ class SmartplugApp(AppConfig):
             lab_config_python_obj = json.loads(lab_config_json_string)
         except ValueError as e:
             self._logger.error(
-                "Could not parse the labor-config to JSON because "
+                "Could not parse config.json to JSON because "
                 f"{e}: {lab_config_json_string}."
             )
 
@@ -146,7 +149,9 @@ class SmartplugApp(AppConfig):
             len(SmartplugApp._device_id_to_tree_item_mapping.keys()) * 2
         )
 
-    def _object_list_to_tree_item_list(self, object_list: list[dict]) -> list[TreeItem]:
+    def _object_list_to_tree_item_list(
+        self, object_list: list[dict]
+    ) -> list[TreeItem]:
         """Converts a list of dictionaries (JSON) to a list of TreeItems.
 
         @param object_list A list of dictionaries representing tree items.
@@ -182,16 +187,22 @@ class SmartplugApp(AppConfig):
 
         if "deviceId" in obj.keys():
             if obj["deviceId"] in self._device_id_to_tree_item_mapping:
-                raise BackendError(f"Property 'deviceId' of {obj} is not unique.")
+                raise BackendError(
+                    f"Property 'deviceId' of {obj} is not unique."
+                )
             tree_item = TreeItemDevice()
             tree_item.deviceId = obj["deviceId"]
             tree_item.isOn = False
             tree_item.isAvailable = False
-            self._device_id_to_tree_item_mapping[tree_item.deviceId] = tree_item
+            self._device_id_to_tree_item_mapping[tree_item.deviceId] = (
+                tree_item
+            )
 
         elif "children" in obj.keys():
             tree_item = TreeItemGroup()
-            tree_item.children = self._object_list_to_tree_item_list(obj["children"])
+            tree_item.children = self._object_list_to_tree_item_list(
+                obj["children"]
+            )
             if len(tree_item.children) == 0:
                 self._logger.warn(f"Object {obj} is a group without children.")
 
@@ -226,9 +237,9 @@ class SmartplugApp(AppConfig):
             device_id: str = random.choice(
                 list(self._device_id_to_tree_item_mapping.keys())
             )
-            tree_item: TreeItemDevice = SmartplugApp._device_id_to_tree_item_mapping[
-                device_id
-            ]
+            tree_item: TreeItemDevice = (
+                SmartplugApp._device_id_to_tree_item_mapping[device_id]
+            )
 
             toggle_availability: bool = random.choice([True, False])
 
