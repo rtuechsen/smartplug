@@ -423,40 +423,8 @@ class SmartplugApp(AppConfig):
                 "Specified id does not exist.",
             )
 
-        def choose_devices_to_switch(
-            id: str, desired_isOn: bool
-        ) -> list[TreeItemDevice]:
-
-            def get_devices(tree_item: TreeItem):
-
-                if isinstance(tree_item, TreeItemDevice):
-                    return [tree_item]
-
-                elif isinstance(tree_item, TreeItemGroup):
-                    devices = []
-                    for child in tree_item.children:
-                        devices.extend(get_devices(child))
-                    return devices
-
-            tree_item = SmartplugApp._id_to_tree_item_mapping[id]
-            all_devices: list[TreeItemDevice] = get_devices(tree_item)
-            devices_to_switch: list[TreeItemDevice] = [
-                device
-                for device in all_devices
-                if device.get_isOn() is not desired_isOn
-            ]
-
-            if desired_isOn is True:
-                devices_to_switch: list[TreeItemDevice] = (
-                    self._filter_devices_not_allowed_to_switch_on(
-                        devices_to_switch
-                    )
-                )
-
-            return devices_to_switch
-
-        devices_to_switch: list[TreeItemDevice] = choose_devices_to_switch(
-            id, desired_isOn
+        devices_to_switch: list[TreeItemDevice] = (
+            self._choose_devices_to_switch(id, desired_isOn)
         )
 
         # if requests are dropped due to SWITCHING_TOGGLE_DELAY
@@ -464,77 +432,9 @@ class SmartplugApp(AppConfig):
 
         for device in devices_to_switch:
 
-            with SmartplugApp._device_tree_mutex:
+            if self._try_switching_device(device, desired_isOn) == True:
+                were_requests_dropped = True
 
-                if device.get_isOn() is desired_isOn:
-                    # isOn is already in desired state, no switching needed
-                    return
-
-                now = datetime.datetime.now()
-
-                # need to save last 'switch ON time' (mutex), wait if
-                # below delay
-                # TODO: only delay between device switches, not at
-                # beginning or end of request
-                if desired_isOn:
-                    # only delay switching when switching ON (no inrush
-                    # current when switching OFF)
-                    with SmartplugApp._last_switch_on_date_time_mutex:
-
-                        time_passed_since_last_switch_on: (
-                            datetime.timedelta
-                        ) = (now - SmartplugApp._last_switch_on_date_time)
-
-                        if (
-                            time_passed_since_last_switch_on.seconds
-                            < INRUSH_CURRENT_DELAY
-                        ):
-
-                            time.sleep(
-                                INRUSH_CURRENT_DELAY
-                                - time_passed_since_last_switch_on.seconds
-                            )
-
-                        SmartplugApp._last_switch_on_date_time = (
-                            datetime.datetime.now()
-                        )
-
-                now = datetime.datetime.now()
-                time_passed_since_last_switch_of_current_item: (
-                    datetime.timedelta
-                ) = (now - device.time_last_switched)
-
-                if (
-                    time_passed_since_last_switch_of_current_item
-                    < datetime.timedelta(seconds=SWITCHING_TOGGLE_DELAY)
-                ):
-                    were_requests_dropped = True
-                    print("request dropped")
-
-                    # if last switch request was not that long ago -> drop
-                    # this request
-                    continue
-
-                device.time_last_switched = now
-
-                # TODO: try sending MQTT request here !!!
-
-                # TODO: do NOT set state here,
-                # wait for signal from plug that it changed somewhere else
-                # in the code
-                device.set_isOn(desired_isOn)
-
-            # TODO: do NOT send update event here,
-            # wait for signal from plug that it changed somewhere else
-            # in the code
-            # notify SSE subscribers about changes to the device tree
-            django_eventstream.send_event(
-                "device_tree_update",
-                "message",
-                self.get_device_tree_dicts(),
-            )
-
-        print("were_requests_dropped:", were_requests_dropped)
         # TODO: add info about delay value
         if were_requests_dropped:
             raise BackendError(
@@ -546,6 +446,109 @@ class SmartplugApp(AppConfig):
                 f"with the per device switching delay of "
                 f"{SWITCHING_TOGGLE_DELAY} seconds.",
             )
+
+    def _try_switching_device(
+        self, device: TreeItemDevice, desired_isOn: bool
+    ) -> bool:
+
+        with SmartplugApp._device_tree_mutex:
+
+            if device.get_isOn() is desired_isOn:
+                # isOn is already in desired state, no switching needed
+                return
+
+            now = datetime.datetime.now()
+
+            # need to save last 'switch ON time' (mutex), wait if
+            # below delay
+            # TODO: only delay between device switches, not at
+            # beginning or end of request
+            if desired_isOn:
+                # only delay switching when switching ON (no inrush
+                # current when switching OFF)
+                with SmartplugApp._last_switch_on_date_time_mutex:
+
+                    time_passed_since_last_switch_on: datetime.timedelta = (
+                        now - SmartplugApp._last_switch_on_date_time
+                    )
+
+                    if (
+                        time_passed_since_last_switch_on.seconds
+                        < INRUSH_CURRENT_DELAY
+                    ):
+
+                        time.sleep(
+                            INRUSH_CURRENT_DELAY
+                            - time_passed_since_last_switch_on.seconds
+                        )
+
+                    SmartplugApp._last_switch_on_date_time = (
+                        datetime.datetime.now()
+                    )
+
+            now = datetime.datetime.now()
+            time_passed_since_last_switch_of_current_item: (
+                datetime.timedelta
+            ) = (now - device.time_last_switched)
+
+            if (
+                time_passed_since_last_switch_of_current_item
+                < datetime.timedelta(seconds=SWITCHING_TOGGLE_DELAY)
+            ):
+                return True
+
+            device.time_last_switched = now
+
+            # TODO: try sending MQTT request here !!!
+
+            # TODO: do NOT set state here,
+            # wait for signal from plug that it changed somewhere else
+            # in the code
+            device.set_isOn(desired_isOn)
+
+        # TODO: do NOT send update event here,
+        # wait for signal from plug that it changed somewhere else
+        # in the code
+        # notify SSE subscribers about changes to the device tree
+        django_eventstream.send_event(
+            "device_tree_update",
+            "message",
+            self.get_device_tree_dicts(),
+        )
+
+        return False
+
+    def _choose_devices_to_switch(
+        self, id: str, desired_isOn: bool
+    ) -> list[TreeItemDevice]:
+
+        def get_devices(tree_item: TreeItem):
+
+            if isinstance(tree_item, TreeItemDevice):
+                return [tree_item]
+
+            elif isinstance(tree_item, TreeItemGroup):
+                devices = []
+                for child in tree_item.children:
+                    devices.extend(get_devices(child))
+                return devices
+
+        tree_item = SmartplugApp._id_to_tree_item_mapping[id]
+        all_devices: list[TreeItemDevice] = get_devices(tree_item)
+        devices_to_switch: list[TreeItemDevice] = [
+            device
+            for device in all_devices
+            if device.get_isOn() is not desired_isOn
+        ]
+
+        if desired_isOn is True:
+            devices_to_switch: list[TreeItemDevice] = (
+                self._filter_devices_not_allowed_to_switch_on(
+                    devices_to_switch
+                )
+            )
+
+        return devices_to_switch
 
     def _collect_dependencies(self, lab_config_python_obj: list):
         """
