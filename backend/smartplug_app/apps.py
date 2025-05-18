@@ -509,10 +509,11 @@ class SmartplugApp(AppConfig):
                     < datetime.timedelta(seconds=SWITCHING_TOGGLE_DELAY)
                 ):
                     were_requests_dropped = True
+                    print("request dropped")
 
                     # if last switch request was not that long ago -> drop
                     # this request
-                    return
+                    continue
 
                 device.time_last_switched = now
 
@@ -533,6 +534,7 @@ class SmartplugApp(AppConfig):
                 self.get_device_tree_dicts(),
             )
 
+        print("were_requests_dropped:", were_requests_dropped)
         # TODO: add info about delay value
         if were_requests_dropped:
             raise BackendError(
