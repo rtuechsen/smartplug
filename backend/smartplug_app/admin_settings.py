@@ -11,7 +11,7 @@ INRUSH_CURRENT_DELAY = 1.0
 on devices when switching on multiple devices."""
 
 # TODO: remove, development variable
-USE_LDAP: bool = True
+USE_LDAP: bool = False
 
 LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.178.50:389"
 """The address of the server running active directory. It should start with 

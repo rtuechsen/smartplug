@@ -92,7 +92,13 @@ class LoginManager:
                 username == "max.mustermann@mylab.local"
                 or username == "MYLAB\\mmustermann"
             ) and password == "FHKiel123!":
-                return
+                return ("Max", "Mustermann")
+            else:
+                raise BackendError(
+                    message=f"Credentials mismatch on user: {username}.",
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    user_message="Either your password or username were incorrect.",
+                )
 
         try:
             if "@" in username:
