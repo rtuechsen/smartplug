@@ -95,15 +95,21 @@ class LoginManager:
 
         try:
             if "@" in username:
-                # UPN
+                # UPN = User Principle Name
+                # When searching the UPN equals the full email address of the
+                # user
                 search_filter = f"(userPrincipalName={username})"
 
             else:
-                # NetBIOS
+                # NetBIOS = LDAP legacy login method
+                # When searching the NetBIOS expects only the user name that
+                # follows the '\'
                 sAMAccountName: str = username.split("\\")[1]
                 search_filter = f"(sAMAccountName={sAMAccountName})"
 
             conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
+
+            # debug level 255 is the most verbose
             conn.set_option(ldap.OPT_DEBUG_LEVEL, 255)
 
             # LDAP 3 is necessary for active directory
@@ -114,10 +120,12 @@ class LoginManager:
             # Important for AD: disable referrals
             conn.set_option(ldap.OPT_REFERRALS, 0)
 
+            # The bind performs the actual request to verify the credentials
             conn.simple_bind_s(username, password)
 
-            # get first and last name of the user
+            # next get first and last name of the user (if those exist)
 
+            # sn = surname
             search_attributes: list[str] = ["givenName", "sn"]
 
             result = conn.search_s(
@@ -142,7 +150,7 @@ class LoginManager:
             else:
                 last_name = ""
 
-            # TODO: should we unbind in case an error happens after binding?
+            # TODO: should we unbind as well if error happens after binding?
             conn.unbind_s()
 
             return (first_name, last_name)
@@ -154,7 +162,6 @@ class LoginManager:
                 user_message="Either your password or username were incorrect.",
             ) from e
 
-        # TODO: add more granular exceptions what exactly failed
         except ldap.LDAPError as e:
             raise BackendError(
                 message=f"LDAP bind failed: {e}",
