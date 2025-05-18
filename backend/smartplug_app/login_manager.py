@@ -18,10 +18,24 @@ def authenticate(username: str, password: str) -> tuple[str, str]:
 
     # TODO: remove, development code
     if not USE_LDAP:
-        if username == "user" and password == "pass":
+        if (
+            username == "max.mustermann@mylab.local"
+            or username == "MYLAB\\mmustermann"
+        ) and password == "FHKiel123!":
             return
 
     try:
+        if "@" in username:
+            # UPN
+            search_filter = f"(userPrincipalName={username})"
+
+        else:
+            # NetBIOS
+            sAMAccountName: str = username.split("\\")[1]
+            search_filter = f"(sAMAccountName={sAMAccountName})"
+
+        print("filter:", search_filter)
+
         conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
         conn.set_option(ldap.OPT_DEBUG_LEVEL, 255)
 
@@ -33,16 +47,21 @@ def authenticate(username: str, password: str) -> tuple[str, str]:
         # Important for AD: disable referrals
         conn.set_option(ldap.OPT_REFERRALS, 0)
 
+        print("username:", username)
+        print("password:", password)
         conn.simple_bind_s(username, password)
+
+        print("\n\nBind successfull\n\n")
 
         # get proper name of the user
         # TODO: only works form email, make this work with 'DOMAIN_NAME\user'
-        sAMAccountName: str = username.split("@")[0]
+
         search_attributes: list[str] = ["givenName", "sn"]
+
         result = conn.search_s(
-            username,
+            "dc=mylab,dc=local",
             ldap.SCOPE_SUBTREE,
-            f"(sAMAccountName={sAMAccountName})",
+            search_filter,
             search_attributes,
         )
 
@@ -56,9 +75,12 @@ def authenticate(username: str, password: str) -> tuple[str, str]:
 
         _, entry = result[0]
 
+        print(entry)
         # TODO: add these to the session management somehow ???
-        firstName = entry["givenName"]
-        lastName = entry["sn"]
+        firstName = entry["givenName"][0].decode("utf-8")
+        lastName = entry["sn"][0].decode("utf-8")
+        print("names:", firstName, lastName)
+        print(type(firstName))
 
         # TODO: should we unbind in case an error happens after binding?
         conn.unbind_s()
