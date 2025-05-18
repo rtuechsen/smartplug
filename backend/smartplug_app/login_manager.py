@@ -11,10 +11,6 @@ from .admin_settings import (
 )
 
 
-# simulates LDAP-Process
-# TODO: Implement LDAP
-
-
 def authenticate(username: str, password: str) -> tuple[str, str]:
 
     # TODO: remove, development code
