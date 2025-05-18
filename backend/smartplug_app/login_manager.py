@@ -67,7 +67,8 @@ class LoginManager:
             ) from e
 
         if user:
-            # If there is a user and the user needs permission, it means an action happened.
+            # If there is a user and the user needs permission, it means an
+            # action happened.
             # We therefor reset the expiry using the value in our settings.
             request.session.set_expiry(settings.SESSION_COOKIE_AGE)
 
@@ -137,8 +138,8 @@ class LoginManager:
 
             _, entry = result[0]
 
-            # Note: Active Directory apparently requires either the first name or
-            # the last name when creating a user
+            # Note: Active Directory apparently requires either the first name
+            # or the last name when creating a user
 
             if "givenName" in entry:
                 first_name = entry["givenName"][0].decode("utf-8")
@@ -165,8 +166,8 @@ class LoginManager:
         except ldap.LDAPError as e:
             raise BackendError(
                 message=f"LDAP bind failed: {e}",
-                user_message="Verifying credentials using Active Directory failed. "
-                "Please contact the admin.",
+                user_message="Verifying credentials using Active Directory "
+                "failed. Please contact the admin.",
             ) from e
 
     def _validate_request_origin(self, request: Request) -> None:
