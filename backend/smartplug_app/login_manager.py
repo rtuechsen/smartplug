@@ -55,8 +55,6 @@ class LoginManager:
                 user_message="Authentication failed. Are you signed in?",
             ) from e
 
-        # TODO: Integrate LDAP into login logic
-
     def login(self, request: Request) -> None:
         username = request.data.get("username")
         password = request.data.get("password")
