@@ -19,9 +19,6 @@ request_manager = RequestManager()
 def csrf(request: Request) -> Response:
     """Callback for the /csrf endpoint.
 
-    Forwards its requests to the request manager. Forwards the responses
-    received from the request manager back to the REST API.
-
     @param request The request from the REST API.
 
     @return The response from the request manager for the REST API.
@@ -32,9 +29,6 @@ def csrf(request: Request) -> Response:
 @api_view(["POST"])
 def login(request: Request) -> Response:
     """Callback for the /login endpoint.
-
-    Forwards its requests to the request manager. Forwards the responses
-    received from the request manager back to the REST API.
 
     @param request The request from the REST API.
 
@@ -47,9 +41,6 @@ def login(request: Request) -> Response:
 def logout(request: Request) -> Response:
     """Callback for the /logout endpoint.
 
-    Forwards its requests to the request manager. Forwards the responses
-    received from the request manager back to the REST API.
-
     @param request The request from the REST API.
 
     @return The response from the request manager for the REST API.
@@ -61,9 +52,6 @@ def logout(request: Request) -> Response:
 def gettree(request: Request) -> Response:
     """Callback for the /gettree endpoint.
 
-    Forwards its requests to the request manager. Forwards the responses
-    received from the request manager back to the REST API.
-
     @param request The request from the REST API.
 
     @return The response from the request manager for the REST API.
@@ -74,9 +62,6 @@ def gettree(request: Request) -> Response:
 @api_view(["POST"])
 def switch(request: Request) -> Response:
     """Callback for the /switch endpoint.
-
-    Forwards its requests to the request manager. Forwards the responses
-    received from the request manager back to the REST API.
 
     @param request The request from the REST API.
 
