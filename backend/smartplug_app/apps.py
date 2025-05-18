@@ -1,4 +1,4 @@
-"""Contains the TODO class which stores most of the data for the backend and
+"""Contains the SmartplugApp class which stores most of the data for the backend and
 also handles background tasks the REST API does not handle.
 
 TODO: more details ???

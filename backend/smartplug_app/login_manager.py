@@ -1,3 +1,8 @@
+"""Contains ... TODO
+
+TODO: more details ???
+"""
+
 import ldap
 from rest_framework import status
 from rest_framework.request import Request
@@ -9,86 +14,6 @@ from .admin_settings import (
     LDAP_TIMEOUT_SECONDS,
     LDAP_SEARCH_BASE_DN,
 )
-
-
-def authenticate(username: str, password: str) -> tuple[str, str]:
-
-    # TODO: remove, development code
-    if not USE_LDAP:
-        if (
-            username == "max.mustermann@mylab.local"
-            or username == "MYLAB\\mmustermann"
-        ) and password == "FHKiel123!":
-            return
-
-    try:
-        if "@" in username:
-            # UPN
-            search_filter = f"(userPrincipalName={username})"
-
-        else:
-            # NetBIOS
-            sAMAccountName: str = username.split("\\")[1]
-            search_filter = f"(sAMAccountName={sAMAccountName})"
-
-        conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
-        conn.set_option(ldap.OPT_DEBUG_LEVEL, 255)
-
-        # LDAP 3 is necessary for active directory
-        conn.set_option(ldap.OPT_PROTOCOL_VERSION, ldap.VERSION3)
-
-        conn.set_option(ldap.OPT_NETWORK_TIMEOUT, LDAP_TIMEOUT_SECONDS)
-
-        # Important for AD: disable referrals
-        conn.set_option(ldap.OPT_REFERRALS, 0)
-
-        conn.simple_bind_s(username, password)
-
-        # get first and last name of the user
-
-        search_attributes: list[str] = ["givenName", "sn"]
-
-        result = conn.search_s(
-            LDAP_SEARCH_BASE_DN,
-            ldap.SCOPE_SUBTREE,
-            search_filter,
-            search_attributes,
-        )
-
-        _, entry = result[0]
-
-        # Note: Active Directory apparently requires either the first name or
-        # the last name when creating a user
-
-        if "givenName" in entry:
-            first_name = entry["givenName"][0].decode("utf-8")
-        else:
-            first_name = ""
-
-        if "sn" in entry:
-            last_name = entry["sn"][0].decode("utf-8")
-        else:
-            last_name = ""
-
-        # TODO: should we unbind in case an error happens after binding?
-        conn.unbind_s()
-
-        return (first_name, last_name)
-
-    except ldap.INVALID_CREDENTIALS as e:
-        raise BackendError(
-            message=f"Credentials mismatch on user: {username}.",
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            user_message="Either your password or username were incorrect.",
-        ) from e
-
-    # TODO: add more granular exceptions what exactly failed
-    except ldap.LDAPError as e:
-        raise BackendError(
-            message=f"LDAP bind failed: {e}",
-            user_message="Verifying credentials using Active Directory failed. "
-            "Please contact the admin.",
-        ) from e
 
 
 class LoginManager:
@@ -136,7 +61,7 @@ class LoginManager:
         username = request.data.get("username")
         password = request.data.get("password")
 
-        first_name, last_name = authenticate(
+        first_name, last_name = self._authenticate(
             username=username, password=password
         )
 
@@ -156,6 +81,97 @@ class LoginManager:
         # from session fixation:
         # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
         request.session.flush()
+
+    def _authenticate(self, username: str, password: str) -> tuple[str, str]:
+        """Verifies that the combination of username and passowrd belongs to
+        a user in the Active Directory.
+
+        Tries to retrieve the first and last name of the user from the Active
+        Directory as well.
+
+        @param username The username to verify.
+
+        @param password The password to verify.
+
+        @return A tuple with (first name, last name) of the user retrieved from
+        the Active Directory.
+        """
+        # TODO: remove, development code
+        if not USE_LDAP:
+            if (
+                username == "max.mustermann@mylab.local"
+                or username == "MYLAB\\mmustermann"
+            ) and password == "FHKiel123!":
+                return
+
+        try:
+            if "@" in username:
+                # UPN
+                search_filter = f"(userPrincipalName={username})"
+
+            else:
+                # NetBIOS
+                sAMAccountName: str = username.split("\\")[1]
+                search_filter = f"(sAMAccountName={sAMAccountName})"
+
+            conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
+            conn.set_option(ldap.OPT_DEBUG_LEVEL, 255)
+
+            # LDAP 3 is necessary for active directory
+            conn.set_option(ldap.OPT_PROTOCOL_VERSION, ldap.VERSION3)
+
+            conn.set_option(ldap.OPT_NETWORK_TIMEOUT, LDAP_TIMEOUT_SECONDS)
+
+            # Important for AD: disable referrals
+            conn.set_option(ldap.OPT_REFERRALS, 0)
+
+            conn.simple_bind_s(username, password)
+
+            # get first and last name of the user
+
+            search_attributes: list[str] = ["givenName", "sn"]
+
+            result = conn.search_s(
+                LDAP_SEARCH_BASE_DN,
+                ldap.SCOPE_SUBTREE,
+                search_filter,
+                search_attributes,
+            )
+
+            _, entry = result[0]
+
+            # Note: Active Directory apparently requires either the first name or
+            # the last name when creating a user
+
+            if "givenName" in entry:
+                first_name = entry["givenName"][0].decode("utf-8")
+            else:
+                first_name = ""
+
+            if "sn" in entry:
+                last_name = entry["sn"][0].decode("utf-8")
+            else:
+                last_name = ""
+
+            # TODO: should we unbind in case an error happens after binding?
+            conn.unbind_s()
+
+            return (first_name, last_name)
+
+        except ldap.INVALID_CREDENTIALS as e:
+            raise BackendError(
+                message=f"Credentials mismatch on user: {username}.",
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                user_message="Either your password or username were incorrect.",
+            ) from e
+
+        # TODO: add more granular exceptions what exactly failed
+        except ldap.LDAPError as e:
+            raise BackendError(
+                message=f"LDAP bind failed: {e}",
+                user_message="Verifying credentials using Active Directory failed. "
+                "Please contact the admin.",
+            ) from e
 
     def get_user_permission(self, request: Request) -> None:
         # user will be None unless logged in. Per default we use a
