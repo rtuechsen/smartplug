@@ -7,6 +7,7 @@ from .admin_settings import (
     USE_LDAP,
     LDAP_SERVER_ADDRESS_AND_PORT,
     LDAP_TIMEOUT_SECONDS,
+    LDAP_SEARCH_BASE_DN,
 )
 
 
@@ -34,8 +35,6 @@ def authenticate(username: str, password: str) -> tuple[str, str]:
             sAMAccountName: str = username.split("\\")[1]
             search_filter = f"(sAMAccountName={sAMAccountName})"
 
-        print("filter:", search_filter)
-
         conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
         conn.set_option(ldap.OPT_DEBUG_LEVEL, 255)
 
@@ -47,45 +46,38 @@ def authenticate(username: str, password: str) -> tuple[str, str]:
         # Important for AD: disable referrals
         conn.set_option(ldap.OPT_REFERRALS, 0)
 
-        print("username:", username)
-        print("password:", password)
         conn.simple_bind_s(username, password)
 
-        print("\n\nBind successfull\n\n")
-
-        # get proper name of the user
-        # TODO: only works form email, make this work with 'DOMAIN_NAME\user'
+        # get first and last name of the user
 
         search_attributes: list[str] = ["givenName", "sn"]
 
         result = conn.search_s(
-            "dc=mylab,dc=local",
+            LDAP_SEARCH_BASE_DN,
             ldap.SCOPE_SUBTREE,
             search_filter,
             search_attributes,
         )
 
-        if len(result) == 0:
-            # TODO: simply use username instead of real names
-            pass
-
-        if len(result) > 1:
-            # TODO: raise error
-            pass
-
         _, entry = result[0]
 
-        print(entry)
-        # TODO: add these to the session management somehow ???
-        firstName = entry["givenName"][0].decode("utf-8")
-        lastName = entry["sn"][0].decode("utf-8")
-        print("names:", firstName, lastName)
-        print(type(firstName))
+        # Note: Active Directory apparently requires either the first name or
+        # the last name when creating a user
+
+        if "givenName" in entry:
+            first_name = entry["givenName"][0].decode("utf-8")
+        else:
+            first_name = ""
+
+        if "sn" in entry:
+            last_name = entry["sn"][0].decode("utf-8")
+        else:
+            last_name = ""
 
         # TODO: should we unbind in case an error happens after binding?
         conn.unbind_s()
 
-        return (firstName, lastName)
+        return (first_name, last_name)
 
     except ldap.INVALID_CREDENTIALS as e:
         raise BackendError(

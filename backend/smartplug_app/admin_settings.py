@@ -5,3 +5,4 @@ USE_LDAP: bool = True
 
 LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.178.50:389"
 LDAP_TIMEOUT_SECONDS: int = 5
+LDAP_SEARCH_BASE_DN = "dc=mylab,dc=local"
