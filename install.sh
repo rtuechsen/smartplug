@@ -27,6 +27,10 @@ sudo apt -y install python3-pip
 
 python -m pip install -r ./requirements.txt
 
+## logrotate
+
+sudo cp -p ./smartplug_app /etc/logrotate.d/smartplug_app
+
 cd ..
 
 # frontend
