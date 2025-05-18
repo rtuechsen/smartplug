@@ -46,8 +46,8 @@ class BackendError(Exception):
         ## An optional user facing message. Should be used if the error occured
         ## while processing a REST API request and the main message might
         ## contain either information about the backends implementation or
-        ## contains user input. Sending repsonses with user input might open the
-        ## door for injection attacks.
+        ## contains user input. Sending repsonses with user input might open
+        ## the door for injection attacks.
         self.user_message = user_message
 
 
@@ -91,8 +91,8 @@ class ErrorHandler:
 
         if user_message is None:
             user_message = (
-                "The server encountered an internal error, please"
-                "contact the admin."
+                "The server encountered an internal error, please contact the "
+                "admin."
             )
 
         return Response(

@@ -12,6 +12,9 @@ import yaml
 from .apps import SmartplugApp
 from .logger import Logger
 from .error_handler import ErrorHandler, BackendError
+from .login_manager import LoginManager
+
+login_manager = LoginManager()
 
 
 # rules for input validation (OWASP):
@@ -43,7 +46,7 @@ class RequestManager:
         ## generate a response for the REST API.
         self._error_handler: ErrorHandler = ErrorHandler()
 
-        ## The instance of TODO that manages the device tree.
+        ## The instance of SmartplugApp that manages the device tree.
         self.smartplug_app: SmartplugApp = apps.get_app_config("smartplug_app")
 
         # Because openapi.yaml already contains schemas for the requests for
@@ -69,6 +72,7 @@ class RequestManager:
 
         @return A response containing either the CSRF token or an error.
         """
+        # TODO: request validation -> should be no body
         # TODO: add more info to log: WHO has send that request?
         # ip, user name, ...
         self._logger.info("A /csrf request has been received.")
@@ -79,13 +83,23 @@ class RequestManager:
 
     def login(self, request: Request) -> Response:
         """TODO: write docstring when merging login branch"""
+        # TODO: request validation
+
+        try:
+            login_manager.login(request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message, e.status_code, e.user_message
+            )
+
         return Response(None, status=status.HTTP_200_OK)
 
     def logout(self, request: Request) -> Response:
         """TODO: write docstring when merging login branch"""
-        return Response(None, status=status.HTTP_200_OK)
+        # TODO: request validation
+        login_manager.logout(request)
 
-    def gettree(self, _: Request) -> Response:
+    def gettree(self, request: Request) -> Response:
         """Function to process requests to /gettree .
 
         @param request The incoming request.
@@ -93,12 +107,20 @@ class RequestManager:
         @return A response containing either the device tree as a JSON or an
         error.
         """
-        # No schema validation needed here a there is no payload expected in
-        # the request. Any payload in the request would be ignored.
+        # TODO: request validation -> should be no body
 
         # TODO: add more info to log: WHO has send that request?
         # ip, user name, ...
         self._logger.info("A /gettree request has been received.")
+
+        # Check and handle user permission
+        try:
+            login_manager.get_user_permission(request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message, e.status_code, e.user_message
+            )
+
         # TODO: handle errors
         device_tree = self.smartplug_app.get_device_tree_dicts()
         return Response(device_tree, status=status.HTTP_200_OK)
@@ -114,6 +136,14 @@ class RequestManager:
         # to identify user ???
         self._logger.info("A /switch request has been received.")
 
+        # Check and handle user permission
+        try:
+            login_manager.get_user_permission(request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message, e.status_code, e.user_message
+            )
+
         try:
             jsonschema.validate(
                 instance=request.data, schema=self._schema_switch
@@ -127,7 +157,9 @@ class RequestManager:
 
         try:
             # instruct the app to perform the switch
-            self.smartplug_app.switch(request.data["id"], request.data["isOn"])
+            self.smartplug_app.switch(
+                request.data["id"], request.data["desired_isOn"]
+            )
         except BackendError as e:
             return self._error_handler.response(
                 e.message, e.status_code, e.user_message

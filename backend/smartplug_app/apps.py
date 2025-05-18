@@ -1,4 +1,4 @@
-"""Contains the TODO class which stores most of the data for the backend and
+"""Contains the SmartplugApp class which stores most of the data for the backend and
 also handles background tasks the REST API does not handle.
 
 TODO: more details ???
@@ -31,10 +31,10 @@ class SmartplugApp(AppConfig):
     This module is registered in the django settings as an app. This
     means it is instanciated by django when the server starts.
 
-    It reads labor-config.json and holds the hierarchy of devices and
-    groups as well as their current state. It is used by the REST API to
-    get or manipulate data from the device hierarchy. It holds the mqtt
-    client to communicate with the devices.
+    It reads config.json and holds the hierarchy of devices and groups
+    as well as their current state. It is used by the REST API to get or
+    manipulate data from the device hierarchy. It holds the mqtt client
+    to communicate with the devices.
 
     Functions that answer calls from the REST API should raise
     BackendError's. Other function might do this as well if it makes
@@ -77,8 +77,8 @@ class SmartplugApp(AppConfig):
 
         SmartplugApp._logger.info("Server was started.")
 
-        # load the labor-config.json
-        self._load_labor_config()
+        # load the config.json
+        self._load_config()
 
         # TODO: remove, used for debugging only
         # if not SmartplugApp._background_task_started:
@@ -98,21 +98,21 @@ class SmartplugApp(AppConfig):
                 "device_tree_update", "message", self.get_device_tree_dicts()
             )
 
-    def _load_labor_config(self) -> list[TreeItemDevice | TreeItemGroup]:
-        """Loads the hierarchy of devices and groups from `labor-config.json`.
+    def _load_config(self) -> list[TreeItemDevice | TreeItemGroup]:
+        """Loads the hierarchy of devices and groups from `config.json`.
 
-        The file 'labor-config.json' is expected to be located in the root
+        The file 'config.json' is expected to be located in the root
         directory of this project.
 
         @return The hierarchy of devices and groups.
         """
 
-        # 1. read the labor-config.json file
+        # 1. read the config.json file
 
-        labor_config_file_path: str = "./labor-config.json"
+        config_file_path: str = "./config.json"
 
         lab_config_path = (
-            Path(__file__).parent.parent.parent / labor_config_file_path
+            Path(__file__).parent.parent.parent / config_file_path
         )
 
         try:
@@ -120,11 +120,11 @@ class SmartplugApp(AppConfig):
                 lab_config_json_string = file.read()
         except FileNotFoundError:
             self._logger.error(
-                f"Could not find the file labor-config at {lab_config_path}."
+                f"Could not find the file config.json at {lab_config_path}."
             )
         except IOError:
             self._logger.error(
-                f"Error while reading the file labor-config at "
+                f"Error while reading the file config.json at "
                 f"{lab_config_path}."
             )
 
@@ -134,7 +134,7 @@ class SmartplugApp(AppConfig):
             lab_config_python_obj: list = json.loads(lab_config_json_string)
         except ValueError as e:
             self._logger.error(
-                "Could not parse the labor-config to JSON because "
+                "Could not parse config.json to JSON because "
                 f"{e}: {lab_config_json_string}."
             )
 
@@ -402,15 +402,15 @@ class SmartplugApp(AppConfig):
 
         return devices_allowed_to_switch_on
 
-    def switch(self, id: str, isOn: bool) -> None:
+    def switch(self, id: str, desired_isOn: bool) -> None:
         """Function to answer a call to /switch, turns devices and groups
         on/off according to the request.
 
         @param id The id of the device or group to switch.
 
-        @param isOn A boolean indicating if the item should be turned on (True)
-        or off (False). Ignores PEP8 naming convention to match the name of the
-        variable across the project.
+        @param desired_isOn A boolean indicating if the item should be turned
+        on (True) or off (False). Ignores PEP8 naming convention to match the
+        name of the variable across the project.
         """
 
         # TODO: break function into smaller parts

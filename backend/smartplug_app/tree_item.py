@@ -108,10 +108,41 @@ class TreeItemGroup(TreeItem):
         """
 
         # collect the data from all direct children
-        # recursive call, will travel down the hierarchy
-        children_dict: list[dict] = [
-            child.to_dict() for child in self.children
+        for child in self.children:
+            child_dict = (
+                child.to_dict()
+            )  # recursive call, will travel down the hierarchy
+            children_dict.append(child_dict)
+            children_isOn.append(child_dict["isOn"])
+            children_isAvailable.append(child_dict["isAvailable"])
+
+        # decide state of group based on children
+
+        isOn: bool = None
+        isAvailable: bool = None
+
+        # if all children states are True, so is the group
+
+        if all(children_isOn):
+            isOn = True
+
+        if all(children_isAvailable):
+            isAvailable = True
+
+        children_isOn_negated: list[bool] = [not item for item in children_isOn]
+
+        children_isAvailable_negated: list[bool] = [
+            not item for item in children_isAvailable
         ]
+
+        # if all children states are False (i.e. all children states negated
+        # are True), so is the group
+
+        if all(children_isOn_negated):
+            isOn = False
+
+        if all(children_isAvailable_negated):
+            isAvailable = False
 
         return {
             "label": self.label,
