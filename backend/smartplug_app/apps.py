@@ -432,7 +432,7 @@ class SmartplugApp(AppConfig):
 
         for device in devices_to_switch:
 
-            if self._try_switching_device(device, desired_isOn) == True:
+            if self._try_switching_device(device, desired_isOn) is True:
                 were_requests_dropped = True
 
         # TODO: add info about delay value
@@ -506,6 +506,7 @@ class SmartplugApp(AppConfig):
             # in the code
             device.set_isOn(desired_isOn)
 
+        print(self.get_device_tree_dicts())
         # TODO: do NOT send update event here,
         # wait for signal from plug that it changed somewhere else
         # in the code
