@@ -4,18 +4,19 @@ import paho.mqtt.client as mqtt
 
 class MQTTClient:
 
-    def __init__(self, on_update_callback = None):
+    def __init__(self, on_update_callback=None):
         self._broker_ip: str = "localhost"
-        self._broker_port: int = 1883
+        self._broker_port: int = 8883
         self._keep_alive_seconds = 60
         self._sub_topic: str = "/rpc"
         self._client = mqtt.Client()
         self._username = "mqttuser"
-        self._password = "Pass"
+        self._password = "pass"
 
         self._client.tls_set(
-            ca_certs = "/var/lib/mosquitto/ssl/server.crt",  # Path to your CA certificate
-            tls_version = mqtt.ssl.PROTOCOL_TLSv1_2  # Use TLSv1.2
+            ca_certs="/var/lib/mosquitto/ssl/server.crt",
+            certfile="/home/admin/shelly-dirigent/backend/certs/client.crt",
+            keyfile="/home/admin/shelly-dirigent/backend/certs/client.key",
         )
 
         self._client.tls_insecure_set(True)
@@ -43,6 +44,7 @@ class MQTTClient:
         self._client.connect(
             self._broker_ip, self._broker_port, self._keep_alive_seconds
         )
+
     def on_message(self, client, userdata, msg):
         topic = msg.topic
         payload = msg.payload.decode()
@@ -71,7 +73,7 @@ class MQTTClient:
             except json.JSONDecodeError:
                 print(f"[{topic}] Ungültiges JSON: {payload}")
         # TODO: error handling
-    
+
     def disconnect(self):
         self._client.disconnect()
 
