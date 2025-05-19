@@ -95,6 +95,7 @@ paths:
               additionalProperties: false
       # TODO: responses
   /api/logout:
+    post:
       summary: TODO # TODO
       description: TODO # TODO
       # TODO: responses
