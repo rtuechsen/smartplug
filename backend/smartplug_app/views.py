@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import api_view
 from .request_manager import RequestManager
-from asgiref.sync import async_to_sync
 
 # The instance of the RequestManager. All requests are forwared to it.
 request_manager = RequestManager()
