@@ -21,7 +21,7 @@
 								"children": [
 									{
 										"label": "PC 2",
-										"deviceId": "10003"
+										"deviceId": "shellyplugsg3-b08184a4b8e4"
 									},
 									{
 										"label": "Monitor 1",
@@ -42,7 +42,7 @@
 									},
 									{
 										"label": "Monitor 3 (real)",
-										"deviceId": "shellyplugsg3-b08184a4b8e4"
+										"deviceId": "shellyplugsg3-b08184a4b8e9"
 									}
 								]
 							}
