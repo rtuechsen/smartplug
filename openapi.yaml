@@ -43,7 +43,7 @@ paths:
   /:
     get:
       summary: Get the frontend (html and javascript)
-      description: Some text # TODO
+      description: TODO # TODO
       responses:
         '200':
           description: OK
@@ -54,8 +54,8 @@ paths:
                 format: html
   /api/csrf:
     get:
-      summary: # TODO
-      description: # TODO
+      summary: TODO # TODO
+      description: TODO # TODO
       responses: # TODO
         '200':
           description: OK
@@ -69,13 +69,39 @@ paths:
                     # TODO: pattern
                 # TODO: required
   /api/login:
-    # TODO
+    post:
+      summary: TODO # TODO
+      description: TODO # TODO
+      requestBody:
+        description: TODO # TODO
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  pattern: ^([a-zA-Z0-9.]{1,40}@mylab\.local)|(MYLAB\\[a-zA-Z0-9]{1,20})$
+                  # pattern: ^([a-zA-Z0-9!#$%&‘*+–\/=?^_`.{|}~]{1,40}@(anschuetz\.com)|(anschuetz\.uk)|(extern\.anschuetz\.com)|(raykiel\.com))|(NT_RMKIEL\\[a-zA-Z0-9!@#$%^&()-_'{}.~]{1,20})$
+                  description: TODO # TODO
+                password:
+                  type: string
+                  pattern: ^[a-zA-Z0-9^!$%&()\[\]{}=?+*~#'-_.,;:\|<>"°]{12,100}$
+                  description: TODO # TODO
+              required:
+                - username
+                - password
+              additionalProperties: false
+      # TODO: responses
   /api/logout:
-    # TODO
+      summary: TODO # TODO
+      description: TODO # TODO
+      # TODO: responses
   /api/gettree:
     get:
-      summary: # TODO
-      description: # TODO
+      summary: TODO # TODO
+      description: TODO # TODO
       responses: # TODO
         '200':
           description: OK
@@ -85,8 +111,9 @@ paths:
   /api/switch:
     post:
       summary: Control the state of an item
+      description: TODO # TODO
       requestBody:
-        description: JSON object # TODO
+        description: TODO # TODO
         required: true
         content:
           application/json:
@@ -118,9 +145,9 @@ paths:
                 invalid id:
                   value:
                     - Specified id f7f7a115bea9310b163934fb414de46009662610454c8a3a9bb2b823cc4aafb does not exist.
-  /api/events:
+  # /api/events:
     # TODO: SSE not supported
-                    
-                    
-                  
-                    
+
+
+
+
