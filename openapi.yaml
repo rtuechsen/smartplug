@@ -87,7 +87,8 @@ paths:
                   description: TODO # TODO
                 password:
                   type: string
-                  pattern: ^[a-zA-Z0-9^!$%&()\[\]{}=?+*~#'-_.,;:\|<>"°]{12,100}$
+                  pattern: ^[a-zA-Z0-9^!$%&()\[\]{}=?+*~#'-_.,;:\|<>"°]{1,100}$
+                  # pattern: ^[a-zA-Z0-9^!$%&()\[\]{}=?+*~#'-_.,;:\|<>"°]{12,100}$
                   description: TODO # TODO
               required:
                 - username
