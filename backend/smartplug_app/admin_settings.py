@@ -1,7 +1,7 @@
 # TODO: store settings here or in settings_base.py ???
 
 # TODO: remove, development variable
-USE_LDAP: bool = True
+USE_LDAP: bool = False
 
 LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.178.50:389"
 """The address of the server running active directory. It should start with 
