@@ -14,6 +14,8 @@ from .logger import Logger
 from .error_handler import ErrorHandler, BackendError
 from .login_manager import LoginManager
 
+# TODO: verify that having multiple instances of the session manager does not
+# lead to problems (when serving multiple users in multiple threads)
 login_manager = LoginManager()
 
 
@@ -65,6 +67,10 @@ class RequestManager:
             "post"
         ]["requestBody"]["content"]["application/json"]["schema"]
 
+        self._schema_login: dict = self._openapi["paths"]["/api/login"][
+            "post"
+        ]["requestBody"]["content"]["application/json"]["schema"]
+
     def csrf(self, request: Request) -> Response:
         """Function to process requests to /csrf .
 
@@ -72,10 +78,15 @@ class RequestManager:
 
         @return A response containing either the CSRF token or an error.
         """
-        # TODO: request validation -> should be no body
-        # TODO: add more info to log: WHO has send that request?
-        # ip, user name, ...
+
         self._logger.info("A /csrf request has been received.")
+
+        if request.body is not b"":
+            return self._error_handler.response(
+                "Requests to /csrf are not allowed to have a body.",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+            )
 
         return Response(
             {"csrfToken": get_token(request)}, status=status.HTTP_200_OK
@@ -84,6 +95,19 @@ class RequestManager:
     def login(self, request: Request) -> Response:
         """TODO: write docstring when merging login branch"""
         # TODO: request validation
+
+        self._logger.info("A /login request has been received.")
+
+        try:
+            jsonschema.validate(
+                instance=request.data, schema=self._schema_login
+            )
+        except jsonschema.exceptions.ValidationError as e:
+            return self._error_handler.response(
+                f"The request did not match the expected schema: {e.message}",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+            )
 
         try:
             login_manager.login(request)
@@ -96,7 +120,16 @@ class RequestManager:
 
     def logout(self, request: Request) -> Response:
         """TODO: write docstring when merging login branch"""
-        # TODO: request validation
+
+        self._logger.info("A /logout request has been received.")
+
+        if request.body is not b"":
+            return self._error_handler.response(
+                "Requests to /logout are not allowed to have a body.",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+            )
+
         login_manager.logout(request)
 
     def gettree(self, request: Request) -> Response:
@@ -107,11 +140,15 @@ class RequestManager:
         @return A response containing either the device tree as a JSON or an
         error.
         """
-        # TODO: request validation -> should be no body
 
-        # TODO: add more info to log: WHO has send that request?
-        # ip, user name, ...
         self._logger.info("A /gettree request has been received.")
+
+        if request.body is not b"":
+            return self._error_handler.response(
+                "Requests to /gettree are not allowed to have a body.",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+            )
 
         # Check and handle user permission
         try:
@@ -121,7 +158,6 @@ class RequestManager:
                 e.message, e.status_code, e.user_message
             )
 
-        # TODO: handle errors
         device_tree = self.smartplug_app.get_device_tree_dicts()
         return Response(device_tree, status=status.HTTP_200_OK)
 
@@ -130,19 +166,10 @@ class RequestManager:
 
         @param request The incoming request.
 
-        @return A response containing either a successn status or an error.
+        @return A response containing either a success status or an error.
         """
-        # TODO: log request: WHO requested WHAT - wait for session management
-        # to identify user ???
-        self._logger.info("A /switch request has been received.")
 
-        # Check and handle user permission
-        try:
-            login_manager.get_user_permission(request)
-        except BackendError as e:
-            return self._error_handler.response(
-                e.message, e.status_code, e.user_message
-            )
+        self._logger.info("A /switch request has been received.")
 
         try:
             jsonschema.validate(
@@ -150,9 +177,17 @@ class RequestManager:
             )
         except jsonschema.exceptions.ValidationError as e:
             return self._error_handler.response(
-                e.message,
+                f"The request did not match the expected schema: {e.message}",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
+            )
+
+        # Check and handle user permission
+        try:
+            login_manager.get_user_permission(request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message, e.status_code, e.user_message
             )
 
         try:
@@ -164,8 +199,5 @@ class RequestManager:
             return self._error_handler.response(
                 e.message, e.status_code, e.user_message
             )
-
-        # TODO: make sure to return proper response for all cases
-        # (also failures)
 
         return Response(None, status=status.HTTP_200_OK)
