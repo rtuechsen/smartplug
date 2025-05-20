@@ -80,11 +80,11 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 	/**
 	 * Function to send the switch request to the API.
 	 * 
-	 * @param isOn If the group or device should be turned on (true) or off (false).
+	 * @param desired_isOn If the group or device should be turned on (true) or off (false).
 	 * 
 	 * @return A void promise indicating that the functions has returned.
 	 */
-	async function sendSwitchRequest(isOn: boolean): Promise<void> {
+	async function sendSwitchRequest(desired_isOn: boolean): Promise<void> {
 		const response = await fetch('/api/switch/', {
 			method: 'POST',
 			headers: {
@@ -95,7 +95,7 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 			mode: 'same-origin',	// prevents sending token to another website
 			body: JSON.stringify({
 				id: id,
-				isOn: isOn
+				desired_isOn: desired_isOn
 			}),
 		});
 

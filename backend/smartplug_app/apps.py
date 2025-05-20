@@ -1,5 +1,5 @@
-"""Contains the TODO class which stores most of the data for the backend and
-also handles background tasks the REST API does not handle.
+"""Contains the SmartplugApp class which stores most of the data for the
+backend and also handles background tasks the REST API does not handle.
 
 TODO: more details ???
 """
@@ -305,26 +305,26 @@ class SmartplugApp(AppConfig):
 
         return device_tree_dict
 
-    def switch(self, id: str, isOn: bool) -> None:
+    def switch(self, id: str, desired_isOn: bool) -> None:
         """Function to answer a call to /switch, turns devices and groups
         on/off according to the request.
 
         @param id The id of the device or group to switch.
 
-        @param isOn A boolean indicating if the item should be turned on (True)
-        or off (False). Ignores PEP8 naming convention to match the name of the
-        variable across the project.
+        @param desired_isOn A boolean indicating if the item should be turned
+        on (True) or off (False). Ignores PEP8 naming convention to match the
+        name of the variable across the project.
         """
 
-        def switch_recursive(id: str, isOn: bool):
+        def switch_recursive(id: str, desired_isOn: bool):
             """A helper function that switches the item as well as all children
             in case the item is a group.
 
             @param id The id of the device or group to switch.
 
-            @param isOn A boolean indicating if the item should be turned on
-            (True) or off (False). Ignores PEP8 naming convention to match the
-            name of the variable across the project.
+            @param desired_isOn A boolean indicating if the item should be
+            turned on (True) or off (False). Ignores PEP8 naming convention to
+            match the name of the variable across the project.
             """
 
             if id not in SmartplugApp._id_to_tree_item_mapping:
@@ -339,21 +339,18 @@ class SmartplugApp(AppConfig):
 
             if isinstance(tree_item, TreeItemDevice):
                 # TODO: actually (try to) switch the plug here
-                tree_item.isOn = isOn
+                tree_item.isOn = desired_isOn
             elif isinstance(tree_item, TreeItemGroup):
                 for child in tree_item.children:
-                    switch_recursive(child.id, isOn)
+                    switch_recursive(child.id, desired_isOn)
             else:
                 raise BackendError(
                     f"Implementation error, 'tree_item' {tree_item} is of "
                     f"unknown class: {type(tree_item)}."
                 )
 
-        # TODO: remove, simulating latency
-        time.sleep(1)
-
         with SmartplugApp._device_tree_mutex:
-            switch_recursive(id, isOn)
+            switch_recursive(id, desired_isOn)
 
         # notify SSE subscribers about changes to the device tree
         django_eventstream.send_event(

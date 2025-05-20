@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -11,6 +12,7 @@ import DeviceTreeView from './DeviceTreeView';
 import ErrorDisplay from './ErrorDisplay';
 import UserList from './UserList';
 import Login from './Login';
+import { getCsrfToken } from './RequestTools';
 
 
 /**
@@ -23,13 +25,13 @@ import Login from './Login';
  * @return The react component of the main app.
  */
 function App(): JSX.Element {
-	const [isLoggedIn, setLoggedInState] = React.useState(false);
+	const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
 
-	const onLoginSuccess = () => {
-		setLoggedInState(true);
-	};
+	function onLoginSuccess(): void {
+		setIsLoggedIn(true);
+	}
 
 	async function displayError(message: string): Promise<void> {
 		if (isErrorOpen) {
@@ -39,6 +41,27 @@ function App(): JSX.Element {
 		}
 		setCurrentErrorMessage(message);
 		setIsErrorOpen(true);
+	}
+
+	async function logout(): Promise<void> {
+
+		const response = await fetch('/api/logout/', {
+			method: 'POST',
+			headers: {
+				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
+				'Content-type': 'application/json; charset=UTF-8'
+			},
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
+		});
+
+		if (!response.ok) {
+			const responseData = await response.json();
+			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+		}
+		else {
+			setIsLoggedIn(false);
+		}
 	}
 
 	const theme = createTheme({
@@ -55,7 +78,7 @@ function App(): JSX.Element {
 		<ThemeProvider theme={theme}>
 			<CssBaseline />	 {/* used to remove default padding of html body */}
 			<Paper sx={{ padding: '2rem' }}>
-				<Typography variant="h2">
+				<Typography variant='h2' sx={{ whiteSpace: 'nowrap' }}>
 					Smartplug Dirigent
 				</Typography>
 			</Paper>
@@ -64,11 +87,10 @@ function App(): JSX.Element {
 					<Stack
 						direction='row'
 						justifyContent='space-between'
-						spacing={8}
-						flexGrow={1}
+						spacing={'1rem'}
 					>
 						<DeviceTreeView displayError={displayError} />
-
+						<Button onClick={logout} variant='contained' sx={{ whiteSpace: 'nowrap', alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}>Sign out</Button>
 						<UserList />
 					</Stack>
 					:
