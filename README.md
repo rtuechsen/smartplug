@@ -41,6 +41,7 @@ You can verify the syntax of `nginx.conf` by calling `sudo nginx -t` __AFTER__ d
 ## Backend
 
 After adding dependencies to the backend via pip, one has to manually add them to `/backend/requirements.txt` to include them in future installations. The dependency should allow patches (`>=`) but not switch to higher feature versions (`,<`).  
+Requires the extension `Black Formatter` for formatting in VSCode.  
 
 
 ## Frontend
