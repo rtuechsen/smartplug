@@ -79,13 +79,19 @@ class RequestManager:
         @return A response containing either the CSRF token or an error.
         """
 
-        self._logger.info("A /csrf request has been received.")
+        self._logger.info(
+            "A /csrf request has been received.",
+            request.session["REMOTE_ADDR"],
+            request.session["USERNAME"],
+        )
 
         if request.body is not b"":
             return self._error_handler.response(
                 "Requests to /csrf are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
+                request.session["REMOTE_ADDR"],
+                request.session["USERNAME"],
             )
 
         return Response(
@@ -93,10 +99,13 @@ class RequestManager:
         )
 
     def login(self, request: Request) -> Response:
-        """TODO: write docstring when merging login branch"""
-        # TODO: request validation
+        """TODO"""
 
-        self._logger.info("A /login request has been received.")
+        self._logger.info(
+            "A /login request has been received.",
+            request.session["REMOTE_ADDR"],
+            request.session["USERNAME"],
+        )
 
         try:
             jsonschema.validate(
@@ -107,34 +116,50 @@ class RequestManager:
                 f"The request did not match the expected schema: {e.message}",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
+                request.session["REMOTE_ADDR"],
+                request.session["USERNAME"],
             )
 
         try:
             login_manager.login(request)
         except BackendError as e:
             return self._error_handler.response(
-                e.message, e.status_code, e.user_message
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.session["REMOTE_ADDR"],
+                request.session["USERNAME"],
             )
 
         return Response(None, status=status.HTTP_200_OK)
 
     def logout(self, request: Request) -> Response:
-        """TODO: write docstring when merging login branch"""
+        """TODO"""
 
-        self._logger.info("A /logout request has been received.")
+        self._logger.info(
+            "A /logout request has been received.",
+            request.session["REMOTE_ADDR"],
+            request.session["USERNAME"],
+        )
 
         if request.body is not b"":
             return self._error_handler.response(
                 "Requests to /logout are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
+                request.session["REMOTE_ADDR"],
+                request.session["USERNAME"],
             )
 
         try:
             login_manager.logout(request)
         except BackendError as e:
             return self._error_handler.response(
-                e.message, e.status_code, e.user_message
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.session["REMOTE_ADDR"],
+                request.session["USERNAME"],
             )
 
         return Response(None, status=status.HTTP_200_OK)
@@ -148,24 +173,34 @@ class RequestManager:
         error.
         """
 
-        self._logger.info("A /gettree request has been received.")
+        self._logger.info(
+            "A /gettree request has been received.",
+            request.session["REMOTE_ADDR"],
+            request.session["USERNAME"],
+        )
 
         if request.body is not b"":
             return self._error_handler.response(
                 "Requests to /gettree are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
+                request.session["REMOTE_ADDR"],
+                request.session["USERNAME"],
             )
 
-        # Check and handle user permission
         try:
             login_manager.get_user_permission(request)
+
+            device_tree = self.smartplug_app.get_device_tree_dicts()
         except BackendError as e:
             return self._error_handler.response(
-                e.message, e.status_code, e.user_message
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.session["REMOTE_ADDR"],
+                request.session["USERNAME"],
             )
 
-        device_tree = self.smartplug_app.get_device_tree_dicts()
         return Response(device_tree, status=status.HTTP_200_OK)
 
     def switch(self, request: Request) -> Response:
@@ -176,7 +211,11 @@ class RequestManager:
         @return A response containing either a success status or an error.
         """
 
-        self._logger.info("A /switch request has been received.")
+        self._logger.info(
+            "A /switch request has been received.",
+            request.session["REMOTE_ADDR"],
+            request.session["USERNAME"],
+        )
 
         try:
             jsonschema.validate(
@@ -187,24 +226,24 @@ class RequestManager:
                 f"The request did not match the expected schema: {e.message}",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
+                request.session["REMOTE_ADDR"],
+                request.session["USERNAME"],
             )
 
-        # Check and handle user permission
         try:
             login_manager.get_user_permission(request)
-        except BackendError as e:
-            return self._error_handler.response(
-                e.message, e.status_code, e.user_message
-            )
 
-        try:
             # instruct the app to perform the switch
             self.smartplug_app.switch(
                 request.data["id"], request.data["desired_isOn"]
             )
         except BackendError as e:
             return self._error_handler.response(
-                e.message, e.status_code, e.user_message
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.session["REMOTE_ADDR"],
+                request.session["USERNAME"],
             )
 
         return Response(None, status=status.HTTP_200_OK)

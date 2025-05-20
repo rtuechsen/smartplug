@@ -79,34 +79,42 @@ class Logger:
 
         return cls._instance
 
-    def info(self, message: str) -> None:
+    def info(
+        self, message: str, client_ip_address: str = None, username: str = None
+    ) -> None:
         """Takes a message and logs it with the INFO prefix. Removes newlines
         from the message.
 
         @param message The message to be logged.
         """
 
-        self._log("INFO: " + message)
+        self._log("INFO: " + message, client_ip_address, username)
 
-    def warn(self, message: str) -> None:
+    def warn(
+        self, message: str, client_ip_address: str = None, username: str = None
+    ) -> None:
         """Takes a message and logs it with the WARNING prefix. Removes
         newlines from the message.
 
         @param message The message to be logged.
         """
 
-        self._log("WARNING: " + message)
+        self._log("WARNING: " + message, client_ip_address, username)
 
-    def error(self, message: str) -> None:
+    def error(
+        self, message: str, client_ip_address: str = None, username: str = None
+    ) -> None:
         """Takes a message and logs it with the ERROR prefix. Removes newlines
         from the message.
 
         @param message The message to be logged.
         """
 
-        self._log("ERROR: " + message)
+        self._log("ERROR: " + message, client_ip_address, username)
 
-    def _log(self, message: str) -> None:
+    def _log(
+        self, message: str, client_ip_address: str, username: str
+    ) -> None:
         """Takes a message, adds current time and date to it and adds it as a
         Log to the log_queue.
 
@@ -116,6 +124,7 @@ class Logger:
         now = datetime.datetime.now()
 
         log = Log()
+        message += f" (client ip: {client_ip_address}, username: {username})"
         # remove newlines
         log.message = message.replace("\n", "")
 

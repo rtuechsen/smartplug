@@ -15,6 +15,7 @@ from .admin_settings import (
 )
 
 
+# TODO: better: SessionManager ???
 class LoginManager:
 
     def __init__(self):
@@ -45,6 +46,7 @@ class LoginManager:
         # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
         request.session.flush()
 
+    # TODO: better name ???
     def get_user_permission(self, request: Request) -> None:
         # user will be None unless logged in. Per default we use a
         # database-backed session management. The session data is
