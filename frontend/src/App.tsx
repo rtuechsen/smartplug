@@ -86,7 +86,7 @@ function App(): JSX.Element {
 					<Stack
 						direction='row'
 						justifyContent='space-between'
-						spacing={2}
+						spacing={'1rem'}
 					>
 						<DeviceTreeView displayError={displayError} />
 						<Button onClick={logout} variant='contained' sx={{ whiteSpace: 'nowrap', alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}>Sign out</Button>
