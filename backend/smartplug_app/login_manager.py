@@ -125,7 +125,6 @@ class LoginManager:
                 # user
                 search_filter = f"(userPrincipalName={username})"
 
-                # dc=mylab,dc=local
                 domain_name: str = username.split("@")[1]
                 base_dn: str = ",".join(
                     [f"dc={dc}" for dc in domain_name.split(".")]
