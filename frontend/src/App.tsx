@@ -90,8 +90,16 @@ function App(): JSX.Element {
 						spacing={'1rem'}
 					>
 						<DeviceTreeView displayError={displayError} />
-						<Button onClick={logout} variant='contained' sx={{ whiteSpace: 'nowrap', alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}>Sign out</Button>
-						<UserList />
+
+						<Stack
+							direction='column'
+							justifyContent='top'
+							spacing={'2rem'}
+						>
+							<Button onClick={logout} variant='contained' sx={{ whiteSpace: 'nowrap', alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}>sign out</Button>
+							<UserList />
+
+						</Stack>
 					</Stack>
 					:
 					<Login onLoginSuccess={onLoginSuccess} displayError={displayError} />
