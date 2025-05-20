@@ -20,6 +20,7 @@ export interface LoadingButtonProps {
 	onClick: () => Promise<void>;
 	variant: string | undefined;
 	sx: object | undefined;
+	ref: React.Ref<HTMLAnchorElement> | undefined;
 }
 
 
@@ -30,7 +31,7 @@ export interface LoadingButtonProps {
  * 
  * @return The react component of the button.
  */
-export function LoadingButton({ onClick, variant, children, sx }: React.PropsWithChildren<LoadingButtonProps>): JSX.Element {
+export function LoadingButton({ onClick, variant, children, sx, ref }: React.PropsWithChildren<LoadingButtonProps>): JSX.Element {
 
 	// state that decides wheter to show a loading circle or not, triggers the button to update when state changes
 	const [loading, setLoading] = React.useState<boolean>(false);
@@ -52,6 +53,7 @@ export function LoadingButton({ onClick, variant, children, sx }: React.PropsWit
 			loading={loading}
 			sx={{ whiteSpace: 'nowrap', ...sx }}
 			variant={variant}
+			ref={ref}
 		>
 			{children}
 		</Button>
