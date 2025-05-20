@@ -12,6 +12,9 @@ import yaml
 from .apps import SmartplugApp
 from .logger import Logger
 from .error_handler import ErrorHandler, BackendError
+from .login_manager import LoginManager
+
+login_manager = LoginManager()
 
 
 # rules for input validation (OWASP):
@@ -79,13 +82,22 @@ class RequestManager:
 
     def login(self, request: Request) -> Response:
         """TODO: write docstring when merging login branch"""
+        # TODO: format checking
+
+        try:
+            login_manager.login(request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message, e.status_code, e.user_message
+            )
+
         return Response(None, status=status.HTTP_200_OK)
 
     def logout(self, request: Request) -> Response:
         """TODO: write docstring when merging login branch"""
-        return Response(None, status=status.HTTP_200_OK)
+        login_manager.logout(request)
 
-    def gettree(self, _: Request) -> Response:
+    def gettree(self, request: Request) -> Response:
         """Function to process requests to /gettree .
 
         @param request The incoming request.
@@ -99,6 +111,15 @@ class RequestManager:
         # TODO: add more info to log: WHO has send that request?
         # ip, user name, ...
         self._logger.info("A /gettree request has been received.")
+
+        # Check and handle user permission
+        try:
+            login_manager.get_user_permission(request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message, e.status_code, e.user_message
+            )
+
         # TODO: handle errors
         device_tree = self.smartplug_app.get_device_tree_dicts()
         return Response(device_tree, status=status.HTTP_200_OK)
@@ -113,6 +134,14 @@ class RequestManager:
         # TODO: log request: WHO requested WHAT - wait for session management
         # to identify user ???
         self._logger.info("A /switch request has been received.")
+
+        # Check and handle user permission
+        try:
+            login_manager.get_user_permission(request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message, e.status_code, e.user_message
+            )
 
         try:
             jsonschema.validate(

@@ -50,6 +50,10 @@ Requires the extension `ESLint` for in-code-linting in VSCode.
 
 ## Documentation
 
+After building the documentation using `bash generate_documentation.sh` the docs can be found at:
+
 - backend: [./backend/docs/html/index.html](./backend/docs/html/index.html)
 - frontend: [./frontend/docs/index.html](./frontend/docs/index.html)
+
+The API is not documented using html but as an OpenAPI document in YAML format:
 - API: [./openapi.yaml](./openapi.yaml)

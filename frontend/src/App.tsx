@@ -10,6 +10,7 @@ import { JSX } from '@emotion/react/jsx-runtime';
 import DeviceTreeView from './DeviceTreeView';
 import ErrorDisplay from './ErrorDisplay';
 import UserList from './UserList';
+import Login from './Login';
 
 
 /**
@@ -22,9 +23,13 @@ import UserList from './UserList';
  * @return The react component of the main app.
  */
 function App(): JSX.Element {
-
+	const [isLoggedIn, setLoggedInState] = React.useState(false);
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
+
+	const onLoginSuccess = () => {
+		setLoggedInState(true)
+	}
 
 	async function displayError(message: string): Promise<void> {
 		if (isErrorOpen) {
