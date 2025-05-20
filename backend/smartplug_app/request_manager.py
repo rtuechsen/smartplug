@@ -107,7 +107,7 @@ class RequestManager:
         )
 
     def login(self, request: Request) -> Response:
-        """TODO"""
+        """TODO."""
 
         self._logger.info(
             "A /login request has been received.",
@@ -154,7 +154,7 @@ class RequestManager:
         return Response(None, status=status.HTTP_200_OK)
 
     def logout(self, request: Request) -> Response:
-        """TODO"""
+        """TODO."""
 
         self._logger.info(
             "A /logout request has been received.",

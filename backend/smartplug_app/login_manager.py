@@ -1,4 +1,4 @@
-"""Contains ... TODO
+"""Contains ... TODO.
 
 TODO: more details ???
 """
@@ -74,8 +74,8 @@ class LoginManager:
             request.session.set_expiry(settings.SESSION_COOKIE_AGE)
 
     def _authenticate(self, username: str, password: str) -> tuple[str, str]:
-        """Verifies that the combination of username and passowrd belongs to
-        a user in the Active Directory.
+        """Verifies that the combination of username and passowrd belongs to a
+        user in the Active Directory.
 
         Tries to retrieve the first and last name of the user from the Active
         Directory as well.
