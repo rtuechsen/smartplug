@@ -4,6 +4,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import KeyRounded from '@mui/icons-material/KeyRounded';
 import PersonRounded from '@mui/icons-material/PersonRounded';
 import React from "react";
+import { JSX } from '@emotion/react/jsx-runtime';
 
 
 interface LoginProps {
@@ -17,15 +18,17 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 	const [username, setUsername] = React.useState('');
 
 	// Toggle the showing state for the password
-	const handleClickShowPassword = () => setShowPassword((show) => !show);
+	function handleClickShowPassword(): void {
+		setShowPassword((show) => !show);
+	}
 
 	// Prevents the browser from deselecting the input field when clicking a button
-	const preventFieldDeselect = (event: React.MouseEvent<HTMLButtonElement>) => {
+	function preventFieldDeselect(event: React.MouseEvent<HTMLButtonElement>): void {
 		event.preventDefault();
 	};
 
 	// Is executed when trying to sign in using the "Sign In"-button
-	const signIn = async (username: string, password: string) => {
+	async function signIn(username: string, password: string): Promise<void> {
 		const response: Response = await fetch('/api/login/', {
 			method: 'POST',
 			headers: {
@@ -35,17 +38,16 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 				username: username,
 				password: password,
 			}),
-		})
+		});
 
 		if (response.ok) {
-			callback()
+			onLoginSuccess();
 		} else {
 			const responseData = await response.json();
-			console.log(`${response.status} ${response.statusText}: ${responseData.message}`);
-			displayError(`${responseData.message}`);
+			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
 		}
 
-	}
+	};
 
 
 	return (
@@ -117,19 +119,19 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 						justifyContent: 'flex-end',
 					}}>
 					<Button
-						variant="contained"
+						variant='contained'
 						onClick={() => signIn(username, password)}
 						sx={{
 							mr: '2rem',
 							backgroundColor: 'red',
 						}}
-					> Sign In </Button>
+					>Sign In</Button>
 				</Box>
 
 
 			</Stack>
 		</Paper>
-	)
+	);
 }
 
 export default Login;

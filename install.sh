@@ -27,6 +27,14 @@ sudo apt -y install python3-pip
 
 python -m pip install -r ./requirements.txt
 
+## LDAP
+
+sudo apt install -y libsasl2-dev python3-dev libldap2-dev libssl-dev slapd ldap-utils
+
+## linter
+
+sudo apt install -y pylint
+
 cd ..
 
 # frontend

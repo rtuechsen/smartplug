@@ -62,7 +62,12 @@ class ErrorHandler:
         self._logger = Logger()
 
     def response(
-        self, message: str, status_code: int = None, user_message: str = None
+        self,
+        message: str,
+        status_code: int = None,
+        user_message: str = None,
+        client_ip_address: str = None,
+        username: str = None,
     ) -> Response:
         """Generates an error response and logs the error.
 
@@ -84,15 +89,15 @@ class ErrorHandler:
         """
 
         # in any case log the error
-        self._logger.error(message)
+        self._logger.error(message, client_ip_address, username)
 
         if status_code is None:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
         if user_message is None:
             user_message = (
-                "The server encountered an internal error, please "
-                "contact the admin."
+                "The server encountered an internal error, please contact the "
+                "admin."
             )
 
         return Response(
