@@ -4,6 +4,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import KeyRounded from '@mui/icons-material/KeyRounded';
 import PersonRounded from '@mui/icons-material/PersonRounded';
 import React from "react";
+import { JSX } from '@emotion/react/jsx-runtime';
 
 
 interface LoginProps {
@@ -43,8 +44,7 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 			onLoginSuccess();
 		} else {
 			const responseData = await response.json();
-			console.log(`${response.status} ${response.statusText}: ${responseData.message}`);
-			displayError(`${responseData.message}`);
+			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
 		}
 
 	};
