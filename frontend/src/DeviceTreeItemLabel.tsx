@@ -50,6 +50,8 @@ export interface DeviceTreeItemLabelProps extends DisplayErrorCallbackProps {
  */
 export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, displayError }: DeviceTreeItemLabelProps): JSX.Element {
 
+	// TODO: use rem for size units here ???
+
 	return (
 		<Stack
 			direction='row'

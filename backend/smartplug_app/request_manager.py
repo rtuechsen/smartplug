@@ -130,7 +130,14 @@ class RequestManager:
                 "The request did not match the expected schema.",
             )
 
-        login_manager.logout(request)
+        try:
+            login_manager.logout(request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message, e.status_code, e.user_message
+            )
+
+        return Response(None, status=status.HTTP_200_OK)
 
     def gettree(self, request: Request) -> Response:
         """Function to process requests to /gettree .

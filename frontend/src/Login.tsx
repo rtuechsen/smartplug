@@ -119,7 +119,7 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 						justifyContent: 'flex-end',
 					}}>
 					<Button
-						variant="contained"
+						variant='contained'
 						onClick={() => signIn(username, password)}
 						sx={{
 							mr: '2rem',
