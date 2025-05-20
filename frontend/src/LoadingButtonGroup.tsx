@@ -18,6 +18,8 @@ export interface LoadingButtonProps {
 	 * @returns A void Promise that can be waited on if one wants to wait for the function to complete.
 	 */
 	onClick: () => Promise<void>;
+	variant: string | undefined;
+	sx: object | undefined;
 }
 
 
@@ -28,7 +30,7 @@ export interface LoadingButtonProps {
  * 
  * @return The react component of the button.
  */
-function LoadingButton({ onClick, children }: React.PropsWithChildren<LoadingButtonProps>): JSX.Element {
+export function LoadingButton({ onClick, variant, children, sx }: React.PropsWithChildren<LoadingButtonProps>): JSX.Element {
 
 	// state that decides wheter to show a loading circle or not, triggers the button to update when state changes
 	const [loading, setLoading] = React.useState<boolean>(false);
@@ -48,7 +50,8 @@ function LoadingButton({ onClick, children }: React.PropsWithChildren<LoadingBut
 		<Button
 			onClick={handleClick}
 			loading={loading}
-			sx={{ whiteSpace: 'nowrap' }}
+			sx={{ whiteSpace: 'nowrap', ...sx }}
+			variant={variant}
 		>
 			{children}
 		</Button>

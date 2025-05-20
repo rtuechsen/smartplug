@@ -5,6 +5,7 @@ import KeyRounded from '@mui/icons-material/KeyRounded';
 import PersonRounded from '@mui/icons-material/PersonRounded';
 import React from "react";
 import { JSX } from '@emotion/react/jsx-runtime';
+import { LoadingButton } from "./LoadingButtonGroup";
 
 
 interface LoginProps {
@@ -66,11 +67,9 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 					justifyContent: 'space-evenly',
 				}}>
 
-				{/* TODO: Company Icon segment */}
-				<Box>
-
-				</Box>
-
+				{/* <Box>
+					TODO: Company Icon segment
+				</Box> */}
 
 				{/*Textual input segment*/}
 				<Box>
@@ -118,14 +117,14 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 						display: 'flex',
 						justifyContent: 'flex-end',
 					}}>
-					<Button
+					<LoadingButton
 						variant='contained'
 						onClick={() => signIn(username, password)}
 						sx={{
 							mr: '2rem',
 							backgroundColor: 'red',
 						}}
-					>Sign In</Button>
+					>sign in</LoadingButton>
 				</Box>
 
 

@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
+import { LoadingButton } from './LoadingButtonGroup';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -89,7 +89,7 @@ function App(): JSX.Element {
 						spacing={'1rem'}
 					>
 						<DeviceTreeView displayError={displayError} />
-						<Button onClick={logout} variant='contained' sx={{ whiteSpace: 'nowrap', alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}>Sign out</Button>
+						<LoadingButton onClick={logout} variant='contained' sx={{ alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}>sign out</LoadingButton>
 					</Stack>
 					:
 					<Login onLoginSuccess={onLoginSuccess} displayError={displayError} />
