@@ -8,7 +8,9 @@ from rest_framework import status
 
 
 def authenticate(username: str, password: str) -> None:
-    if username == "user" and password == "pass":
+    if (username == "user" and password == "pass") or (
+        username == "max.mustermann@mylab.local" and password == "FHKiel123!"
+    ):
         return
 
     raise BackendError(

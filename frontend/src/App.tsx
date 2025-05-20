@@ -28,8 +28,8 @@ function App(): JSX.Element {
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
 
 	const onLoginSuccess = () => {
-		setLoggedInState(true)
-	}
+		setLoggedInState(true);
+	};
 
 	async function displayError(message: string): Promise<void> {
 		if (isErrorOpen) {
@@ -60,18 +60,20 @@ function App(): JSX.Element {
 				</Typography>
 			</Paper>
 			<Box sx={{ padding: '1.5rem' }}>
+				{isLoggedIn ?
+					<Stack
+						direction='row'
+						justifyContent='space-between'
+						spacing={8}
+						flexGrow={1}
+					>
+						<DeviceTreeView displayError={displayError} />
 
-				<Stack
-					direction='row'
-					justifyContent='space-between'
-					spacing={8}
-					flexGrow={1}
-				>
-					<DeviceTreeView displayError={displayError} />
-
-					<UserList />
-				</Stack>
-
+						<UserList />
+					</Stack>
+					:
+					<Login onLoginSuccess={onLoginSuccess} displayError={displayError} />
+				}
 				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
 				<ErrorDisplay message={currentErrorMessage} isErrorOpen={isErrorOpen} setIsErrorOpen={setIsErrorOpen} />
 			</Box>

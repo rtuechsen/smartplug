@@ -35,17 +35,17 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 				username: username,
 				password: password,
 			}),
-		})
+		});
 
 		if (response.ok) {
-			callback()
+			onLoginSuccess();
 		} else {
 			const responseData = await response.json();
 			console.log(`${response.status} ${response.statusText}: ${responseData.message}`);
 			displayError(`${responseData.message}`);
 		}
 
-	}
+	};
 
 
 	return (
@@ -129,7 +129,7 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 
 			</Stack>
 		</Paper>
-	)
+	);
 }
 
 export default Login;
