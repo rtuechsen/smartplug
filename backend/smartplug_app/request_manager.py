@@ -81,8 +81,12 @@ class RequestManager:
 
         self._logger.info(
             "A /csrf request has been received.",
-            request.session["REMOTE_ADDR"],
-            request.session["USERNAME"],
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
         )
 
         if request.body is not b"":
@@ -90,8 +94,12 @@ class RequestManager:
                 "Requests to /csrf are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
-                request.session["REMOTE_ADDR"],
-                request.session["USERNAME"],
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
             )
 
         return Response(
@@ -103,8 +111,12 @@ class RequestManager:
 
         self._logger.info(
             "A /login request has been received.",
-            request.session["REMOTE_ADDR"],
-            request.session["USERNAME"],
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
         )
 
         try:
@@ -116,8 +128,12 @@ class RequestManager:
                 f"The request did not match the expected schema: {e.message}",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
-                request.session["REMOTE_ADDR"],
-                request.session["USERNAME"],
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
             )
 
         try:
@@ -127,8 +143,12 @@ class RequestManager:
                 e.message,
                 e.status_code,
                 e.user_message,
-                request.session["REMOTE_ADDR"],
-                request.session["USERNAME"],
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
             )
 
         return Response(None, status=status.HTTP_200_OK)
@@ -138,8 +158,12 @@ class RequestManager:
 
         self._logger.info(
             "A /logout request has been received.",
-            request.session["REMOTE_ADDR"],
-            request.session["USERNAME"],
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
         )
 
         if request.body is not b"":
@@ -147,8 +171,12 @@ class RequestManager:
                 "Requests to /logout are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
-                request.session["REMOTE_ADDR"],
-                request.session["USERNAME"],
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
             )
 
         try:
@@ -158,8 +186,12 @@ class RequestManager:
                 e.message,
                 e.status_code,
                 e.user_message,
-                request.session["REMOTE_ADDR"],
-                request.session["USERNAME"],
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
             )
 
         return Response(None, status=status.HTTP_200_OK)
@@ -175,8 +207,12 @@ class RequestManager:
 
         self._logger.info(
             "A /gettree request has been received.",
-            request.session["REMOTE_ADDR"],
-            request.session["USERNAME"],
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
         )
 
         if request.body is not b"":
@@ -184,8 +220,12 @@ class RequestManager:
                 "Requests to /gettree are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
-                request.session["REMOTE_ADDR"],
-                request.session["USERNAME"],
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
             )
 
         try:
@@ -197,8 +237,12 @@ class RequestManager:
                 e.message,
                 e.status_code,
                 e.user_message,
-                request.session["REMOTE_ADDR"],
-                request.session["USERNAME"],
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
             )
 
         return Response(device_tree, status=status.HTTP_200_OK)
@@ -213,8 +257,12 @@ class RequestManager:
 
         self._logger.info(
             "A /switch request has been received.",
-            request.session["REMOTE_ADDR"],
-            request.session["USERNAME"],
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
         )
 
         try:
@@ -226,8 +274,12 @@ class RequestManager:
                 f"The request did not match the expected schema: {e.message}",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
-                request.session["REMOTE_ADDR"],
-                request.session["USERNAME"],
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
             )
 
         try:
@@ -242,8 +294,12 @@ class RequestManager:
                 e.message,
                 e.status_code,
                 e.user_message,
-                request.session["REMOTE_ADDR"],
-                request.session["USERNAME"],
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
             )
 
         return Response(None, status=status.HTTP_200_OK)
