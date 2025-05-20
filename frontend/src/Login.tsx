@@ -84,7 +84,9 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 							id="input-username"
 							label="Username"
 							variant="standard"
-							onChange={(e) => setUsername(e.target.value)} />
+							onChange={(e) => setUsername(e.target.value)}
+							autoFocus
+						/>
 					</Box>
 
 					{/*Input-Field for password*/}
