@@ -209,11 +209,12 @@ class LoginManager:
                 status_code=status.HTTP_401_UNAUTHORIZED,
             )
 
+        # TODO: the comment does not match the error message ?!
         # KeyError occurs when the request is missing necessary data for
         # verification.
         except KeyError as e:
             raise BackendError(
                 message="A request has been made by a user who is not signed in.",
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 user_message="Authentication failed. Are you signed in?",
             ) from e
