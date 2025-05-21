@@ -76,7 +76,7 @@ function App(): JSX.Element {
 		// Below that a Box contains all items of the pages body, e.g. the DeviceTreeView.
 		<ThemeProvider theme={theme}>
 			<CssBaseline />	 {/* used to remove default padding of html body */}
-			<Paper sx={{ padding: '2rem' }}>
+			<Paper elevation={1} sx={{ padding: '2rem' }}>
 				<Typography variant='h2' sx={{ whiteSpace: 'nowrap' }}>
 					Smartplug Dirigent
 				</Typography>

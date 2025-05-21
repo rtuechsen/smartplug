@@ -1,3 +1,4 @@
+// TODO: improve imports everywhere similarly to here ??? (grouping)
 import { Paper, Stack, TextField, Box, IconButton } from "@mui/material";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -77,19 +78,16 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 
 	return (
 		<Paper
-			elevation={10}
+			elevation={2}
 			sx={{
-				width: '30rem',
-				height: '30rem',
-				alignItems: 'flex-start',
-				justifyContent: 'center',
+				width: 'max-content',
+				height: 'max-content',
+				padding: '1rem'
 			}}>
 
 			<Stack
-				direction="column" spacing={2}
-				sx={{
-					justifyContent: 'space-evenly',
-				}}>
+				direction="column"
+			>
 
 				{/* <Box>
 					TODO: Company Icon segment
@@ -103,13 +101,14 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 							display: 'flex',
 							alignItems: 'flex-end'
 						}}>
-						<PersonRounded sx={{ color: 'red', mr: '1rem', ml: '2rem' }} />
+						<PersonRounded sx={{ margin: '1rem', mb: '0.5rem' }} />
 						<TextField
 							id="input-username"
 							label="Username"
 							variant="standard"
 							onChange={(e) => setUsername(e.target.value)}
 							autoFocus
+							sx={{ width: '20rem', mt: '1rem' }}
 						/>
 					</Box>
 
@@ -119,18 +118,20 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 							display: 'flex',
 							alignItems: 'flex-end'
 						}}>
-						<KeyRounded sx={{ color: 'red', mr: '1rem', ml: '2rem' }} />
+						<KeyRounded sx={{ margin: '1rem', mb: '0.5rem' }} />
 						<TextField
 							id="input-password"
 							label="Password"
 							variant="standard"
 							type={showPassword ? 'text' : 'password'}
 							onChange={(e) => setPassword(e.target.value)}
+							sx={{ width: '20rem', mt: '1rem' }}
 						/>
 						<IconButton
 							onClick={handleClickShowPassword}
 							onMouseDown={preventFieldDeselect}
 							onMouseUp={preventFieldDeselect}
+							sx={{ margin: '0.5rem', mb: '0rem' }}
 						>
 							{showPassword ? <VisibilityOff /> : <Visibility />}
 						</IconButton>
@@ -147,8 +148,7 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 						variant='contained'
 						onClick={() => signIn(username, password)}
 						sx={{
-							mr: '2rem',
-							backgroundColor: 'red',
+							margin: '1rem',
 						}}
 						ref={signInButtonRef}
 					>sign in</LoadingButton>
