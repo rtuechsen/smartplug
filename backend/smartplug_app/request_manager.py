@@ -80,16 +80,16 @@ class RequestManager:
         """
 
         self._logger.info(
-            "A /csrf request has been received.",
-            request.META["REMOTE_ADDR"],
-            (
+            message="A /csrf request has been received.",
+            client_ip_address=request.META["REMOTE_ADDR"],
+            username=(
                 request.session["USERNAME"]
                 if "USERNAME" in request.session
                 else None
             ),
         )
 
-        if request.body is not b"":
+        if request.body != b"":
             return self._error_handler.response(
                 "Requests to /csrf are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
@@ -110,9 +110,9 @@ class RequestManager:
         """TODO."""
 
         self._logger.info(
-            "A /login request has been received.",
-            request.META["REMOTE_ADDR"],
-            (
+            message="A /login request has been received.",
+            client_ip_address=request.META["REMOTE_ADDR"],
+            username=(
                 request.session["USERNAME"]
                 if "USERNAME" in request.session
                 else None
@@ -157,16 +157,16 @@ class RequestManager:
         """TODO."""
 
         self._logger.info(
-            "A /logout request has been received.",
-            request.META["REMOTE_ADDR"],
-            (
+            message="A /logout request has been received.",
+            client_ip_address=request.META["REMOTE_ADDR"],
+            username=(
                 request.session["USERNAME"]
                 if "USERNAME" in request.session
                 else None
             ),
         )
 
-        if request.body is not b"":
+        if request.body != b"":
             return self._error_handler.response(
                 "Requests to /logout are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
@@ -206,16 +206,16 @@ class RequestManager:
         """
 
         self._logger.info(
-            "A /gettree request has been received.",
-            request.META["REMOTE_ADDR"],
-            (
+            message="A /gettree request has been received.",
+            client_ip_address=request.META["REMOTE_ADDR"],
+            username=(
                 request.session["USERNAME"]
                 if "USERNAME" in request.session
                 else None
             ),
         )
 
-        if request.body is not b"":
+        if request.body != b"":
             return self._error_handler.response(
                 "Requests to /gettree are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
@@ -256,9 +256,9 @@ class RequestManager:
         """
 
         self._logger.info(
-            "A /switch request has been received.",
-            request.META["REMOTE_ADDR"],
-            (
+            message="A /switch request has been received.",
+            client_ip_address=request.META["REMOTE_ADDR"],
+            username=(
                 request.session["USERNAME"]
                 if "USERNAME" in request.session
                 else None
