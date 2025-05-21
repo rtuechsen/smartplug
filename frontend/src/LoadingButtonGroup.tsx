@@ -95,7 +95,7 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 			mode: 'same-origin',	// prevents sending token to another website
 			body: JSON.stringify({
 				id: id,
-				isOnn: isOn
+				isOn: isOn
 			}),
 		});
 
