@@ -90,6 +90,9 @@ class ErrorHandler:
         message.
         """
 
+        if date_time is None:
+            date_time = datetime.datetime.now()
+
         # in any case log the error
         self._logger.error(message, client_ip_address, username, date_time)
 
@@ -103,5 +106,9 @@ class ErrorHandler:
             )
 
         return Response(
-            {"message": "ERROR: " + user_message}, status=status_code
+            {
+                "message": f"ERROR: {user_message} "
+                f"[{date_time.strftime("%Y-%m-%d %H:%M:%S.%f")}]"
+            },
+            status=status_code,
         )
