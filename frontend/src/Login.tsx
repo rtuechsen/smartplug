@@ -38,7 +38,7 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 		})
 
 		if (response.ok) {
-			callback()
+			onLoginSuccess();
 		} else {
 			const responseData = await response.json();
 			console.log(`${response.status} ${response.statusText}: ${responseData.message}`);
