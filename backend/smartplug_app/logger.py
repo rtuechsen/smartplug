@@ -84,9 +84,9 @@ class Logger:
     def info(
         self,
         message: str,
-        date_time: datetime.datetime = None,
         client_ip_address: str = None,
         username: str = None,
+        date_time: datetime.datetime = None,
     ) -> None:
         """Takes a message and logs it with the INFO prefix. Removes newlines
         from the message.
@@ -94,14 +94,14 @@ class Logger:
         @param message The message to be logged.
         """
 
-        self._log("INFO: " + message, date_time, client_ip_address, username)
+        self._log("INFO: " + message, client_ip_address, username, date_time)
 
     def warn(
         self,
         message: str,
-        date_time: datetime.datetime = None,
         client_ip_address: str = None,
         username: str = None,
+        date_time: datetime.datetime = None,
     ) -> None:
         """Takes a message and logs it with the WARNING prefix. Removes
         newlines from the message.
@@ -110,15 +110,15 @@ class Logger:
         """
 
         self._log(
-            "WARNING: " + message, date_time, client_ip_address, username
+            "WARNING: " + message, client_ip_address, username, date_time
         )
 
     def error(
         self,
         message: str,
-        date_time: datetime.datetime = None,
         client_ip_address: str = None,
         username: str = None,
+        date_time: datetime.datetime = None,
     ) -> None:
         """Takes a message and logs it with the ERROR prefix. Removes newlines
         from the message.
@@ -126,10 +126,14 @@ class Logger:
         @param message The message to be logged.
         """
 
-        self._log("ERROR: " + message, date_time, client_ip_address, username)
+        self._log("ERROR: " + message, client_ip_address, username, date_time)
 
     def _log(
-        self, message: str, date_time: datetime.datetime = None, client_ip_address: str = None, username: str = None
+        self,
+        message: str,
+        client_ip_address: str = None,
+        username: str = None,
+        date_time: datetime.datetime = None,
     ) -> None:
         """Takes a message, adds current time and date to it and adds it as a
         Log to the log_queue.

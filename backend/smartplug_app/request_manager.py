@@ -80,9 +80,9 @@ class RequestManager:
         """
 
         self._logger.info(
-            message="A /csrf request has been received.",
-            client_ip_address=request.META["REMOTE_ADDR"],
-            username=(
+            "A /csrf request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
                 request.session["USERNAME"]
                 if "USERNAME" in request.session
                 else None
@@ -110,9 +110,9 @@ class RequestManager:
         """TODO."""
 
         self._logger.info(
-            message="A /login request has been received.",
-            client_ip_address=request.META["REMOTE_ADDR"],
-            username=(
+            "A /login request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
                 request.session["USERNAME"]
                 if "USERNAME" in request.session
                 else None
@@ -157,9 +157,9 @@ class RequestManager:
         """TODO."""
 
         self._logger.info(
-            message="A /logout request has been received.",
-            client_ip_address=request.META["REMOTE_ADDR"],
-            username=(
+            "A /logout request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
                 request.session["USERNAME"]
                 if "USERNAME" in request.session
                 else None
@@ -206,9 +206,9 @@ class RequestManager:
         """
 
         self._logger.info(
-            message="A /gettree request has been received.",
-            client_ip_address=request.META["REMOTE_ADDR"],
-            username=(
+            "A /gettree request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
                 request.session["USERNAME"]
                 if "USERNAME" in request.session
                 else None
@@ -256,9 +256,9 @@ class RequestManager:
         """
 
         self._logger.info(
-            message="A /switch request has been received.",
-            client_ip_address=request.META["REMOTE_ADDR"],
-            username=(
+            "A /switch request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
                 request.session["USERNAME"]
                 if "USERNAME" in request.session
                 else None

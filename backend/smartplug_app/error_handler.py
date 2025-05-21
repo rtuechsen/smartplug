@@ -67,9 +67,9 @@ class ErrorHandler:
         message: str,
         status_code: int = None,
         user_message: str = None,
-        date_time: datetime.datetime = None,
         client_ip_address: str = None,
         username: str = None,
+        date_time: datetime.datetime = None,
     ) -> Response:
         """Generates an error response and logs the error.
 
@@ -91,7 +91,7 @@ class ErrorHandler:
         """
 
         # in any case log the error
-        self._logger.error(message, date_time, client_ip_address, username)
+        self._logger.error(message, client_ip_address, username, date_time)
 
         if status_code is None:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
