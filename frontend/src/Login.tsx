@@ -80,82 +80,57 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 		<Paper
 			elevation={2}
 			sx={{
-				width: 'max-content',
-				height: 'max-content',
-				padding: '1rem'
-			}}>
+				display: 'grid',
+				gridTemplateColumns: 'auto auto auto',
+				gridTemplateRows: 'auto auto auto',
+				gap: '1rem',
+				padding: '1.5rem',
+				alignItems: 'center',
+				justifyItems: 'start',
+				width: 'fit-content',
+			}}
+		>
+			<PersonRounded sx={{ alignSelf: 'end', mb: '0.5rem' }} />
+			<TextField
+				id="input-username"
+				label="Username"
+				variant="standard"
+				onChange={(e) => setUsername(e.target.value)}
+				autoFocus
+				sx={{ width: '20rem' }}
+			/>
+			<Box />
 
-			<Stack
-				direction="column"
+			<KeyRounded sx={{ alignSelf: 'end', mb: '0.5rem' }} />
+			<TextField
+				id="input-password"
+				label="Password"
+				variant="standard"
+				type={showPassword ? 'text' : 'password'}
+				onChange={(e) => setPassword(e.target.value)}
+				sx={{ width: '20rem' }}
+			/>
+			<IconButton
+				onClick={handleClickShowPassword}
+				onMouseDown={preventFieldDeselect}
+				onMouseUp={preventFieldDeselect}
+				sx={{ alignSelf: 'end' }}
 			>
+				{showPassword ? <VisibilityOff /> : <Visibility />}
+			</IconButton>
 
-				{/* <Box>
-					TODO: Company Icon segment
-				</Box> */}
-
-				{/*Textual input segment*/}
-				<Box>
-					{/*Input-Field for username*/}
-					<Box
-						sx={{
-							display: 'flex',
-							alignItems: 'flex-end'
-						}}>
-						<PersonRounded sx={{ margin: '1rem', mb: '0.5rem' }} />
-						<TextField
-							id="input-username"
-							label="Username"
-							variant="standard"
-							onChange={(e) => setUsername(e.target.value)}
-							autoFocus
-							sx={{ width: '20rem', mt: '1rem' }}
-						/>
-					</Box>
-
-					{/*Input-Field for password*/}
-					<Box
-						sx={{
-							display: 'flex',
-							alignItems: 'flex-end'
-						}}>
-						<KeyRounded sx={{ margin: '1rem', mb: '0.5rem' }} />
-						<TextField
-							id="input-password"
-							label="Password"
-							variant="standard"
-							type={showPassword ? 'text' : 'password'}
-							onChange={(e) => setPassword(e.target.value)}
-							sx={{ width: '20rem', mt: '1rem' }}
-						/>
-						<IconButton
-							onClick={handleClickShowPassword}
-							onMouseDown={preventFieldDeselect}
-							onMouseUp={preventFieldDeselect}
-							sx={{ margin: '0.5rem', mb: '0rem' }}
-						>
-							{showPassword ? <VisibilityOff /> : <Visibility />}
-						</IconButton>
-					</Box>
-				</Box>
-
-				{/*Login Button segment*/}
-				<Box
-					sx={{
-						display: 'flex',
-						justifyContent: 'flex-end',
-					}}>
-					<LoadingButton
-						variant='contained'
-						onClick={() => signIn(username, password)}
-						sx={{
-							margin: '1rem',
-						}}
-						ref={signInButtonRef}
-					>sign in</LoadingButton>
-				</Box>
-
-
-			</Stack>
+			<Box />
+			<Box sx={{ justifySelf: 'end' }}>
+				<LoadingButton
+					variant='contained'
+					onClick={() => signIn(username, password)}
+					sx={{}}
+					ref={signInButtonRef}
+				>
+					sign in
+				</LoadingButton>
+			</Box>
+			<Box />
 		</Paper>
 	);
 }
