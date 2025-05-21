@@ -21,7 +21,11 @@ from rest_framework import status
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
-from .admin_settings import SWITCHING_TOGGLE_DELAY, INRUSH_CURRENT_DELAY
+from .admin_settings import (
+    USE_SWITCHING_DELAYS,
+    SWITCHING_TOGGLE_DELAY,
+    INRUSH_CURRENT_DELAY,
+)
 
 
 class SmartplugApp(AppConfig):
@@ -450,6 +454,17 @@ class SmartplugApp(AppConfig):
     def _try_switching_device(
         self, device: TreeItemDevice, desired_isOn: bool
     ) -> bool:
+
+        # TODO: remove, development code
+        if USE_SWITCHING_DELAYS is False:
+            with SmartplugApp._device_tree_mutex:
+                device.set_isOn(desired_isOn)
+            django_eventstream.send_event(
+                "device_tree_update",
+                "message",
+                self.get_device_tree_dicts(),
+            )
+            return False
 
         with SmartplugApp._device_tree_mutex:
 
