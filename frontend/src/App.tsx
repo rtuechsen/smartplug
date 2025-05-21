@@ -89,13 +89,23 @@ function App(): JSX.Element {
 						spacing={'1rem'}
 					>
 						<DeviceTreeView displayError={displayError} />
-						<LoadingButton onClick={logout} variant='contained' sx={{ alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}>sign out</LoadingButton>
+						<LoadingButton
+							onClick={logout}
+							variant='contained'
+							sx={{ alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}
+						>
+							sign out
+						</LoadingButton>
 					</Stack>
 					:
 					<Login onLoginSuccess={onLoginSuccess} displayError={displayError} />
 				}
 				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
-				<ErrorDisplay message={currentErrorMessage} isErrorOpen={isErrorOpen} setIsErrorOpen={setIsErrorOpen} />
+				<ErrorDisplay
+					message={currentErrorMessage}
+					isErrorOpen={isErrorOpen}
+					setIsErrorOpen={setIsErrorOpen}
+				/>
 			</Box>
 		</ThemeProvider >
 	);
