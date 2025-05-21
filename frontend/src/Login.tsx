@@ -1,9 +1,11 @@
-import { Paper, Stack, TextField, Box, IconButton, Button } from "@mui/material";
+import { Paper, Stack, TextField, Box, IconButton } from "@mui/material";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import KeyRounded from '@mui/icons-material/KeyRounded';
 import PersonRounded from '@mui/icons-material/PersonRounded';
 import React from "react";
+import { JSX } from '@emotion/react/jsx-runtime';
+import { LoadingButton } from "./LoadingButtonGroup";
 
 
 interface LoginProps {
@@ -15,6 +17,11 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [password, setPassword] = React.useState('');
 	const [username, setUsername] = React.useState('');
+
+	// Create an empty ref for the sign-in-button.
+	// This ref will be passed to the button, afterwards the button is accessible here using that ref.
+	// This is used in order to click the button using the enter key.
+	const signInButtonRef = React.useRef<HTMLButtonElement>(null);
 
 	// Toggle the showing state for the password
 	function handleClickShowPassword(): void {
@@ -43,12 +50,30 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 			onLoginSuccess();
 		} else {
 			const responseData = await response.json();
-			console.log(`${response.status} ${response.statusText}: ${responseData.message}`);
-			displayError(`${responseData.message}`);
+			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
 		}
 
 	};
 
+	// credit: https://stackoverflow.com/a/59147255
+	// Click the sign-in-button using the enter key.
+	React.useEffect(() => {
+		// Add an event listener for (both) enter key(s).
+		function listener(event): void {
+			if (event.code === "Enter" || event.code === "NumpadEnter") {
+				event.preventDefault();
+				// Check if the ref is already populated and then click the button.
+				if (signInButtonRef.current) {
+					signInButtonRef.current.click();
+				}
+			}
+		};
+		document.addEventListener("keydown", listener);
+		// Remove the listener afterwards.
+		return function (): void {
+			document.removeEventListener("keydown", listener);
+		};
+	}, [username, password]);
 
 	return (
 		<Paper
@@ -66,11 +91,9 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 					justifyContent: 'space-evenly',
 				}}>
 
-				{/* TODO: Company Icon segment */}
-				<Box>
-
-				</Box>
-
+				{/* <Box>
+					TODO: Company Icon segment
+				</Box> */}
 
 				{/*Textual input segment*/}
 				<Box>
@@ -85,7 +108,9 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 							id="input-username"
 							label="Username"
 							variant="standard"
-							onChange={(e) => setUsername(e.target.value)} />
+							onChange={(e) => setUsername(e.target.value)}
+							autoFocus
+						/>
 					</Box>
 
 					{/*Input-Field for password*/}
@@ -118,14 +143,15 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 						display: 'flex',
 						justifyContent: 'flex-end',
 					}}>
-					<Button
-						variant="contained"
+					<LoadingButton
+						variant='contained'
 						onClick={() => signIn(username, password)}
 						sx={{
 							mr: '2rem',
 							backgroundColor: 'red',
 						}}
-					>Sign In</Button>
+						ref={signInButtonRef}
+					>sign in</LoadingButton>
 				</Box>
 
 

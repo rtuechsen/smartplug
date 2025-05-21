@@ -50,11 +50,13 @@ export interface DeviceTreeItemLabelProps extends DisplayErrorCallbackProps {
  */
 export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, displayError }: DeviceTreeItemLabelProps): JSX.Element {
 
+	// TODO: use rem for size units here ???
+
 	return (
 		<Stack
 			direction='row'
 			justifyContent='space-between'
-			spacing={8}
+			spacing={'3rem'}
 			flexGrow={1}
 		>
 			<Typography sx={{ display: 'flex', alignItems: 'center', lineHeight: 1, whiteSpace: 'nowrap' }}>
@@ -64,7 +66,7 @@ export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, dis
 			<Stack
 				direction='row'
 				justifyContent='right'
-				spacing={4}
+				spacing={'1.5rem'}
 				flexGrow={1}
 				alignItems='center'
 			>

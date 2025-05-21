@@ -1,4 +1,4 @@
-"""Contains ... TODO
+"""Contains ... TODO.
 
 TODO: more details ???
 """
@@ -12,12 +12,15 @@ from .admin_settings import (
     USE_LDAP,
     LDAP_SERVER_ADDRESS_AND_PORT,
     LDAP_TIMEOUT_SECONDS,
-    LDAP_SEARCH_BASE_DN,
 )
 
 
+# TODO: better: SessionManager ???
 class LoginManager:
 
+    # TODO: use cycle_key() ???
+
+    # TODO: not used ???
     def __init__(self):
         pass
 
@@ -46,6 +49,7 @@ class LoginManager:
         # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
         request.session.flush()
 
+    # TODO: better name ???
     def get_user_permission(self, request: Request) -> None:
         # user will be None unless logged in. Per default we use a
         # database-backed session management. The session data is
@@ -73,8 +77,8 @@ class LoginManager:
             request.session.set_expiry(settings.SESSION_COOKIE_AGE)
 
     def _authenticate(self, username: str, password: str) -> tuple[str, str]:
-        """Verifies that the combination of username and passowrd belongs to
-        a user in the Active Directory.
+        """Verifies that the combination of username and passowrd belongs to a
+        user in the Active Directory.
 
         Tries to retrieve the first and last name of the user from the Active
         Directory as well.
@@ -101,18 +105,6 @@ class LoginManager:
                 )
 
         try:
-            if "@" in username:
-                # UPN = User Principle Name
-                # When searching the UPN equals the full email address of the
-                # user
-                search_filter = f"(userPrincipalName={username})"
-
-            else:
-                # NetBIOS = LDAP legacy login method
-                # When searching the NetBIOS expects only the user name that
-                # follows the '\'
-                sAMAccountName: str = username.split("\\")[1]
-                search_filter = f"(sAMAccountName={sAMAccountName})"
 
             conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
 
@@ -132,29 +124,47 @@ class LoginManager:
 
             # next get first and last name of the user (if those exist)
 
-            # sn = surname
-            search_attributes: list[str] = ["givenName", "sn"]
+            if "@" in username:
+                # UPN = User Principle Name
+                # When searching the UPN equals the full email address of the
+                # user
+                search_filter = f"(userPrincipalName={username})"
 
-            result = conn.search_s(
-                LDAP_SEARCH_BASE_DN,
-                ldap.SCOPE_SUBTREE,
-                search_filter,
-                search_attributes,
-            )
+                domain_name: str = username.split("@")[1]
+                base_dn: str = ",".join(
+                    [f"dc={dc}" for dc in domain_name.split(".")]
+                )
 
-            _, entry = result[0]
+                # sn = surname
+                search_attributes: list[str] = ["givenName", "sn"]
 
-            # Note: Active Directory apparently requires either the first name
-            # or the last name when creating a user
+                result = conn.search_s(
+                    base_dn,
+                    ldap.SCOPE_SUBTREE,
+                    search_filter,
+                    search_attributes,
+                )
 
-            if "givenName" in entry:
-                first_name = entry["givenName"][0].decode("utf-8")
+                _, entry = result[0]
+
+                # Note: Active Directory apparently requires either the first name
+                # or the last name when creating a user
+
+                if "givenName" in entry:
+                    first_name = entry["givenName"][0].decode("utf-8")
+                else:
+                    first_name = ""
+
+                if "sn" in entry:
+                    last_name = entry["sn"][0].decode("utf-8")
+                else:
+                    last_name = ""
+
             else:
-                first_name = ""
-
-            if "sn" in entry:
-                last_name = entry["sn"][0].decode("utf-8")
-            else:
+                # Note: When using NetBIOS the base dn the credentials belong
+                # to cannot be deduced -> simply display the username in the
+                # frontend
+                first_name = username.split("\\")[1]
                 last_name = ""
 
             # TODO: should we unbind as well if error happens after binding?
@@ -202,11 +212,12 @@ class LoginManager:
                 status_code=status.HTTP_401_UNAUTHORIZED,
             )
 
+        # TODO: the comment does not match the error message ?!
         # KeyError occurs when the request is missing necessary data for
         # verification.
         except KeyError as e:
             raise BackendError(
                 message="A request has been made by a user who is not signed in.",
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 user_message="Authentication failed. Are you signed in?",
             ) from e

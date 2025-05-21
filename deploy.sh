@@ -29,6 +29,8 @@ python3 ./manage.py migrate
 
 printf "\n\n\x1B[33mMigration finished. Runtime errors above can possibly be ignored if they do not show up below.\x1B[0m\n\n\n"
 
+pylint --recursive=y smartplug_app
+
 cd ..
 
 # http server
