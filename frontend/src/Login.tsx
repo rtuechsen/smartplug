@@ -1,5 +1,5 @@
 // TODO: improve imports everywhere similarly to here ??? (grouping)
-import { Paper, Stack, TextField, Box, IconButton } from "@mui/material";
+import { Paper, TextField, Box, IconButton } from "@mui/material";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import KeyRounded from '@mui/icons-material/KeyRounded';
@@ -60,7 +60,7 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 	// Click the sign-in-button using the enter key.
 	React.useEffect(() => {
 		// Add an event listener for (both) enter key(s).
-		function listener(event): void {
+		function listener(event: KeyboardEvent): void {
 			if (event.code === "Enter" || event.code === "NumpadEnter") {
 				event.preventDefault();
 				// Check if the ref is already populated and then click the button.
