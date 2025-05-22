@@ -16,8 +16,8 @@ class MQTTClient:
         self._keep_alive_seconds = 60
         self._sub_topic: str = "/rpc"
         self._client = mqtt.Client()
-        self._username = "mqttuser"
-        self._password = "pass"
+        # self._username = "mqttuser"
+        # self._password = "pass"
 
         # self._client.tls_set(
         #     ca_certs="/var/lib/mosquitto/ssl/server.crt",
