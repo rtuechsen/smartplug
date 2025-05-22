@@ -108,7 +108,6 @@ class SmartplugApp(AppConfig):
             Path(__file__).parent.parent.parent / config_file_path
         )
 
-        # TODO: use BackendError (log error)
         try:
             with open(lab_config_path, "r", encoding="utf8") as file:
                 lab_config_json_string = file.read()
