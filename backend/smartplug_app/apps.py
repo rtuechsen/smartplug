@@ -284,7 +284,7 @@ class SmartplugApp(AppConfig):
         """TODO"""
 
         if deviceId not in SmartplugApp._device_id_to_tree_item_mapping:
-            raise BackendError(
+            SmartplugApp._logger.warn(
                 f"Received an update for deviceId {deviceId} via MQTT, but "
                 "deviceId is not known."
             )
