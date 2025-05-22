@@ -12,7 +12,7 @@ class MQTTClient:
         self._logger: Logger = Logger()
 
         self._broker_ip: str = "localhost"
-        self._broker_port: int = 8883
+        self._broker_port: int = 1883
         self._keep_alive_seconds = 60
         self._sub_topic: str = "/rpc"
         self._client = mqtt.Client()
