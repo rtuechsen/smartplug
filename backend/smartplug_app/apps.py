@@ -19,7 +19,7 @@ from rest_framework import status
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
-from .MQTTClient import MQTTClient
+from .mqtt_client import MQTTClient
 
 
 class SmartplugApp(AppConfig):
@@ -280,15 +280,18 @@ class SmartplugApp(AppConfig):
 
         return device_tree_dict
 
-    def handle_mqtt_update(self, id: str, kind: str, value: bool):
+    def handle_mqtt_update(self, deviceId: str, kind: str, value: bool):
+        """TODO"""
 
-        # TODO !!!
+        if deviceId not in SmartplugApp._device_id_to_tree_item_mapping.get(id):
+            raise BackendError(
+                f"Received an update for deviceId {deviceId} via MQTT, but "
+                "deviceId is not known."
+            )
+
+        device = SmartplugApp._device_id_to_tree_item_mapping.get(id)
 
         with SmartplugApp._device_tree_mutex:
-            device = SmartplugApp._device_id_to_tree_item_mapping.get(id)
-            if not device or not isinstance(device, TreeItemDevice):
-                print(f"[MQTT Update] Kein TreeItemDevice für device_id={id}")
-                return
 
             if kind == "online":
                 device.isAvailable = value

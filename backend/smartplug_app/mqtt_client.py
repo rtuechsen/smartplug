@@ -1,10 +1,16 @@
 import json
 import paho.mqtt.client as mqtt
+from .logger import Logger
+from .error_handler import BackendError
 
 
 class MQTTClient:
 
     def __init__(self, on_update_callback=None):
+
+        ## The logger instance (singleton) to log events and errors.
+        self._logger: Logger = Logger()
+
         self._broker_ip: str = "localhost"
         self._broker_port: int = 8883
         self._keep_alive_seconds = 60
@@ -26,25 +32,28 @@ class MQTTClient:
         self.connect()
         self._on_update_callback = on_update_callback
         self._client.on_message = self.on_message
+        # TODO: make members protected ???
         self.last_online = {}
         self.last_status = {}
         self._client.loop_start()
 
     def connect(self):
 
+        # TODO: userdata -> _
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
                 client.subscribe("#")
-                print("Connected successfully to Broker.")
+                self._logger.info("Connected successfully to MQTT broker.")
 
             else:
-                print("Connecting to Broker failed. Code:", rc)
+                raise BackendError("Failed to connect to MQTT broker.")
 
         self._client.on_connect = on_connect
         self._client.connect(
             self._broker_ip, self._broker_port, self._keep_alive_seconds
         )
 
+    # TODO: userdata -> _
     def on_message(self, client, userdata, msg):
         topic = msg.topic
         payload = msg.payload.decode()
@@ -52,9 +61,13 @@ class MQTTClient:
         if topic.endswith("/online"):
             device = topic.split("/")[0]
             state = payload.strip().lower() == "true"
+
             if self.last_online.get(device) != state:
                 self.last_online[device] = state
-                print(f"[{device}] ist {'ONLINE' if state else 'OFFLINE'}")
+
+                # TODO: remove debug print ???
+                print(f"[{device}] is {'ONLINE' if state else 'OFFLINE'}")
+
                 if self._on_update_callback:
                     self._on_update_callback(device, "online", state)
 
@@ -63,16 +76,25 @@ class MQTTClient:
             try:
                 data = json.loads(payload)
                 output = data.get("output")
+
                 if output is not None:
                     last = self.last_status.get(device)
+
                     if last != output:
                         self.last_status[device] = output
-                        print(f"[{device}] Ausgang: {'EIN' if output else 'AUS'}")
+                        # TODO: remove debug print ???
+                        print(
+                            f"[{device}] power is: {'ON' if output else 'OFF'}"
+                        )
+
                         if self._on_update_callback:
                             self._on_update_callback(device, "output", output)
-            except json.JSONDecodeError:
-                print(f"[{topic}] Ungültiges JSON: {payload}")
-        # TODO: error handling
+
+            except json.JSONDecodeError as e:
+                raise BackendError(
+                    f"MQTT client received an invalid JSON for topic "
+                    f"{topic}: {payload}"
+                ) from e
 
     def disconnect(self):
         self._client.disconnect()
@@ -91,4 +113,5 @@ class MQTTClient:
         # TODO: remove debug print
         print(f"Switch command (ON={isOn}) was sent.")
 
-        # TODO: error handling ??? or not possible ??? Might not be required, further research please.
+        # TODO: error handling ??? or not possible ??? Might not be required,
+        # further research please.
