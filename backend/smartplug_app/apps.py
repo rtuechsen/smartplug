@@ -283,13 +283,13 @@ class SmartplugApp(AppConfig):
     def handle_mqtt_update(self, deviceId: str, kind: str, value: bool):
         """TODO"""
 
-        if deviceId not in SmartplugApp._device_id_to_tree_item_mapping.get(id):
+        if deviceId not in SmartplugApp._device_id_to_tree_item_mapping:
             raise BackendError(
                 f"Received an update for deviceId {deviceId} via MQTT, but "
                 "deviceId is not known."
             )
 
-        device = SmartplugApp._device_id_to_tree_item_mapping.get(id)
+        device = SmartplugApp._device_id_to_tree_item_mapping.get(deviceId)
 
         with SmartplugApp._device_tree_mutex:
 
