@@ -42,6 +42,7 @@ sudo apt install -y pylint
 ## mosquitto
 
 sudo apt install -y mosquitto mosquitto-clients
+sudo systemctl stop mosquitto
 
 # TODO: change password
 # sudo mosquitto_passwd -c /ect/mosquitto/passwd mqttuser

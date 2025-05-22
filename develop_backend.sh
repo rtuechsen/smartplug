@@ -4,6 +4,9 @@ export DJANGO_PIPELINE=development
 sudo rm -r /etc/mosquitto/mosquitto.conf
 sudo cp ./mosquitto.conf /etc/mosquitto/mosquitto.conf
 
+sudo systemctl stop mosquitto
+sudo systemctl start mosquitto
+
 cd backend
 
 sudo systemctl stop nginx
