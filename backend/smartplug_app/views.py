@@ -8,6 +8,8 @@ all requests to an instance of RequestManager.
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import api_view
+from rest_framework import status
+from django.views.decorators.csrf import ensure_csrf_cookie
 from .request_manager import RequestManager
 
 # The instance of the RequestManager. All requests are forwared to it.
@@ -15,6 +17,7 @@ request_manager = RequestManager()
 
 
 @api_view(["GET"])
+@ensure_csrf_cookie
 def csrf(request: Request) -> Response:
     """Callback for the /csrf endpoint.
 
@@ -22,7 +25,8 @@ def csrf(request: Request) -> Response:
 
     @return The response from the request manager for the REST API.
     """
-    return request_manager.csrf(request)
+    # return request_manager.csrf(request)
+    return Response({"detail": "Hi"}, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])

@@ -7,6 +7,7 @@ import PersonRounded from '@mui/icons-material/PersonRounded';
 import { JSX } from '@emotion/react/jsx-runtime';
 import React from "react";
 import { LoadingButton } from "./LoadingButtonGroup";
+import { getCsrfToken } from './RequestTools';
 
 
 interface LoginProps {
@@ -39,12 +40,15 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 		const response: Response = await fetch('/api/login/', {
 			method: 'POST',
 			headers: {
+				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
 				username: username,
 				password: password,
 			}),
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
 		});
 
 		if (response.ok) {
