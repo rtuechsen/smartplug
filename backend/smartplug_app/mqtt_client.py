@@ -19,15 +19,15 @@ class MQTTClient:
         self._username = "mqttuser"
         self._password = "pass"
 
-        self._client.tls_set(
-            ca_certs="/var/lib/mosquitto/ssl/server.crt",
-            certfile="/home/admin/shelly-dirigent/backend/certs/client.crt",
-            keyfile="/home/admin/shelly-dirigent/backend/certs/client.key",
-        )
+        # self._client.tls_set(
+        #     ca_certs="/var/lib/mosquitto/ssl/server.crt",
+        #     certfile="/home/admin/shelly-dirigent/backend/certs/client.crt",
+        #     keyfile="/home/admin/shelly-dirigent/backend/certs/client.key",
+        # )
 
-        self._client.tls_insecure_set(True)
+        # self._client.tls_insecure_set(True)
 
-        self._client.username_pw_set(self._username, self._password)
+        # self._client.username_pw_set(self._username, self._password)
 
         self.connect()
         self._on_update_callback = on_update_callback
