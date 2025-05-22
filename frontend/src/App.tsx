@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
+import { LoadingButton } from './LoadingButtonGroup';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -77,7 +77,7 @@ function App(): JSX.Element {
 		// Below that a Box contains all items of the pages body, e.g. the DeviceTreeView.
 		<ThemeProvider theme={theme}>
 			<CssBaseline />	 {/* used to remove default padding of html body */}
-			<Paper sx={{ padding: '2rem' }}>
+			<Paper elevation={1} sx={{ padding: '2rem' }}>
 				<Typography variant='h2' sx={{ whiteSpace: 'nowrap' }}>
 					Smartplug Dirigent
 				</Typography>
@@ -96,16 +96,27 @@ function App(): JSX.Element {
 							justifyContent='top'
 							spacing={'2rem'}
 						>
-							<Button onClick={logout} variant='contained' sx={{ whiteSpace: 'nowrap', alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}>sign out</Button>
+							<LoadingButton
+								onClick={logout}
+								variant='contained'
+								sx={{ alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}
+							>
+								sign out
+							</LoadingButton>
 							<UserList />
 
 						</Stack>
+
 					</Stack>
 					:
 					<Login onLoginSuccess={onLoginSuccess} displayError={displayError} />
 				}
 				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
-				<ErrorDisplay message={currentErrorMessage} isErrorOpen={isErrorOpen} setIsErrorOpen={setIsErrorOpen} />
+				<ErrorDisplay
+					message={currentErrorMessage}
+					isErrorOpen={isErrorOpen}
+					setIsErrorOpen={setIsErrorOpen}
+				/>
 			</Box>
 		</ThemeProvider >
 	);

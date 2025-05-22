@@ -87,7 +87,7 @@ class RequestManager:
             ),
         )
 
-        if request.body is not b"":
+        if request.body != b"":
             return self._error_handler.response(
                 "Requests to /csrf are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
@@ -162,7 +162,7 @@ class RequestManager:
             ),
         )
 
-        if request.body is not b"":
+        if request.body != b"":
             return self._error_handler.response(
                 "Requests to /logout are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
@@ -211,7 +211,7 @@ class RequestManager:
             ),
         )
 
-        if request.body is not b"":
+        if request.body != b"":
             return self._error_handler.response(
                 "Requests to /gettree are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
