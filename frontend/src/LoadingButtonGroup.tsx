@@ -5,6 +5,8 @@ import Button from '@mui/material/Button';
 import { JSX } from '@emotion/react/jsx-runtime';
 import { getCsrfToken } from './RequestTools';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
+import type { OverridableStringUnion } from '@mui/types';
+import type { ButtonPropsVariantOverrides } from '@mui/material/Button';
 
 
 /**
@@ -18,9 +20,9 @@ export interface LoadingButtonProps {
 	 * @returns A void Promise that can be waited on if one wants to wait for the function to complete.
 	 */
 	onClick: () => Promise<void>;
-	variant: string | undefined;
-	sx: object | undefined;
-	ref: React.Ref<HTMLAnchorElement> | undefined;
+	variant?: OverridableStringUnion<'text' | 'outlined' | 'contained', ButtonPropsVariantOverrides>;
+	sx?: object;
+	ref?: React.Ref<HTMLButtonElement>;
 }
 
 
@@ -54,7 +56,7 @@ export function LoadingButton({ onClick, variant, children, sx, ref }: React.Pro
 			onClick={handleClick}
 			loading={loading}
 			sx={{ whiteSpace: 'nowrap', ...sx }}
-			variant={variant}
+			variant={variant || 'text'}
 			ref={ref}
 		>
 			{children}

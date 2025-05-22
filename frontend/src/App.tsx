@@ -76,7 +76,7 @@ function App(): JSX.Element {
 		// Below that a Box contains all items of the pages body, e.g. the DeviceTreeView.
 		<ThemeProvider theme={theme}>
 			<CssBaseline />	 {/* used to remove default padding of html body */}
-			<Paper sx={{ padding: '2rem' }}>
+			<Paper elevation={1} sx={{ padding: '2rem' }}>
 				<Typography variant='h2' sx={{ whiteSpace: 'nowrap' }}>
 					Smartplug Dirigent
 				</Typography>
@@ -89,13 +89,23 @@ function App(): JSX.Element {
 						spacing={'1rem'}
 					>
 						<DeviceTreeView displayError={displayError} />
-						<LoadingButton onClick={logout} variant='contained' sx={{ alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}>sign out</LoadingButton>
+						<LoadingButton
+							onClick={logout}
+							variant='contained'
+							sx={{ alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}
+						>
+							sign out
+						</LoadingButton>
 					</Stack>
 					:
 					<Login onLoginSuccess={onLoginSuccess} displayError={displayError} />
 				}
 				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
-				<ErrorDisplay message={currentErrorMessage} isErrorOpen={isErrorOpen} setIsErrorOpen={setIsErrorOpen} />
+				<ErrorDisplay
+					message={currentErrorMessage}
+					isErrorOpen={isErrorOpen}
+					setIsErrorOpen={setIsErrorOpen}
+				/>
 			</Box>
 		</ThemeProvider >
 	);

@@ -1,10 +1,11 @@
-import { Paper, Stack, TextField, Box, IconButton } from "@mui/material";
+// TODO: improve imports everywhere similarly to here ??? (grouping)
+import { Paper, TextField, Box, IconButton } from "@mui/material";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import KeyRounded from '@mui/icons-material/KeyRounded';
 import PersonRounded from '@mui/icons-material/PersonRounded';
-import React from "react";
 import { JSX } from '@emotion/react/jsx-runtime';
+import React from "react";
 import { LoadingButton } from "./LoadingButtonGroup";
 
 
@@ -59,7 +60,7 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 	// Click the sign-in-button using the enter key.
 	React.useEffect(() => {
 		// Add an event listener for (both) enter key(s).
-		function listener(event): void {
+		function listener(event: KeyboardEvent): void {
 			if (event.code === "Enter" || event.code === "NumpadEnter") {
 				event.preventDefault();
 				// Check if the ref is already populated and then click the button.
@@ -77,85 +78,59 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 
 	return (
 		<Paper
-			elevation={10}
+			elevation={2}
 			sx={{
-				width: '30rem',
-				height: '30rem',
-				alignItems: 'flex-start',
-				justifyContent: 'center',
-			}}>
+				display: 'grid',
+				gridTemplateColumns: 'auto auto auto',
+				gridTemplateRows: 'auto auto auto',
+				gap: '1rem',
+				padding: '1.5rem',
+				alignItems: 'center',
+				justifyItems: 'start',
+				width: 'fit-content',
+			}}
+		>
+			<PersonRounded sx={{ alignSelf: 'end', mb: '0.5rem' }} />
+			<TextField
+				id="input-username"
+				label="Username"
+				variant="standard"
+				onChange={(e) => setUsername(e.target.value)}
+				autoFocus
+				sx={{ width: '20rem' }}
+			/>
+			<Box />
 
-			<Stack
-				direction="column" spacing={2}
-				sx={{
-					justifyContent: 'space-evenly',
-				}}>
+			<KeyRounded sx={{ alignSelf: 'end', mb: '0.5rem' }} />
+			<TextField
+				id="input-password"
+				label="Password"
+				variant="standard"
+				type={showPassword ? 'text' : 'password'}
+				onChange={(e) => setPassword(e.target.value)}
+				sx={{ width: '20rem' }}
+			/>
+			<IconButton
+				onClick={handleClickShowPassword}
+				onMouseDown={preventFieldDeselect}
+				onMouseUp={preventFieldDeselect}
+				sx={{ alignSelf: 'end' }}
+			>
+				{showPassword ? <VisibilityOff /> : <Visibility />}
+			</IconButton>
 
-				{/* <Box>
-					TODO: Company Icon segment
-				</Box> */}
-
-				{/*Textual input segment*/}
-				<Box>
-					{/*Input-Field for username*/}
-					<Box
-						sx={{
-							display: 'flex',
-							alignItems: 'flex-end'
-						}}>
-						<PersonRounded sx={{ color: 'red', mr: '1rem', ml: '2rem' }} />
-						<TextField
-							id="input-username"
-							label="Username"
-							variant="standard"
-							onChange={(e) => setUsername(e.target.value)}
-							autoFocus
-						/>
-					</Box>
-
-					{/*Input-Field for password*/}
-					<Box
-						sx={{
-							display: 'flex',
-							alignItems: 'flex-end'
-						}}>
-						<KeyRounded sx={{ color: 'red', mr: '1rem', ml: '2rem' }} />
-						<TextField
-							id="input-password"
-							label="Password"
-							variant="standard"
-							type={showPassword ? 'text' : 'password'}
-							onChange={(e) => setPassword(e.target.value)}
-						/>
-						<IconButton
-							onClick={handleClickShowPassword}
-							onMouseDown={preventFieldDeselect}
-							onMouseUp={preventFieldDeselect}
-						>
-							{showPassword ? <VisibilityOff /> : <Visibility />}
-						</IconButton>
-					</Box>
-				</Box>
-
-				{/*Login Button segment*/}
-				<Box
-					sx={{
-						display: 'flex',
-						justifyContent: 'flex-end',
-					}}>
-					<LoadingButton
-						variant='contained'
-						onClick={() => signIn(username, password)}
-						sx={{
-							mr: '2rem',
-							backgroundColor: 'red',
-						}}
-						ref={signInButtonRef}
-					>sign in</LoadingButton>
-				</Box>
-
-
-			</Stack>
+			<Box />
+			<Box sx={{ justifySelf: 'end' }}>
+				<LoadingButton
+					variant='contained'
+					onClick={() => signIn(username, password)}
+					sx={{}}
+					ref={signInButtonRef}
+				>
+					sign in
+				</LoadingButton>
+			</Box>
+			<Box />
 		</Paper>
 	);
 }
