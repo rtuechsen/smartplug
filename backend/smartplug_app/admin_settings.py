@@ -16,3 +16,6 @@ It should start with
 LDAP_TIMEOUT_SECONDS: int = 5
 """The time in seconds after which a request to the active directory server is
 considered a timeout."""
+
+# TODO remove, development variable
+USE_MQTT: bool = False
