@@ -98,6 +98,14 @@ class MQTTClient:
                     f"{topic}: {payload}"
                 ) from e
 
+        else:
+            # TODO Debug Code, should we catch errors here?
+            # shellyplugsg3-b08184a48764/events/rpc   (Topic bei button)
+            data = json.loads(payload)
+            output = data.get("output")
+            print(topic)
+            print(data)
+
     def disconnect(self):
         self._client.disconnect()
 
