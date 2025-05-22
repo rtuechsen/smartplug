@@ -4,7 +4,7 @@
 		"children": [
 			{
 				"label": "Sensor 1 (real)",
-				"deviceId": "shellyplugsg3-b08184a5b0e0"
+				"deviceId": "shellyplugsg3-b08184a48764"
 			},
 			{
 				"label": "PC 1 (real)",
@@ -20,7 +20,7 @@
 								"label": "Konsole 1",
 								"children": [
 									{
-										"label": "PC 2",
+										"label": "PC 2 (real)",
 										"deviceId": "shellyplugsg3-b08184a4b8e4"
 									},
 									{
@@ -41,8 +41,8 @@
 										"deviceId": "shellyplugsg3-b08184a654b8"
 									},
 									{
-										"label": "Monitor 3 (real)",
-										"deviceId": "shellyplugsg3-b08184a4b8e9"
+										"label": "Monitor 3",
+										"deviceId": "10007"
 									}
 								]
 							}
