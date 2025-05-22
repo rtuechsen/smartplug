@@ -37,6 +37,7 @@ class MQTTClient:
         self.last_status = {}
         self._client.loop_start()
 
+    # TODO: make members protected ???
     def connect(self):
 
         # TODO: userdata -> _
@@ -53,6 +54,7 @@ class MQTTClient:
             self._broker_ip, self._broker_port, self._keep_alive_seconds
         )
 
+    # TODO: make members protected ???
     # TODO: userdata -> _
     def on_message(self, client, userdata, msg):
         topic = msg.topic
