@@ -21,9 +21,15 @@ cd ..
 
 cd backend
 
+printf "\n\n\x1B[33mStarting migration. During migration runtime errors can occure that do not happen at normal runtime.\x1B[0m\n\n\n"
+
 python3 ./manage.py makemigrations
 
 python3 ./manage.py migrate
+
+printf "\n\n\x1B[33mMigration finished. Runtime errors above can possibly be ignored if they do not show up below.\x1B[0m\n\n\n"
+
+pylint --recursive=y smartplug_app
 
 cd ..
 
@@ -33,7 +39,8 @@ sudo systemctl start nginx
 
 cd backend
 
-gunicorn --bind 127.0.0.1:8000 shelly_dirigent.asgi:application --worker-class uvicorn.workers.UvicornWorker --workers 1
+# TODO: adjust the number of workers or mention it in the admin documentation
+sudo -E env PATH="$PATH" gunicorn --bind 127.0.0.1:8000 smartplug_app.asgi:application --worker-class uvicorn.workers.UvicornWorker --workers 1 --graceful-timeout 0
 
 sudo systemctl restart gunicorn
 

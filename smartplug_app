@@ -1,0 +1,8 @@
+/var/log/smartplug_app/smartplug_app.log
+{
+	daily
+	rotate 28
+	missingok
+	notifempty
+	copytruncate
+}

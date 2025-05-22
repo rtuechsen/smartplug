@@ -1,3 +1,6 @@
+"""Contains the RequestManager that handles incoming requests from the REST
+API."""
+
 from pathlib import Path
 from django.middleware.csrf import get_token
 from django.apps import apps
@@ -6,10 +9,17 @@ from rest_framework.request import Request
 from rest_framework import status
 import jsonschema
 import yaml
-from .apps import InternalApp  # for type hints only
+from .apps import SmartplugApp
+from .logger import Logger
+from .error_handler import ErrorHandler, BackendError
+from .login_manager import LoginManager
+
+# TODO: verify that having multiple instances of the session manager does not
+# lead to problems (when serving multiple users in multiple threads)
+login_manager = LoginManager()
 
 
-# input validation:
+# rules for input validation (OWASP):
 # - use schema: https://pypi.org/project/jsonschema/
 # - verify range of numbers
 # - verify string length
@@ -18,57 +28,278 @@ from .apps import InternalApp  # for type hints only
 #     - avoid: https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
 #     - use: https://owasp.org/www-community/OWASP_Validation_Regex_Repository
 
+# TODO: make RequestManager a singleton like Logger
+
 
 class RequestManager:
-    """This is an example docstring.
+    """This class handles the incoming requests from the REST API.
 
-    Here are some details.
+    It delegates work to the backend and construct responses for the
+    requests.
     """
 
-    def __init__(self) -> None:
-        # get the instance of InternalApp
-        self.my_internal_app: InternalApp = apps.get_app_config("shelly_dirigent")
+    def __init__(self):
+        """Constructor for the class."""
 
-        # Because openapi.yaml already contains schemas for the requests for documentation purposes, we extract those schemas and use them for validation
+        # The logger instance (singleton) to log events and errors.
+        self._logger: Logger = Logger()
+
+        # An instance of ErrorHandler to simultaneously log an error and
+        # generate a response for the REST API.
+        self._error_handler: ErrorHandler = ErrorHandler()
+
+        # The instance of TODO that manages the device tree.
+        self.smartplug_app: SmartplugApp = apps.get_app_config("smartplug_app")
+
+        # Because openapi.yaml already contains schemas for the requests for
+        # documentation purposes, we extract those schemas and use them for
+        # validation
         openapi_rel_path: str = "./openapi.yaml"
+        openapi_abs_path: Path = (
+            Path(__file__).parent.parent.parent / openapi_rel_path
+        )
 
-        openapi_abs_path = Path(__file__).parent.parent.parent / openapi_rel_path
+        with open(openapi_abs_path, "r", encoding="UTF-8") as file:
+            self._openapi: dict = yaml.safe_load(file)
+            # TODO: handle errors
 
-        with open(openapi_abs_path, "r", encoding="utf8") as file:
-            self.openapi = yaml.safe_load(file)
+        self._schema_switch: dict = self._openapi["paths"]["/api/switch"][
+            "post"
+        ]["requestBody"]["content"]["application/json"]["schema"]
+
+        self._schema_login: dict = self._openapi["paths"]["/api/login"][
+            "post"
+        ]["requestBody"]["content"]["application/json"]["schema"]
 
     def csrf(self, request: Request) -> Response:
-        return Response({"csrfToken": get_token(request)}, status=status.HTTP_200_OK)
+        """Function to process requests to /csrf .
+
+        @param request The incoming request.
+
+        @return A response containing either the CSRF token or an error.
+        """
+
+        self._logger.info(
+            "A /csrf request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
+        )
+
+        if request.body != b"":
+            return self._error_handler.response(
+                "Requests to /csrf are not allowed to have a body.",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
+        return Response(
+            {"csrfToken": get_token(request)}, status=status.HTTP_200_OK
+        )
 
     def login(self, request: Request) -> Response:
+        """TODO."""
+
+        self._logger.info(
+            "A /login request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
+        )
+
+        try:
+            jsonschema.validate(
+                instance=request.data, schema=self._schema_login
+            )
+        except jsonschema.exceptions.ValidationError as e:
+            return self._error_handler.response(
+                f"The request did not match the expected schema: {e.message}",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
+        try:
+            login_manager.login(request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
         return Response(None, status=status.HTTP_200_OK)
 
     def logout(self, request: Request) -> Response:
+        """TODO."""
+
+        self._logger.info(
+            "A /logout request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
+        )
+
+        if request.body != b"":
+            return self._error_handler.response(
+                "Requests to /logout are not allowed to have a body.",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
+        try:
+            login_manager.logout(request)
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
         return Response(None, status=status.HTTP_200_OK)
 
     def gettree(self, request: Request) -> Response:
-        device_tree = self.my_internal_app.get_device_tree_dicts()
+        """Function to process requests to /gettree .
+
+        @param request The incoming request.
+
+        @return A response containing either the device tree as a JSON or an
+        error.
+        """
+
+        self._logger.info(
+            "A /gettree request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
+        )
+
+        if request.body != b"":
+            return self._error_handler.response(
+                "Requests to /gettree are not allowed to have a body.",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
+        try:
+            login_manager.get_user_permission(request)
+
+            device_tree = self.smartplug_app.get_device_tree_dicts()
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
         return Response(device_tree, status=status.HTTP_200_OK)
 
     def switch(self, request: Request) -> Response:
-        """This is an example docstring.
+        """Function to process requests to /switch .
 
-        Here are some details.
+        @param request The incoming request.
 
-        @param request This is some parameter.
-
-        @return This is some return value.
-
+        @return A response containing either a success status or an error.
         """
-        # get the schema for this endpoints request and validate the request with it
-        # TODO: dont retrieve schema every time
-        schema = self.openapi["paths"]["/api/switch"]["post"]["requestBody"]["content"][
-            "application/json"
-        ]["schema"]
-        jsonschema.validate(instance=request.data, schema=schema)
 
-        # instruct the app to perform the switch
-        self.my_internal_app.switch(request.data["id"], request.data["isOn"])
+        self._logger.info(
+            "A /switch request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
+        )
 
-        # TODO: make sure to return proper response for all cases (also failures)
+        try:
+            jsonschema.validate(
+                instance=request.data, schema=self._schema_switch
+            )
+        except jsonschema.exceptions.ValidationError as e:
+            return self._error_handler.response(
+                f"The request did not match the expected schema: {e.message}",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
+        try:
+            login_manager.get_user_permission(request)
+
+            # instruct the app to perform the switch
+            self.smartplug_app.switch(
+                request.data["id"], request.data["desired_isOn"]
+            )
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
         return Response(None, status=status.HTTP_200_OK)

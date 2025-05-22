@@ -1,8 +1,11 @@
+"""Contains the URL patterns the backend implements."""
+
 from django.urls import path, include
 import django_eventstream
 from . import views
 
-# the url patterns for the api
+## The url patterns for the api (location and name of this variable is mandated
+## by Django).
 urlpatterns = [
     path("api/csrf/", views.csrf),
     path("api/login/", views.login),

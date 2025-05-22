@@ -13,10 +13,10 @@ To store your git password (AS PLAINTEXT - DO NOT USE A PASSWORD YOU ARE USING S
 `git config --global user.password YOUR_PASSWORD`  
 Note that there are no Quotes around the password in contrast to user name or email.  
 
-Clone this repo using: `git clone https://gitlab.com/proi3/shelly-dirigent.git`  
+Clone this repo using: `git clone https://gitlab.com/proi3/smartplug-dirigent.git`  
 
-Enter project folder with `cd shelly-dirigent`.  
-Run `bash install.sh` to install the project.  
+Enter project folder with `cd smartplug-dirigent`.  
+Run `bash install.sh` to install the project. When prompted for an LDAP password enter one (preferably use the one in Proton Pass under 'Windows-Server-2019').  
 VSCode should find the python virtual environment automatically ONCE you have opened a python file. For existing terminals VSCode will ask you to reload them.  
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
 When using breakpoints in VSCode for the __frontend__, instead of simply opening the browser, go to the debug tab in VSCode (on the left) and launch `Frontend Debug (Chrome)`.  
@@ -41,6 +41,7 @@ You can verify the syntax of `nginx.conf` by calling `sudo nginx -t` __AFTER__ d
 ## Backend
 
 After adding dependencies to the backend via pip, one has to manually add them to `/backend/requirements.txt` to include them in future installations. The dependency should allow patches (`>=`) but not switch to higher feature versions (`,<`).  
+Requires the extension `Black Formatter` for formatting in VSCode.  
 
 
 ## Frontend
@@ -50,5 +51,25 @@ Requires the extension `ESLint` for in-code-linting in VSCode.
 
 ## Documentation
 
-- Python: [Doxygen](https://www.doxygen.nl/manual/docblocks.html#pythonblocks)
-- Typescript: [TypeDoc](https://typedoc.org/documents/Overview.html)
+After building the documentation using `bash generate_documentation.sh` the docs can be found at:
+
+- backend: [./backend/docs/html/index.html](./backend/docs/html/index.html)
+- frontend: [./frontend/docs/index.html](./frontend/docs/index.html)
+
+The API is not documented using html but as an OpenAPI document in YAML format:
+- API: [./openapi.yaml](./openapi.yaml)
+
+## Active Directory
+
+You can follow this tutorial to setup your own Active Directory Server: [tutorial](https://activedirectorypro.com/create-active-directory-test-environment/)  
+The first lessons inluding lesson 3 are the only ones needed. Afterwards users can be added using the program 'Active Directory Users and Computers'.  
+To make the server reachable from other devices in the same network:
+- choose bridged adapter in VMs network settings, choose your network driver (e.g. 'Intel ...'), check 'cable connected'
+- a Host-only adapter in Virtualbox settings is not needed
+- change the IP inside the windows server: access ethernet settings via control panel, change adapter settings, Properties, IPv4, e.g.:
+	- IP: 192.168.178.50
+	- mask: 255.255.255.0
+	- default gateway: 192.168.178.1
+	- preferred DNS: 192.168.178.1
+
+

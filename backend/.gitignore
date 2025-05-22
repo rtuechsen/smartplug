@@ -1,6 +1,6 @@
 /django-env/
 
-shelly_dirigent/static/
+smartplug_app/static/
 __pycache__/
 
 /docs/

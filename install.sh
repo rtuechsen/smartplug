@@ -27,6 +27,18 @@ sudo apt -y install python3-pip
 
 python -m pip install -r ./requirements.txt
 
+## logrotate
+
+sudo cp -p ./smartplug_app /etc/logrotate.d/smartplug_app
+
+## LDAP
+
+sudo apt install -y libsasl2-dev python3-dev libldap2-dev libssl-dev slapd ldap-utils
+
+## linter
+
+sudo apt install -y pylint
+
 cd ..
 
 # frontend

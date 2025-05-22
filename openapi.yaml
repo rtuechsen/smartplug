@@ -1,27 +1,123 @@
 openapi: 3.1.0
 info:
-  title: Shelly Dirigent
-  description: |
-    This API allows to view and control shelly plugs.
+  title: Smartplug Dirigent
+  description: This API allows to view and control smartplugs.
   version: 0.1.0
+components:
+  schemas:
+    ItemId:
+      type: string
+      # TODO: pattern
+    TreeItem: 
+      type: object
+      properties:
+        label:
+          type: string
+        id:
+          $ref: "#/components/schemas/ItemId"
+        isOn:
+          type: boolean
+        isAvailable:
+          type: boolean
+      # TODO: required
+    TreeItemDevice:
+      allOf:
+        - $ref: "#/components/schemas/TreeItem"
+        - type: object
+      # TODO: required ???
+    ItemList:
+      type: array
+      items:
+        oneOf:
+          - $ref: "#/components/schemas/TreeItemGroup"
+          - $ref: "#/components/schemas/TreeItemDevice"
+    TreeItemGroup:
+      allOf:
+        - $ref: "#/components/schemas/TreeItem"
+        - type: object
+          properties:
+            children:
+              $ref: "#/components/schemas/ItemList"
+          # TODO: required
 paths:
   /:
     get:
       summary: Get the frontend (html and javascript)
-      description: Some text # TODO
+      description: TODO # TODO
       responses:
         '200':
-          description: 'OK'
+          description: OK
           content:
             text/html:
               schema:
                 type: string
                 format: html
+  /api/csrf:
+    get:
+      summary: TODO # TODO
+      description: TODO # TODO
+      responses: # TODO
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  csrfToken:
+                    type: string
+                    # TODO: pattern
+                # TODO: required
+  /api/login:
+    post:
+      summary: TODO # TODO
+      description: TODO # TODO
+      requestBody:
+        description: TODO # TODO
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  pattern: ^([a-zA-Z0-9_.]{1,40}@mylab\.local)|(MYLAB\\[a-zA-Z0-9]{1,20})$
+                  # TODO: switch to correct pattern
+                  # pattern: ^([a-zA-Z0-9_.]{1,40}@(anschuetz\.com)|(anschuetz\.uk)|(extern\.anschuetz\.com)|(raykiel\.com))|(NT_RMKIEL\\[a-zA-Z0-9_.]{1,20})$
+                  description: TODO # TODO
+                password:
+                  type: string
+                  pattern: ^[a-zA-Z0-9^!$%&()\[\]{}=?+*~#'-_.,;:\|<>"°]{1,100}$
+                  # TODO: switch to correct pattern
+                  # pattern: ^[a-zA-Z0-9^!$%&()\[\]{}=?+*~#'-_.,;:\|<>"°]{12,100}$
+                  description: TODO # TODO
+              required:
+                - username
+                - password
+              additionalProperties: false
+      # TODO: responses
+  /api/logout:
+    post:
+      summary: TODO # TODO
+      description: TODO # TODO
+      # TODO: responses
+  /api/gettree:
+    get:
+      summary: TODO # TODO
+      description: TODO # TODO
+      responses: # TODO
+        '200':
+          description: OK
+          content:
+            application/json:
+              $ref: "#/components/schemas/ItemList"
   /api/switch:
     post:
       summary: Control the state of an item
+      description: TODO # TODO
       requestBody:
-        description: JSON object # TODO
+        description: TODO # TODO
         required: true
         content:
           application/json:
@@ -32,16 +128,16 @@ paths:
                   type: string
                   pattern: ^[a-f0-9]{64}$
                   description: The unique id of the item.
-                isOn:
+                desired_isOn:
                   type: boolean
                   description: Whether the goal is to turn the item ON (true) or OFF (false).
               required:
                 - id
-                - isOn
+                - desired_isOn
               additionalProperties: false
             example:
               id: f7f7a115bea9310b163934fb414de46009662610454c8a3a9bb2b823cc4aafb
-              isOn: true
+              desired_isOn: true
       responses:
         '200':
           description: 200 response
@@ -53,3 +149,9 @@ paths:
                 invalid id:
                   value:
                     - Specified id f7f7a115bea9310b163934fb414de46009662610454c8a3a9bb2b823cc4aafb does not exist.
+  # /api/events:
+    # TODO: SSE not supported
+
+
+# TODO: examples everywhere
+
