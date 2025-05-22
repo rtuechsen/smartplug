@@ -39,6 +39,13 @@ sudo apt install -y libsasl2-dev python3-dev libldap2-dev libssl-dev slapd ldap-
 
 sudo apt install -y pylint
 
+## mosquitto
+
+sudo apt install -y mosquitto mosquitto-clients
+
+# TODO: change password
+# sudo mosquitto_passwd -c /ect/mosquitto/passwd mqttuser
+
 cd ..
 
 # frontend
