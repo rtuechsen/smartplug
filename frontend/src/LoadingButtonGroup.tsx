@@ -5,6 +5,8 @@ import Button from '@mui/material/Button';
 import { JSX } from '@emotion/react/jsx-runtime';
 import { getCsrfToken } from './RequestTools';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
+import type { OverridableStringUnion } from '@mui/types';
+import type { ButtonPropsVariantOverrides } from '@mui/material/Button';
 
 
 /**
@@ -18,6 +20,9 @@ export interface LoadingButtonProps {
 	 * @returns A void Promise that can be waited on if one wants to wait for the function to complete.
 	 */
 	onClick: () => Promise<void>;
+	variant?: OverridableStringUnion<'text' | 'outlined' | 'contained', ButtonPropsVariantOverrides>;
+	sx?: object;
+	ref?: React.Ref<HTMLButtonElement>;
 }
 
 
@@ -28,7 +33,7 @@ export interface LoadingButtonProps {
  * 
  * @return The react component of the button.
  */
-function LoadingButton({ onClick, children }: React.PropsWithChildren<LoadingButtonProps>): JSX.Element {
+export function LoadingButton({ onClick, variant, children, sx, ref }: React.PropsWithChildren<LoadingButtonProps>): JSX.Element {
 
 	// state that decides wheter to show a loading circle or not, triggers the button to update when state changes
 	const [loading, setLoading] = React.useState<boolean>(false);
@@ -48,7 +53,9 @@ function LoadingButton({ onClick, children }: React.PropsWithChildren<LoadingBut
 		<Button
 			onClick={handleClick}
 			loading={loading}
-			sx={{ whiteSpace: 'nowrap' }}
+			sx={{ whiteSpace: 'nowrap', ...sx }}
+			variant={variant || 'text'}
+			ref={ref}
 		>
 			{children}
 		</Button>

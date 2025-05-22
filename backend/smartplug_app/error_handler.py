@@ -3,6 +3,7 @@
 TODO: more details ???
 """
 
+import datetime
 from rest_framework.response import Response
 from rest_framework import status
 from .logger import Logger
@@ -68,6 +69,7 @@ class ErrorHandler:
         user_message: str = None,
         client_ip_address: str = None,
         username: str = None,
+        date_time: datetime.datetime = None,
     ) -> Response:
         """Generates an error response and logs the error.
 
@@ -88,8 +90,11 @@ class ErrorHandler:
         message.
         """
 
+        if date_time is None:
+            date_time = datetime.datetime.now()
+
         # in any case log the error
-        self._logger.error(message, client_ip_address, username)
+        self._logger.error(message, client_ip_address, username, date_time)
 
         if status_code is None:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -101,5 +106,9 @@ class ErrorHandler:
             )
 
         return Response(
-            {"message": "ERROR: " + user_message}, status=status_code
+            {
+                "message": f"ERROR: {user_message} "
+                f"[{date_time.strftime("%Y-%m-%d %H:%M:%S.%f")}]"
+            },
+            status=status_code,
         )

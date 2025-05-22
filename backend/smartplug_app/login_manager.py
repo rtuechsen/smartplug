@@ -18,6 +18,9 @@ from .admin_settings import (
 # TODO: better: SessionManager ???
 class LoginManager:
 
+    # TODO: use cycle_key() ???
+
+    # TODO: not used ???
     def __init__(self):
         pass
 
