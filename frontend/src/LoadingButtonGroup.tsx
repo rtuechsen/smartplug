@@ -97,7 +97,7 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 			credentials: 'include',
 			mode: 'same-origin',	// prevents sending token to another website
 			headers: {
-				'X-CSRFToken': getCsrfToken(),	// need the CSRF token for POST requests
+				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
 				'Content-type': 'application/json; charset=UTF-8'
 			},
 			body: JSON.stringify({
