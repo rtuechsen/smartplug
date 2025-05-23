@@ -63,6 +63,15 @@ function App(): JSX.Element {
 		}
 	}
 
+	React.useEffect(() => {
+
+		const response = fetch('/api/csrf/', {
+			method: 'GET',
+			credentials: 'include',
+			mode: 'same-origin',
+		});
+	}, []);
+
 	const theme = createTheme({
 		// even though only the dark theme is mentioned here, this will use the system preference of the user
 		colorSchemes: {

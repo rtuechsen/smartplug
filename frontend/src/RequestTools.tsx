@@ -44,7 +44,7 @@ function getCookie(name): string {
 	}
 	return cookieValue;
 }
-const csrfToken = getCookie('csrftoken');
+export const csrfToken = getCookie('csrftoken');
 
 
 

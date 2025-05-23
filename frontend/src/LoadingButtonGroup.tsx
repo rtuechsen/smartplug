@@ -3,7 +3,7 @@ import * as React from 'react';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
 import { JSX } from '@emotion/react/jsx-runtime';
-import { getCsrfToken } from './RequestTools';
+import { getCsrfToken, csrfToken } from './RequestTools';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 import type { OverridableStringUnion } from '@mui/types';
 import type { ButtonPropsVariantOverrides } from '@mui/material/Button';
@@ -95,7 +95,7 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 		const response = await fetch('/api/switch/', {
 			method: 'POST',
 			headers: {
-				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
+				'X-CSRFToken': csrfToken,	// need the CSRF token for POST requests
 				'Content-type': 'application/json; charset=UTF-8'
 			},
 			credentials: 'include',
