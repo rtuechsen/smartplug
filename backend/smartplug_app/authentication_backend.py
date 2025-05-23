@@ -1,4 +1,5 @@
-from django.contrib.auth.backends import BaseBackend
+# from django.contrib.auth.backends import BaseBackend
+from rest_framework import authentication
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.request import Request
@@ -11,9 +12,11 @@ from .admin_settings import (
 )
 
 # source: https://docs.djangoproject.com/en/5.2/topics/auth/customizing/#specifying-authentication-backends
+# class AuthenticationBackend(BaseBackend):
 
 
-class AuthenticationBackend(BaseBackend):
+# https://www.django-rest-framework.org/api-guide/authentication/#sessionauthentication
+class AuthenticationBackend(authentication.BaseAuthentication):
     """TODO"""
 
     def authenticate(

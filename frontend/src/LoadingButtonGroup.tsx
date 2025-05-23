@@ -3,7 +3,7 @@ import * as React from 'react';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
 import { JSX } from '@emotion/react/jsx-runtime';
-import { getCsrfToken, csrfToken } from './RequestTools';
+import { getCsrfToken } from './RequestTools';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 import type { OverridableStringUnion } from '@mui/types';
 import type { ButtonPropsVariantOverrides } from '@mui/material/Button';
@@ -94,12 +94,12 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 	async function sendSwitchRequest(desired_isOn: boolean): Promise<void> {
 		const response = await fetch('/api/switch/', {
 			method: 'POST',
-			headers: {
-				'X-CSRFToken': csrfToken,	// need the CSRF token for POST requests
-				'Content-type': 'application/json; charset=UTF-8'
-			},
 			credentials: 'include',
 			mode: 'same-origin',	// prevents sending token to another website
+			headers: {
+				'X-CSRFToken': getCsrfToken(),	// need the CSRF token for POST requests
+				'Content-type': 'application/json; charset=UTF-8'
+			},
 			body: JSON.stringify({
 				id: id,
 				desired_isOn: desired_isOn

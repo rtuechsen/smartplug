@@ -39,6 +39,8 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 	async function signIn(username: string, password: string): Promise<void> {
 		const response: Response = await fetch('/api/login/', {
 			method: 'POST',
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
 			headers: {
 				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
 				'Content-Type': 'application/json',
@@ -47,8 +49,6 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 				username: username,
 				password: password,
 			}),
-			credentials: 'include',
-			mode: 'same-origin',	// prevents sending token to another website
 		});
 
 		if (response.ok) {

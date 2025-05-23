@@ -16,8 +16,8 @@ from .request_manager import RequestManager
 request_manager = RequestManager()
 
 
-@api_view(["GET"])
 @ensure_csrf_cookie
+@api_view(["GET"])
 def csrf(request: Request) -> Response:
     """Callback for the /csrf endpoint.
 

@@ -46,12 +46,12 @@ function App(): JSX.Element {
 
 		const response = await fetch('/api/logout/', {
 			method: 'POST',
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
 			headers: {
 				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
 				'Content-type': 'application/json; charset=UTF-8'
 			},
-			credentials: 'include',
-			mode: 'same-origin',	// prevents sending token to another website
 		});
 
 		if (!response.ok) {
@@ -62,15 +62,6 @@ function App(): JSX.Element {
 			setIsLoggedIn(false);
 		}
 	}
-
-	React.useEffect(() => {
-
-		const response = fetch('/api/csrf/', {
-			method: 'GET',
-			credentials: 'include',
-			mode: 'same-origin',
-		});
-	}, []);
 
 	const theme = createTheme({
 		// even though only the dark theme is mentioned here, this will use the system preference of the user
