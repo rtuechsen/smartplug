@@ -15,8 +15,6 @@ from .error_handler import BackendError
 
 class SessionManager:
 
-    # TODO: use cycle_key() ???
-
     def login(self, request: Request) -> None:
 
         username = request.data.get("username")
