@@ -10,4 +10,4 @@ class ChannelManager(DefaultChannelManager):
 
         login_manager: SessionManager = SessionManager()
 
-        return login_manager.authenticate_user(user)
+        return login_manager.verify_user_is_logged_in(user)

@@ -22,7 +22,7 @@ class SessionManager:
         username = request.data.get("username")
         password = request.data.get("password")
 
-        # this uses AuthenticationBackend
+        # this uses our custom AuthenticationBackend
         user: User = authenticate(
             request, username=username, password=password
         )
@@ -36,15 +36,11 @@ class SessionManager:
         logout(request)
 
     # TODO: better name: authenticate_request()
-    def get_user_permission(self, request: Request) -> None:
+    def verify_request_is_allowed(self, request: Request) -> None:
         # user will be None unless logged in. Per default we use a
         # database-backed session management. The session data is
         # stored server-side and referenced by the session-id.
-        # https://stackoverflow.com/questions/5113421/what-is-the-difference-between-a-cookie-and-a-session-in-django
         # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
-
-        # We validate the origin of the request. _validate_request_origin()
-        # will throw an exception if anything is wrong.
 
         if not request.user.is_authenticated:
             raise BackendError(
@@ -53,10 +49,36 @@ class SessionManager:
                 user_message="Authentication failed. Are you signed in?",
             )
 
+        # We validate the origin of the request. _validate_request_origin()
+        # will throw an exception if anything is wrong.
         self._validate_request_origin(request)
 
         # extend the session
         request.session.set_expiry(settings.SESSION_COOKIE_AGE)
+
+    def verify_user_is_logged_in(self, user: User) -> None:
+
+        # TODO: this is not possible as we do not have the request object
+        # might be possible with custom middleware ???
+        # not high priority as header data can be faked as well
+        # self._validate_request_origin(request)
+
+        if user is None:
+            return False
+
+        session_model = apps.get_model("sessions", "Session")
+
+        non_expired_sessions = session_model.objects.filter(
+            expire_date__gt=timezone.now()
+        )
+        for session in non_expired_sessions:
+            data = session.get_decoded()
+            if str(user.id) == str(data.get("_auth_user_id")):
+                return True
+
+        return False
+
+        # TODO: comment: only extend the session on non-SSE request
 
     def _validate_request_origin(self, request: Request) -> None:
         # Check that the values from the start of the session match
@@ -88,27 +110,3 @@ class SessionManager:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 user_message="Authentication failed. Are you signed in?",
             ) from e
-
-    def authenticate_user(self, user: User) -> None:
-
-        # TODO: this is not possible as we do not have the request object
-        # might be possible with custom middleware ???
-        # not high priority as header data can be faked as well
-        # self._validate_request_origin(request)
-
-        if user is None:
-            return False
-
-        session_model = apps.get_model("sessions", "Session")
-
-        non_expired_sessions = session_model.objects.filter(
-            expire_date__gt=timezone.now()
-        )
-        for session in non_expired_sessions:
-            data = session.get_decoded()
-            if str(user.id) == str(data.get("_auth_user_id")):
-                return True
-
-        return False
-
-        # TODO: comment: only extend the session on non-SSE request

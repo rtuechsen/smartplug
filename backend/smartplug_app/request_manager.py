@@ -16,7 +16,7 @@ from .session_manager import SessionManager
 
 # TODO: verify that having multiple instances of the session manager does not
 # lead to problems (when serving multiple users in multiple threads)
-login_manager = SessionManager()
+session_manager = SessionManager()
 
 
 # rules for input validation (OWASP):
@@ -135,7 +135,7 @@ class RequestManager:
             )
 
         try:
-            login_manager.login(request)
+            session_manager.login(request)
         except BackendError as e:
             return self._error_handler.response(
                 e.message,
@@ -185,7 +185,7 @@ class RequestManager:
             )
 
         try:
-            login_manager.logout(request)
+            session_manager.logout(request)
         except BackendError as e:
             return self._error_handler.response(
                 e.message,
@@ -234,7 +234,7 @@ class RequestManager:
             )
 
         try:
-            login_manager.get_user_permission(request)
+            session_manager.verify_request_is_allowed(request)
 
             device_tree = self.smartplug_app.get_device_tree_dicts()
         except BackendError as e:
@@ -288,7 +288,7 @@ class RequestManager:
             )
 
         try:
-            login_manager.get_user_permission(request)
+            session_manager.verify_request_is_allowed(request)
 
             # instruct the app to perform the switch
             self.smartplug_app.switch(
