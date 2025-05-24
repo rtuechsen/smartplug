@@ -14,6 +14,17 @@ INRUSH_CURRENT_DELAY: float = 1.0
 on devices when switching on multiple devices."""
 
 # TODO: remove, development variable
+USE_SWITCHING_DELAYS: bool = True
+
+SWITCHING_TOGGLE_DELAY: float = 5.0
+"""A float value in seconds that determines how long to wait before switching a
+recently switched device again."""
+
+INRUSH_CURRENT_DELAY: float = 1.0
+"""A float value in seconds that determines how long to wait between switching
+on devices when switching on multiple devices."""
+
+# TODO: remove, development variable
 USE_LDAP: bool = False
 
 # TODO: use correct host name

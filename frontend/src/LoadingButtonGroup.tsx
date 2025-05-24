@@ -96,12 +96,12 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 	async function sendSwitchRequest(desired_isOn: boolean): Promise<void> {
 		const response = await fetch('/api/switch/', {
 			method: 'POST',
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
 			headers: {
 				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
 				'Content-type': 'application/json; charset=UTF-8'
 			},
-			credentials: 'include',
-			mode: 'same-origin',	// prevents sending token to another website
 			body: JSON.stringify({
 				id: id,
 				desired_isOn: desired_isOn

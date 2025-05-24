@@ -49,9 +49,17 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+frontend_origin = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://localhost:3000",
+    "https://127.0.0.1:3000",
+]
+
+CORS_ORIGIN_WHITELIST = frontend_origin
+
+CSRF_TRUSTED_ORIGINS = frontend_origin
 
 ROOT_URLCONF = "smartplug_app.urls"
 
@@ -70,6 +78,7 @@ TEMPLATES = [
     },
 ]
 
+# TODO: remove WSGI ???
 WSGI_APPLICATION = "smartplug_app.wsgi.application"
 ASGI_APPLICATION = "smartplug_app.asgi.application"
 
@@ -83,6 +92,7 @@ DATABASES = {
     }
 }
 
+# TODO: is this needed ???
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -100,6 +110,18 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    "smartplug_app.authentication_backend.AuthenticationBackend"
+]
+
+EVENTSTREAM_CHANNELMANAGER_CLASS = (
+    "smartplug_app.channel_manager.ChannelManager"
+)
+
+EVENTSTREAM_ALLOW_ORIGINS = frontend_origin
+EVENTSTREAM_ALLOW_CREDENTIALS = True
+EVENTSTREAM_ALLOW_HEADERS = "Authorization"
 
 
 # Internationalization
@@ -121,7 +143,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Seconds until cookie expiry
-SESSION_COOKIE_AGE = 120
+SESSION_COOKIE_AGE = 10
 
 # transfer cookie only using https
 SESSION_COOKIE_SECURE = True
@@ -132,3 +154,10 @@ SESSION_COOKIE_HTTPONLY = True
 # TODO: more details
 SESSION_COOKIE_SAMESITE = "Strict"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+CSRF_COOKIE_SECURE = True
+
+CSRF_COOKIE_SAMESITE = "Strict"
+
+# TODO: use docstrings for variables which the admin might want to adjust,
+# that way they will show up in the documentation
