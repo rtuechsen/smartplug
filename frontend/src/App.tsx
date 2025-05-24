@@ -42,6 +42,10 @@ function App(): JSX.Element {
 		setIsErrorOpen(true);
 	}
 
+	// TODO: create wrapper function for requests ???
+	//		- add correct headers
+	//		- catch and display errors
+
 	async function logout(): Promise<void> {
 
 		const response = await fetch('/api/logout/', {
@@ -63,7 +67,7 @@ function App(): JSX.Element {
 		}
 	}
 
-	// TODO: remove: code for security checks
+	// TODO: remove, code for security checks
 	React.useEffect(() => {
 
 		// This is a test to see if API requests before authentication work
