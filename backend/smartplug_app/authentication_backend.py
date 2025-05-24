@@ -1,8 +1,8 @@
+import ldap
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.request import Request
-import ldap
 from .error_handler import BackendError
 from .admin_settings import (
     USE_LDAP,
@@ -19,10 +19,6 @@ class AuthenticationBackend(BaseBackend):
     def authenticate(
         self, request: Request, username: str = None, password: str = None
     ) -> User:
-
-        # TODO: need to get either logon name or UPN from ldap, use the same
-        # kind no matter what kind of login was used to ensure it gets mapped
-        # to the same user
 
         first_name, last_name = self._authenticate_ldap(username, password)
 
@@ -84,8 +80,11 @@ class AuthenticationBackend(BaseBackend):
                     user_message="Either your password or username were incorrect.",
                 )
 
-        try:
+        # TODO: need to get either logon name or UPN from ldap, use the same
+        # kind no matter what kind of login was used to ensure it gets mapped
+        # to the same user
 
+        try:
             conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
 
             # debug level 255 is the most verbose
