@@ -117,7 +117,7 @@ export interface AvailableIconProps {
  * 
  * @return The react component of the icon.
  */
-export function AvailableIcon({ isAvailable, isGroup }: AvilableIconProps): JSX.Element {
+export function AvailableIcon({ isAvailable, isGroup }: AvailableIconProps): JSX.Element {
 
 	let tooltip: string;
 	let icon: JSX.Element;
