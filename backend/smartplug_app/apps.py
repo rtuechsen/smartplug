@@ -14,13 +14,13 @@ import hashlib
 import threading
 from pathlib import Path
 from django.apps import AppConfig
+from django.utils.timezone import now
+from django_eventstream import channel_permission_changed
 import django_eventstream
 from rest_framework import status
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
-from django.utils.timezone import now
-from django_eventstream import channel_permission_changed
 
 
 class SmartplugApp(AppConfig):

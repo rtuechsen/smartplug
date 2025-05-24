@@ -1,8 +1,8 @@
 """Contains the RequestManager that handles incoming requests from the REST
 API."""
 
+import copy
 from pathlib import Path
-from django.middleware.csrf import get_token
 from django.apps import apps
 from rest_framework.response import Response
 from rest_framework.request import Request
@@ -102,9 +102,7 @@ class RequestManager:
                 ),
             )
 
-        return Response(
-            {"csrfToken": get_token(request)}, status=status.HTTP_200_OK
-        )
+        return Response(status=status.HTTP_200_OK)
 
     def login(self, request: Request) -> Response:
         """TODO."""
@@ -156,15 +154,22 @@ class RequestManager:
     def logout(self, request: Request) -> Response:
         """TODO."""
 
+        print("before logout:", request.session["USERNAME"])
+
+        # TODO: note, username would not be available by the time the event is
+        # logged
+        username = copy.copy(
+            request.session["USERNAME"]
+            if "USERNAME" in request.session
+            else None
+        )
         self._logger.info(
             "A /logout request has been received.",
             request.META["REMOTE_ADDR"],
-            (
-                request.session["USERNAME"]
-                if "USERNAME" in request.session
-                else None
-            ),
+            username,
         )
+
+        print("after logout:", username)
 
         if request.body != b"":
             return self._error_handler.response(

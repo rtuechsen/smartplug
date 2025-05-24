@@ -47,9 +47,17 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+frontend_origin = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://localhost:3000",
+    "https://127.0.0.1:3000",
+]
+
+CORS_ORIGIN_WHITELIST = frontend_origin
+
+CSRF_TRUSTED_ORIGINS = frontend_origin
 
 ROOT_URLCONF = "smartplug_app.urls"
 
@@ -109,10 +117,9 @@ EVENTSTREAM_CHANNELMANAGER_CLASS = (
     "smartplug_app.channel_manager.ChannelManager"
 )
 
-# TODO: should we use those ???
-# EVENTSTREAM_ALLOW_ORIGINS = ["http://example.com", "https://example.com"]
-# EVENTSTREAM_ALLOW_CREDENTIALS = True
-# EVENTSTREAM_ALLOW_HEADERS = "Authorization"
+EVENTSTREAM_ALLOW_ORIGINS = frontend_origin
+EVENTSTREAM_ALLOW_CREDENTIALS = True
+EVENTSTREAM_ALLOW_HEADERS = "Authorization"
 
 
 # Internationalization
