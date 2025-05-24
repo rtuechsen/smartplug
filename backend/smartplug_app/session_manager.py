@@ -7,13 +7,53 @@ from rest_framework import status
 from rest_framework.request import Request
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.db.models.signals import post_delete, post_init
 from .error_handler import BackendError
+from .sse_tools import send_event
 
 
 class SessionManager:
+
+    def __init__(self):
+
+        # credit: https://stackoverflow.com/a/4555310
+
+        session_model = apps.get_model("sessions", "Session")
+        post_delete.connect(
+            self.send_list_of_active_users, sender=session_model
+        )
+        post_init.connect(self.send_list_of_active_users, sender=session_model)
+
+    def send_list_of_active_users(self, sender, **kwargs):
+
+        session_model = apps.get_model("sessions", "Session")
+        user_model = get_user_model()
+
+        active_sessions = session_model.objects.filter(
+            expire_date__gt=timezone.now()
+        ).iterator()
+
+        active_user_ids = []
+        for session in active_sessions:
+            session_data = session.get_decoded()
+            user_id: str = session_data.get("_auth_user_id")
+            if user_id:
+                active_user_ids.append(user_id)
+
+        active_users = user_model.objects.filter(id__in=active_user_ids)
+        acitve_user_names = [
+            f"{user.first_name} {user.last_name}" for user in active_users
+        ]
+        print(acitve_user_names)
+
+        # send_event(
+        #     "default",
+        #     "user_list_update",
+        #     acitve_user_names,
+        # )
 
     def login(self, request: Request) -> None:
 
@@ -21,17 +61,39 @@ class SessionManager:
         password = request.data.get("password")
 
         # this uses our custom AuthenticationBackend
-        user: User = authenticate(
-            request, username=username, password=password
-        )
+        user = authenticate(request, username=username, password=password)
 
         login(request, user)
 
         # TODO: send SSE event: list of active users
 
+        # TODO: de-duplicate session / user model search code
+
+        # session_model = apps.get_model("sessions", "Session")
+        # user_model = get_user_model()
+
+        # active_sessions = session_model.objects.filter(
+        #     expire_date__gt=timezone.now()
+        # ).iterator()
+
+        # active_user_ids = []
+        # for session in active_sessions:
+        #     session_data = session.get_decoded()
+        #     user_id: str = session_data.get("_auth_user_id")
+        #     if user_id:
+        #         active_user_ids.append(user_id)
+
+        # users = user_model.objects.filter(id__in=active_user_ids)
+        # print([(user.first_name, user.last_name) for user in users])
+
     def logout(self, request: Request) -> None:
 
+        # TODO: should we allow to logout without authentication ???
+        self.verify_request_is_allowed(request)
+
         logout(request)
+
+        # TODO: send SSE event: list of active users
 
     # TODO: better name: authenticate_request()
     def verify_request_is_allowed(self, request: Request) -> None:

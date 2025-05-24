@@ -5,6 +5,7 @@ from django.utils import timezone
 import django_eventstream
 
 
+# TODO: channel is always 'default' currently, remove parameter ???
 def send_event(channel: str, event_type: str, data: Any):
 
     # credit: https://stackoverflow.com/questions/61217689/how-do-i-get-all-current-sessions-from-django
