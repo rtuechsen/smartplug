@@ -115,9 +115,9 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 	}
 
 	return (
-		<ButtonGroup variant="outlined" size="small">
-			<LoadingButton onClick={async () => { await sendSwitchRequest(true); }}>Turn on</LoadingButton>
-			<LoadingButton onClick={async () => { await sendSwitchRequest(false); }}>Turn off</LoadingButton>
+		<ButtonGroup size="small">
+			<LoadingButton onClick={async () => { await sendSwitchRequest(true); }} variant='outlined'>turn on</LoadingButton>
+			<LoadingButton onClick={async () => { await sendSwitchRequest(false); }} variant='outlined'>turn off</LoadingButton>
 		</ButtonGroup>
 	);
 }
