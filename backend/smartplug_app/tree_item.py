@@ -95,10 +95,12 @@ class TreeItemGroup(TreeItem):
         if all(children_isAvailable):
             isAvailable = True
 
-        children_isOn_negated: list[bool] = [not item for item in children_isOn]
+        children_isOn_negated: list[bool] = [
+            item is False for item in children_isOn
+        ]
 
         children_isAvailable_negated: list[bool] = [
-            not item for item in children_isAvailable
+            item is False for item in children_isAvailable
         ]
 
         # if all children states are False (i.e. all children states negated

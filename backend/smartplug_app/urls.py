@@ -16,7 +16,6 @@ urlpatterns = [
     # TODO: how to require authentification for events endpoint ???
     path(
         "api/events/",
-        include(django_eventstream.urls),
-        {"channels": ["default"]},
+        include(django_eventstream.urls)
     ),
 ]
