@@ -184,6 +184,9 @@ class Logger:
 
                     self._log_queue.task_done()
 
+        # TODO: during django migration reading files will fail. try to prevent
+        # these errors (low prio)
+
         except FileNotFoundError:
             # these errors are printed to console directly as logging obviously
             # does not work properly

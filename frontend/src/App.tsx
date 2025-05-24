@@ -42,16 +42,20 @@ function App(): JSX.Element {
 		setIsErrorOpen(true);
 	}
 
+	// TODO: create wrapper function for requests ???
+	//		- add correct headers
+	//		- catch and display errors
+
 	async function logout(): Promise<void> {
 
 		const response = await fetch('/api/logout/', {
 			method: 'POST',
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
 			headers: {
 				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
 				'Content-type': 'application/json; charset=UTF-8'
 			},
-			credentials: 'include',
-			mode: 'same-origin',	// prevents sending token to another website
 		});
 
 		if (!response.ok) {
@@ -62,6 +66,22 @@ function App(): JSX.Element {
 			setIsLoggedIn(false);
 		}
 	}
+
+	// TODO: remove, code for security checks
+	React.useEffect(() => {
+
+		// This is a test to see if API requests before authentication work
+		// fetch('/api/gettree/', {
+		// 	method: 'GET',
+		// 	credentials: 'include',
+		// 	mode: 'same-origin',
+		// });
+
+		// This is a test to see if API requests before authentication work
+		// new EventSource('/api/events/', {
+		// 	withCredentials: true
+		// });
+	}, []);
 
 	const theme = createTheme({
 		// even though only the dark theme is mentioned here, this will use the system preference of the user

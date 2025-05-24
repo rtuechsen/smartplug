@@ -14,11 +14,11 @@ import hashlib
 import threading
 from pathlib import Path
 from django.apps import AppConfig
-import django_eventstream
 from rest_framework import status
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
+from .sse_tools import send_event
 
 
 class SmartplugApp(AppConfig):
@@ -83,11 +83,10 @@ class SmartplugApp(AppConfig):
     def loop(self) -> None:
         time.sleep(2)
         while True:
-            time.sleep(4)
-            print("\n\n -> Running background task ...\n\n")
+            time.sleep(2)
             # TODO: remove, used for debugging only
             # self.change_device_tree_randomly(10)
-            django_eventstream.send_event(
+            send_event(
                 "device_tree_update", "message", self.get_device_tree_dicts()
             )
 
@@ -319,6 +318,6 @@ class SmartplugApp(AppConfig):
             switch_recursive(id, desired_isOn)
 
         # notify SSE subscribers about changes to the device tree
-        django_eventstream.send_event(
+        send_event(
             "device_tree_update", "message", self.get_device_tree_dicts()
         )
