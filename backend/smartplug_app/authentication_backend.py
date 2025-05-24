@@ -24,9 +24,7 @@ class AuthenticationBackend(BaseBackend):
 
         try:
             user = User.objects.get(username=username)
-            print("user already existed.")
         except User.DoesNotExist:
-            print("created new user.")
             user = User(
                 username=username, first_name=first_name, last_name=last_name
             )

@@ -41,7 +41,6 @@ export async function getCsrfToken(): Promise<string> {
 		});
 	}
 	csrfToken = getCookie('csrftoken');
-	console.log('extracted token:', csrfToken);
 	return csrfToken;
 }
 

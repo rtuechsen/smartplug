@@ -167,8 +167,6 @@ class RequestManager:
             username,
         )
 
-        print("after logout:", username)
-
         if request.body != b"":
             return self._error_handler.response(
                 "Requests to /logout are not allowed to have a body.",

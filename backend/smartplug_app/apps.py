@@ -14,13 +14,11 @@ import hashlib
 import threading
 from pathlib import Path
 from django.apps import AppConfig
-from django.utils.timezone import now
-from django_eventstream import channel_permission_changed
-import django_eventstream
 from rest_framework import status
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
+from .sse_tools import send_event
 
 
 class SmartplugApp(AppConfig):
@@ -76,10 +74,10 @@ class SmartplugApp(AppConfig):
         self._load_config()
 
         # TODO: remove, used for debugging only
-        if not SmartplugApp._background_task_started:
-            SmartplugApp._background_task_started = True
-            thread = threading.Thread(target=self.loop, daemon=True)
-            thread.start()
+        # if not SmartplugApp._background_task_started:
+        #     SmartplugApp._background_task_started = True
+        #     thread = threading.Thread(target=self.loop, daemon=True)
+        #     thread.start()
 
     # TODO: remove, used for debugging only
     def loop(self) -> None:
@@ -88,39 +86,9 @@ class SmartplugApp(AppConfig):
             time.sleep(2)
             # TODO: remove, used for debugging only
             # self.change_device_tree_randomly(10)
-            django_eventstream.send_event(
+            send_event(
                 "device_tree_update", "message", self.get_device_tree_dicts()
             )
-
-            # credit: https://stackoverflow.com/questions/61217689/how-do-i-get-all-current-sessions-from-django
-            from django.contrib.sessions.models import Session
-            from django.contrib.auth.models import User
-
-            active_sessions = Session.objects.filter(
-                expire_date__lt=now()
-            ).iterator()
-
-            # sessions = (
-            #     Session.objects.iterator()
-            # )  # also works with Session.objects.get_queryset()
-
-            uid_list = []
-            for session in active_sessions:  # iterate over sessions
-                data = session.get_decoded()  # decode the session data
-                data["session_key"] = (
-                    session.session_key
-                )  # normally the data doesn't include the session key, so add it
-                session.delete()
-                print(data)
-                uid = data.get("_auth_user_id")
-                if uid:
-                    uid_list.append(uid)
-            users = User.objects.filter(id__in=uid_list)
-            for user in users:
-                print(user)
-
-                print(user.is_authenticated)
-                channel_permission_changed(user, "device_tree_update")
 
     def _load_config(self) -> list[TreeItemDevice | TreeItemGroup]:
         """Loads the hierarchy of devices and groups from `config.json`.
@@ -350,6 +318,6 @@ class SmartplugApp(AppConfig):
             switch_recursive(id, desired_isOn)
 
         # notify SSE subscribers about changes to the device tree
-        django_eventstream.send_event(
+        send_event(
             "device_tree_update", "message", self.get_device_tree_dicts()
         )

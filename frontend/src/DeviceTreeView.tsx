@@ -117,7 +117,6 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		eventSource.onmessage = function (event): void {
 			const treeData = JSON.parse(event.data) as DeviceTreeItemData[];
 			setDeviceTreeDataState(treeData);
-			console.log('received tree update: ', Math.random());
 		};
 
 		eventSource.onerror = function (): void {
