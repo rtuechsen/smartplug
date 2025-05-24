@@ -1,5 +1,4 @@
-# from django.contrib.auth.backends import BaseBackend
-from rest_framework import authentication
+from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.request import Request
@@ -12,19 +11,14 @@ from .admin_settings import (
 )
 
 # source: https://docs.djangoproject.com/en/5.2/topics/auth/customizing/#specifying-authentication-backends
-# class AuthenticationBackend(BaseBackend):
 
 
-# https://www.django-rest-framework.org/api-guide/authentication/#sessionauthentication
-class AuthenticationBackend(authentication.BaseAuthentication):
+class AuthenticationBackend(BaseBackend):
     """TODO"""
 
     def authenticate(
         self, request: Request, username: str = None, password: str = None
     ) -> User:
-
-        # login_valid = username == "max.mustermann@mylab.local"
-        # pwd_valid = password == "FHKiel123!"
 
         # TODO: need to get either logon name or UPN from ldap, use the same
         # kind no matter what kind of login was used to ensure it gets mapped
@@ -40,9 +34,18 @@ class AuthenticationBackend(authentication.BaseAuthentication):
             user = User(
                 username=username, first_name=first_name, last_name=last_name
             )
-            # user.is_staff = True
-            # user.is_superuser = True
             user.save()
+
+        # store data about the user in the session
+        request.session["USERNAME"] = username
+        request.session["FIRSTNAME"] = first_name
+        request.session["LASTNAME"] = last_name
+        request.session["HTTP_USER_AGENT"] = request.META["HTTP_USER_AGENT"]
+        request.session["HTTP_ACCEPT_LANGUAGE"] = request.META[
+            "HTTP_ACCEPT_LANGUAGE"
+        ]
+        request.session["REMOTE_ADDR"] = request.META["REMOTE_ADDR"]
+
         return user
 
     def get_user(self, user_id):

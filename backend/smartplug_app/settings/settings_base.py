@@ -147,3 +147,8 @@ SESSION_COOKIE_SAMESITE = "Strict"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 CSRF_COOKIE_SECURE = True
+
+CSRF_COOKIE_SAMESITE = "Strict"
+
+# TODO: use docstrings for variables which the admin might want to adjust,
+# that way they will show up in the documentation

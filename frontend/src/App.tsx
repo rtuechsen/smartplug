@@ -63,6 +63,22 @@ function App(): JSX.Element {
 		}
 	}
 
+	// TODO: remove: code for security checks
+	React.useEffect(() => {
+
+		// This is a test to see if API requests before authentication work
+		// fetch('/api/gettree/', {
+		// 	method: 'GET',
+		// 	credentials: 'include',
+		// 	mode: 'same-origin',
+		// });
+
+		// This is a test to see if API requests before authentication work
+		// new EventSource('/api/events/', {
+		// 	withCredentials: true
+		// });
+	}, []);
+
 	const theme = createTheme({
 		// even though only the dark theme is mentioned here, this will use the system preference of the user
 		colorSchemes: {

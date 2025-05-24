@@ -8,11 +8,6 @@ class ChannelManager(DefaultChannelManager):
 
     def can_read_channel(self, user, channel):
 
-        if user is None:
-            return False
-
         login_manager: LoginManager = LoginManager()
 
-        login_manager.authenticate_user(user)
-
-        return True
+        return login_manager.authenticate_user(user)

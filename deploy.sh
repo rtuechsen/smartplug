@@ -23,6 +23,8 @@ cd backend
 
 printf "\n\n\x1B[33mStarting migration. During migration runtime errors can occure that do not happen at normal runtime.\x1B[0m\n\n\n"
 
+python manage.py clearsessions
+
 python3 ./manage.py makemigrations
 
 python3 ./manage.py migrate
