@@ -14,7 +14,7 @@ from .error_handler import BackendError
 
 
 # TODO: better: SessionManager ???
-class LoginManager:
+class SessionManager:
 
     # TODO: use cycle_key() ???
 
