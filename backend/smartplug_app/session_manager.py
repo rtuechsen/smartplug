@@ -88,7 +88,6 @@ class SessionManager:
 
     def logout(self, request: Request) -> None:
 
-        # TODO: should we allow to logout without authentication ???
         self.verify_request_is_allowed(request)
 
         logout(request)
@@ -97,6 +96,7 @@ class SessionManager:
 
     # TODO: better name: authenticate_request()
     def verify_request_is_allowed(self, request: Request) -> None:
+        # TODO: Update this comment
         # user will be None unless logged in. Per default we use a
         # database-backed session management. The session data is
         # stored server-side and referenced by the session-id.
@@ -156,7 +156,7 @@ class SessionManager:
             for header in headers:
                 if request.session[header] != request.META.get(header):
                     raise BackendError(
-                        message=f"Request origin mismatch, {"REMOTE_ADDR"} did not match.",
+                        message=f"Request origin mismatch, {header} did not match.",
                         status_code=status.HTTP_401_UNAUTHORIZED,
                         user_message="Authentication failed. Are you signed in?",
                     )
@@ -166,7 +166,6 @@ class SessionManager:
         # verification.
         except KeyError as e:
             raise BackendError(
-                message="A request has been made by a user who is not signed in.",
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                user_message="Authentication failed. Are you signed in?",
+                message="Incomplete or missing headers in request.",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             ) from e

@@ -6,8 +6,8 @@ from .session_manager import SessionManager
 
 class ChannelManager(DefaultChannelManager):
 
+    def __init__(self):
+        self.login_manager: SessionManager = SessionManager()
+
     def can_read_channel(self, user, channel):
-
-        login_manager: SessionManager = SessionManager()
-
-        return login_manager.verify_user_is_logged_in(user)
+        return self.login_manager.verify_user_is_logged_in(user)
