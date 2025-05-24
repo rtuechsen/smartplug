@@ -62,6 +62,8 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		// declare an async function to fetch and process the data
 		async function getTree(): Promise<void> {
 
+			// TODO: add timeout if server cannot be reached ???
+
 			// fetch the tree data
 			const response = await fetch('/api/gettree/', {
 				method: 'GET',
