@@ -13,7 +13,6 @@ from django.contrib.auth.models import User
 from .error_handler import BackendError
 
 
-# TODO: better: SessionManager ???
 class SessionManager:
 
     # TODO: use cycle_key() ???

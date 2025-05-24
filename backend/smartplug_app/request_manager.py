@@ -12,7 +12,7 @@ import yaml
 from .apps import SmartplugApp
 from .logger import Logger
 from .error_handler import ErrorHandler, BackendError
-from .login_manager import SessionManager
+from .session_manager import SessionManager
 
 # TODO: verify that having multiple instances of the session manager does not
 # lead to problems (when serving multiple users in multiple threads)

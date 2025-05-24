@@ -1,5 +1,5 @@
 from django_eventstream.channelmanager import DefaultChannelManager
-from .login_manager import SessionManager
+from .session_manager import SessionManager
 
 # source: https://pypi.org/project/django-eventstream/
 
