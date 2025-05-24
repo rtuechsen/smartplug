@@ -1,7 +1,7 @@
 
 // https://docs.djangoproject.com/en/5.2/howto/csrf/#acquiring-the-token-if-csrf-use-sessions-and-csrf-cookie-httponly-are-false
-function getCookie(name): string {
-	let cookieValue = null;
+function getCookie(name: string): string {
+	let cookieValue = '';
 	if (document.cookie && document.cookie !== '') {
 		const cookies = document.cookie.split(';');
 		for (let i = 0; i < cookies.length; i++) {

@@ -154,8 +154,6 @@ class RequestManager:
     def logout(self, request: Request) -> Response:
         """TODO."""
 
-        print("before logout:", request.session["USERNAME"])
-
         # TODO: note, username would not be available by the time the event is
         # logged
         username = copy.copy(
