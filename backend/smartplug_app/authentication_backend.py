@@ -96,6 +96,13 @@ class AuthenticationBackend(BaseBackend):
             # Important for AD: disable referrals
             conn.set_option(ldap.OPT_REFERRALS, 0)
 
+            # TODO: explain TLS code is commented out, mention in docs
+            # https://www.python-ldap.org/en/python-ldap-3.4.3/reference/ldap.html?highlight=tls#tls-options
+            # conn.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
+            # conn.set_option(ldap.OPT_X_TLS_CACERTFILE, "./cacert.pem")      # get/set path to PEM file with CA certs
+            # conn.set_option(ldap.OPT_X_TLS_NEWCTX, 0)
+            # conn.start_tls_s()
+
             # The bind performs the actual request to verify the credentials
             conn.simple_bind_s(username, password)
 
