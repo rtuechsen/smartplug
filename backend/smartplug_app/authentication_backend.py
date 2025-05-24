@@ -124,8 +124,8 @@ class AuthenticationBackend(BaseBackend):
 
                 _, entry = result[0]
 
-                # Note: Active Directory apparently requires either the first name
-                # or the last name when creating a user
+                # Note: Active Directory apparently requires either the first
+                # name or the last name when creating a user
 
                 if "givenName" in entry:
                     first_name = entry["givenName"][0].decode("utf-8")
