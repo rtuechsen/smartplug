@@ -79,6 +79,7 @@ class SessionManager:
                 # TODO: this will send a response to the client with some JSON
                 # data -> try to send own response to hide implementation details
                 django_eventstream.channel_permission_changed(user, "default")
+                # TODO: log IP address as well (stored in session)
                 self._logger.info(
                     message="A user session expired.", username=user.username
                 )
