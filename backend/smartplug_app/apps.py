@@ -17,10 +17,10 @@ import datetime
 import networkx
 from django.apps import AppConfig
 from rest_framework import status
+import django_eventstream
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
-from .sse_tools import send_event
 from .admin_settings import (
     USE_SWITCHING_DELAYS,
     SWITCHING_TOGGLE_DELAY,
@@ -307,9 +307,6 @@ class SmartplugApp(AppConfig):
 
         device_tree_dict: list[dict] = []
 
-        # TODO: remove, simulating latency
-        # time.sleep(2)
-
         # always lock the tree before working on it
         with SmartplugApp._device_tree_mutex:
             for tree_item in SmartplugApp._device_tree:
@@ -526,7 +523,7 @@ class SmartplugApp(AppConfig):
         # wait for signal from plug that it changed somewhere else
         # in the code
         # notify SSE subscribers about changes to the device tree
-        send_event(
+        django_eventstream.send_event(
             "device_tree_update",
             "message",
             self.get_device_tree_dicts(),
