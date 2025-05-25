@@ -14,6 +14,7 @@ import threading
 from pathlib import Path
 from django.apps import AppConfig
 from rest_framework import status
+import django_eventstream
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
@@ -296,7 +297,7 @@ class SmartplugApp(AppConfig):
             switch_recursive(id, desired_isOn)
 
         # notify SSE subscribers about changes to the device tree
-        send_event(
+        django_eventstream.send_event(
             "default",
             "device_tree_update",
             self.get_device_tree_dicts(),
