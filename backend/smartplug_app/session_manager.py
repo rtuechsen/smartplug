@@ -83,8 +83,6 @@ class SessionManager:
                 # data -> try to send own response to hide implementation details
                 django_eventstream.channel_permission_changed(user, "default")
 
-            print("expired")
-
             # send updated user list (if there was a change)
             self._send_list_of_active_users()
 
@@ -117,8 +115,9 @@ class SessionManager:
         # this uses our custom AuthenticationBackend
         user = authenticate(request, username=username, password=password)
 
-        print("logged in")
         login(request, user)
+        request.session.save()
+        print("logged in")
 
         with SessionManager._invalidate_sessions_thread_lock:
             if not SessionManager._invalidate_sessions_thread.is_alive():
@@ -135,6 +134,7 @@ class SessionManager:
         self.verify_request_is_allowed(request)
 
         logout(request)
+        request.session.save()
         print("logged out")
 
         # TODO: send SSE event: list of active users
@@ -157,8 +157,6 @@ class SessionManager:
             user_id: str = session_data.get("_auth_user_id")
             if user_id:
                 active_user_ids.append(user_id)
-            else:
-                print("Could not find user id")
 
         print("active user ids:", active_user_ids)
 

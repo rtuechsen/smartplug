@@ -75,9 +75,8 @@ class AuthenticationBackend(BaseBackend):
             ) and password == "FHKiel123!":
                 return ("Max", "Mustermann")
             elif (
-                username == "john.doe@mylab.local"
-                or username == "MYLAB\\mmustermann"
-            ) and password == "FHKiel123!":
+                username == "john.doe@mylab.local" and password == "FHKiel123!"
+            ):
                 return ("John", "")
             else:
                 raise BackendError(
