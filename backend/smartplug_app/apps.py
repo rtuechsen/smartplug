@@ -402,6 +402,27 @@ class SmartplugApp(AppConfig):
 
         return devices_allowed_to_switch_on
 
+    def handle_mqtt_update(self, deviceId: str, kind: str, value: bool):
+        """TODO"""
+
+        if deviceId not in SmartplugApp._device_id_to_tree_item_mapping:
+            SmartplugApp._logger.warn(
+                f"Received an update for deviceId {deviceId} via MQTT, but "
+                "deviceId is not known."
+            )
+            return
+
+        device: TreeItemDevice = (
+            SmartplugApp._device_id_to_tree_item_mapping.get(deviceId)
+        )
+
+        with SmartplugApp._device_tree_mutex:
+
+            if kind == "online":
+                device.set_isAvailable(value)
+            elif kind == "output":
+                device.set_isOn(value)
+
     def switch(self, id: str, desired_isOn: bool) -> None:
         """Function to answer a call to /switch, turns devices and groups
         on/off according to the request.
