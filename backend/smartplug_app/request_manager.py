@@ -56,15 +56,17 @@ class RequestManager:
         # documentation purposes, we extract those schemas and use them for
         # validation
         openapi_rel_path: str = "./openapi.yaml"
-        openapi_abs_path: Path = Path(__file__).parent.parent.parent / openapi_rel_path
+        openapi_abs_path: Path = (
+            Path(__file__).parent.parent.parent / openapi_rel_path
+        )
 
         with open(openapi_abs_path, "r", encoding="UTF-8") as file:
             self._openapi: dict = yaml.safe_load(file)
             # TODO: handle errors
 
-        self._schema_switch: dict = self._openapi["paths"]["/api/switch"]["post"][
-            "requestBody"
-        ]["content"]["application/json"]["schema"]
+        self._schema_switch: dict = self._openapi["paths"]["/api/switch"][
+            "post"
+        ]["requestBody"]["content"]["application/json"]["schema"]
 
         self._schema_login: dict = self._openapi["paths"]["/api/login"][
             "post"
@@ -266,7 +268,9 @@ class RequestManager:
         )
 
         try:
-            jsonschema.validate(instance=request.data, schema=self._schema_switch)
+            jsonschema.validate(
+                instance=request.data, schema=self._schema_switch
+            )
         except jsonschema.exceptions.ValidationError as e:
             return self._error_handler.response(
                 f"The request did not match the expected schema: {e.message}",
@@ -302,7 +306,7 @@ class RequestManager:
 
         return Response(None, status=status.HTTP_200_OK)
 
-    def getusers(self, _: Request) -> Response:
+    def getusers(self, request: Request) -> Response:
         """Function to process requests to /getusers .
 
         @param request The incoming request.
@@ -312,6 +316,19 @@ class RequestManager:
 
         self._logger.info("A /getusers request has been received.")
 
-        users = ["Isaac Newton", "Albert Einstein", "Marie Curie"]
+        try:
+            active_user_names = self._session_manager.get_active_user_names()
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
 
-        return Response(users, status=status.HTTP_200_OK)
+        return Response(active_user_names, status=status.HTTP_200_OK)

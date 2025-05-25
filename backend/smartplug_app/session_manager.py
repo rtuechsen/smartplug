@@ -139,8 +139,15 @@ class SessionManager:
         # TODO: send SSE event: list of active users
         self._send_list_of_active_users()
 
-    # TODO: make method protected ???
     def _send_list_of_active_users(self):
+
+        django_eventstream.send_event(
+            "default",
+            "user_list_update",
+            self.get_active_user_names(),
+        )
+
+    def get_active_user_names(self) -> list[str]:
 
         # TODO: turn these into class variables ???
         session_model = apps.get_model("sessions", "Session")
@@ -163,13 +170,7 @@ class SessionManager:
         acitve_user_names = [
             f"{user.first_name} {user.last_name}" for user in active_users
         ]
-        print(f"sending active user list: {acitve_user_names}")
-
-        # django_eventstream.send_event(
-        #     "default",
-        #     "user_list_update",
-        #     acitve_user_names,
-        # )
+        return acitve_user_names
 
     def verify_request_is_allowed(self, request: Request) -> None:
         # TODO: Update this comment

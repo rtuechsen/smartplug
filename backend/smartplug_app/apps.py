@@ -18,7 +18,6 @@ from rest_framework import status
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
-from .sse_tools import send_event
 
 
 class SmartplugApp(AppConfig):
