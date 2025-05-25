@@ -25,7 +25,9 @@ import { getCsrfToken } from './RequestTools';
  * @return The react component of the main app.
  */
 function App(): JSX.Element {
-	const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+	// TODO: is isLoggedIn redundant now? get also check remainingSessionTime ...
+	const [remainingSessionTime, setRemainingSessionTime] = React.useState<number>(undefined);
+	const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
 
@@ -74,21 +76,42 @@ function App(): JSX.Element {
 		}
 	}
 
-	// TODO: remove, code for security checks
-	// React.useEffect(() => {
+	React.useEffect(() => {
 
-	// 	This is a test to see if API requests before authentication work
-	// 	fetch('/api/gettree/', {
-	// 		method: 'GET',
-	// 		credentials: 'include',
-	// 		mode: 'same-origin',
-	// 	});
+		async function getRemainingSessionTime(): Promise<void> {
 
-	// 	This is a test to see if API requests before authentication work
-	// 	new EventSource('/api/events/', {
-	// 		withCredentials: true
-	// 	});
-	// }, []);
+			const response = await fetch('/api/getremainingsessiontime/', {
+				method: 'GET',
+				credentials: 'include',
+				mode: 'same-origin',	// prevents sending token to another website
+			});
+
+			const responseData = await response.json();
+
+			if (!response.ok) {
+				displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+				// abort tree view creation
+				return;
+			}
+
+			setRemainingSessionTime(responseData.remaining_session_time);
+		}
+
+		getRemainingSessionTime();
+
+		// TODO: remove, code for security checks
+		// This is a test to see if API requests before authentication work
+		// fetch('/api/gettree/', {
+		// 	method: 'GET',
+		// 	credentials: 'include',
+		// 	mode: 'same-origin',
+		// });
+
+		// This is a test to see if API requests before authentication work
+		// new EventSource('/api/events/', {
+		// 	withCredentials: true
+		// });
+	}, []);
 
 	const theme = createTheme({
 		// even though only the dark theme is mentioned here, this will use the system preference of the user
@@ -109,33 +132,36 @@ function App(): JSX.Element {
 				</Typography>
 			</Paper>
 			<Box sx={{ padding: '1.5rem' }}>
-				{isLoggedIn ?
-					<Stack
-						direction='row'
-						justifyContent='space-between'
-						spacing={'1rem'}
-					>
-						<DeviceTreeView displayError={displayError} />
-
-						<Stack
-							direction='column'
-							justifyContent='top'
-							spacing={'2rem'}
-						>
-							<LoadingButton
-								onClick={logout}
-								variant='contained'
-								sx={{ alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}
+				{remainingSessionTime === undefined ? undefined :
+					(
+						isLoggedIn ?
+							<Stack
+								direction='row'
+								justifyContent='space-between'
+								spacing={'1rem'}
 							>
-								sign out
-							</LoadingButton>
-							<UserList displayError={displayError} />
+								<DeviceTreeView displayError={displayError} />
 
-						</Stack>
+								<Stack
+									direction='column'
+									justifyContent='top'
+									spacing={'2rem'}
+								>
+									<LoadingButton
+										onClick={logout}
+										variant='contained'
+										sx={{ alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}
+									>
+										sign out
+									</LoadingButton>
+									<UserList displayError={displayError} />
 
-					</Stack>
-					:
-					<Login onLoginSuccess={onLoginSuccess} displayError={displayError} />
+								</Stack>
+
+							</Stack>
+							:
+							<Login onLoginSuccess={onLoginSuccess} displayError={displayError} />
+					)
 				}
 				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
 				<ErrorDisplay

@@ -244,4 +244,11 @@ class SessionManager:
 
     def get_remaining_session_time(self, request: Request) -> float:
 
-        return (request.session.expire_date - timezone.now()).total_seconds()
+        try:
+            self.verify_request_is_allowed(request)
+        except BackendError:
+            return 0.0
+
+        return (
+            request.session.get_expiry_date() - timezone.now()
+        ).total_seconds()
