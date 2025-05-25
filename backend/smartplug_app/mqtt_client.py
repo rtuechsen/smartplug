@@ -2,6 +2,7 @@ import json
 import paho.mqtt.client as mqtt
 from .logger import Logger
 from .error_handler import BackendError
+from .admin_settings import USE_MQTT
 
 
 class MQTTClient:
@@ -13,13 +14,17 @@ class MQTTClient:
 
         self._broker_ip: str = "localhost"
         self._broker_port: int = 1883
-        self._keep_alive_seconds = 60
+        self._keep_alive_seconds: float = 60
         self._sub_topic: str = "/rpc"
         self._client = mqtt.Client()
+
+        # TLS --------------------------------------
+
         # self._username = "mqttuser"
         # self._password = "pass"
 
-        # TODO: generate / add those when installing / starting
+        # TODO: generate / add certificates when installing / starting
+        # or add them to git and copy them when installing / starting
         # self._client.tls_set(
         #     ca_certs="/var/lib/mosquitto/ssl/server.crt",
         #     certfile="/home/admin/shelly-dirigent/backend/certs/client.crt",
@@ -27,8 +32,9 @@ class MQTTClient:
         # )
 
         # self._client.tls_insecure_set(True)
-
         # self._client.username_pw_set(self._username, self._password)
+
+        # -------------------------------------------
 
         self.connect()
         self._on_update_callback = on_update_callback
@@ -56,7 +62,6 @@ class MQTTClient:
         )
 
     # TODO: make members protected ???
-    # TODO: userdata -> _
     def on_message(self, client, userdata, msg):
         topic = msg.topic
         payload = msg.payload.decode()
@@ -71,6 +76,7 @@ class MQTTClient:
                 # TODO: remove debug print ???
                 print(f"[{device}] is {'ONLINE' if state else 'OFFLINE'}")
 
+                # TODO: check not needed
                 if self._on_update_callback:
                     self._on_update_callback(device, "online", state)
 
@@ -90,6 +96,7 @@ class MQTTClient:
                             f"[{device}] power is: {'ON' if output else 'OFF'}"
                         )
 
+                        # TODO: check not needed
                         if self._on_update_callback:
                             self._on_update_callback(device, "output", output)
 

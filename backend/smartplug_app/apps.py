@@ -21,6 +21,7 @@ import django_eventstream
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
+from .mqtt_client import MQTTClient
 from .admin_settings import (
     USE_SWITCHING_DELAYS,
     SWITCHING_TOGGLE_DELAY,
@@ -77,12 +78,18 @@ class SmartplugApp(AppConfig):
 
     _last_switch_on_date_time_mutex: threading.Lock = threading.Lock()
 
+    _mqtt_client: MQTTClient
+
     def ready(self) -> None:
 
         SmartplugApp._logger.info("Server was started.")
 
         # load the config.json
         self._load_config()
+
+        SmartplugApp._mqtt_client = MQTTClient(
+            on_update_callback=self.handle_mqtt_update
+        )
 
         # TODO: remove, used for debugging only
         # if not SmartplugApp._background_task_started:
@@ -315,36 +322,6 @@ class SmartplugApp(AppConfig):
 
         return device_tree_dict
 
-    def on_device_switch(self, deviceId: str, isOn: bool) -> None:
-
-        # TODO: validate deviceId does exist
-        device = SmartplugApp._device_id_to_tree_item_mapping[deviceId]
-
-        device.set_isOn(isOn)
-
-        if device.get_isOn() is True:
-            return
-
-        # only do single dependency step! further deps will be handled once their isOn state has been confirmed
-
-        for (
-            listener_device
-        ) in device.other_devices_listening_for_this_device_switching_off:
-
-            if listener_device.get_isOn() is False:
-                # already off, no action needed
-                continue
-
-            # listener_device is ON, need to check its dependencies to see if should be turned OFF after change
-
-            trigger_states = [
-                trigger_device.get_isOn()
-                for trigger_device in listener_device.turn_off_if_all_in_list_are_off
-            ]
-
-            if all(not state for state in trigger_states):
-                SmartplugApp.switch(self, listener_device.id, False)
-
     def _filter_devices_not_allowed_to_switch_on(
         self,
         devices_to_switch: list[TreeItemDevice],
@@ -405,23 +382,51 @@ class SmartplugApp(AppConfig):
     def handle_mqtt_update(self, deviceId: str, kind: str, value: bool):
         """TODO"""
 
-        if deviceId not in SmartplugApp._device_id_to_tree_item_mapping:
+        device: TreeItemDevice = (
+            SmartplugApp._device_id_to_tree_item_mapping.get(deviceId)
+        )
+
+        if device is None:
             SmartplugApp._logger.warn(
                 f"Received an update for deviceId {deviceId} via MQTT, but "
                 "deviceId is not known."
             )
             return
 
-        device: TreeItemDevice = (
-            SmartplugApp._device_id_to_tree_item_mapping.get(deviceId)
-        )
-
         with SmartplugApp._device_tree_mutex:
 
             if kind == "online":
                 device.set_isAvailable(value)
+                return
             elif kind == "output":
                 device.set_isOn(value)
+
+        if value is True:
+            return
+
+        # a device was turned OFF -> need to check switching dependencies
+
+        # only do single dependency step! further deps will be handled once
+        # their isOn state has been confirmed
+
+        for (
+            listener_device
+        ) in device.other_devices_listening_for_this_device_switching_off:
+
+            if listener_device.get_isOn() is False:
+                # already off, no action needed
+                continue
+
+            # listener_device is ON, need to check its dependencies to see if
+            # it should be turned OFF
+
+            trigger_states = [
+                trigger_device.get_isOn()
+                for trigger_device in listener_device.turn_off_if_all_in_list_are_off
+            ]
+
+            if all(state is False for state in trigger_states):
+                SmartplugApp.switch(self, listener_device.id, False)
 
     def switch(self, id: str, desired_isOn: bool) -> None:
         """Function to answer a call to /switch, turns devices and groups
@@ -491,10 +496,9 @@ class SmartplugApp(AppConfig):
 
             now = datetime.datetime.now()
 
-            # need to save last 'switch ON time' (mutex), wait if
-            # below delay
-            # TODO: only delay between device switches, not at
-            # beginning or end of request
+            # need to save last 'switch ON time' (mutex), wait until below delay
+            # TODO: only delay between device switches, not at beginning or end
+            # of request - Todo already done ???
             if desired_isOn:
                 # only delay switching when switching ON (no inrush
                 # current when switching OFF)
@@ -531,24 +535,7 @@ class SmartplugApp(AppConfig):
 
             device.time_last_switched = now
 
-            # TODO: try sending MQTT request here !!!
-
-            # TODO: do NOT set state here,
-            # wait for signal from plug that it changed somewhere else
-            # in the code
-            device.set_isOn(desired_isOn)
-
-        # TODO: remove this print
-        print(self.get_device_tree_dicts())
-        # TODO: do NOT send update event here,
-        # wait for signal from plug that it changed somewhere else
-        # in the code
-        # notify SSE subscribers about changes to the device tree
-        django_eventstream.send_event(
-            "device_tree_update",
-            "message",
-            self.get_device_tree_dicts(),
-        )
+            SmartplugApp._mqtt_client.switch(device.deviceId, desired_isOn)
 
         return False
 
