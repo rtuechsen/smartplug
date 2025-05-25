@@ -19,6 +19,7 @@ class MQTTClient:
         # self._username = "mqttuser"
         # self._password = "pass"
 
+        # TODO: generate / add those when installing / starting
         # self._client.tls_set(
         #     ca_certs="/var/lib/mosquitto/ssl/server.crt",
         #     certfile="/home/admin/shelly-dirigent/backend/certs/client.crt",
