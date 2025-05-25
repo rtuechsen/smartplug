@@ -33,7 +33,7 @@ function App(): JSX.Element {
 		setIsLoggedIn(true);
 	}
 
-	async function displayError(message: string, returnToLoginPage: bool = false): Promise<void> {
+	async function displayError(message: string, returnToLoginPage: boolean = false): Promise<void> {
 		if (isErrorOpen) {
 			// close previous error if still open
 			// TODO: check if this works properly
