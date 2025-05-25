@@ -72,13 +72,22 @@ def switch(request: Request) -> Response:
 
 
 @api_view(["GET"])
-def getusers(request: Request) -> Response:
+def getactiveusers(request: Request) -> Response:
     """Callback for the /getusers endpoint.
-
-    Forwards its requests to the request manager. Forwards the responses received from the request manager back to the REST API.
 
     @param request The request from the REST API.
 
     @return The response from the request manager for the REST API.
     """
-    return request_manager.getusers(request)
+    return request_manager.get_active_users(request)
+
+
+@api_view(["GET"])
+def getremainingsessiontime(request: Request) -> Response:
+    """Callback for the /getremainingsessiontime endpoint.
+
+    @param request The request from the REST API.
+
+    @return The response from the request manager for the REST API.
+    """
+    return request_manager.get_remaining_session_time(request)

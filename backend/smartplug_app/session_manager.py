@@ -88,8 +88,8 @@ class SessionManager:
             self._send_list_of_active_users()
 
             expiry_times: list[float] = [
-                (sess.expire_date - now).total_seconds()
-                for sess in active_sessions
+                (session.expire_date - now).total_seconds()
+                for session in active_sessions
             ]
 
             # if no open sessions: end thread
@@ -241,3 +241,7 @@ class SessionManager:
                 message="Incomplete or missing headers in request.",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             ) from e
+
+    def get_remaining_session_time(self, request: Request) -> float:
+
+        return (request.session.expire_date - timezone.now()).total_seconds()

@@ -306,7 +306,7 @@ class RequestManager:
 
         return Response(None, status=status.HTTP_200_OK)
 
-    def getusers(self, request: Request) -> Response:
+    def get_active_users(self, request: Request) -> Response:
         """Function to process requests to /getusers .
 
         @param request The incoming request.
@@ -314,9 +314,31 @@ class RequestManager:
         @return A response containing either the user list as a JSON or an error.
         """
 
-        self._logger.info("A /getusers request has been received.")
+        self._logger.info(
+            "A /getusers request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
+        )
+
+        if request.body != b"":
+            return self._error_handler.response(
+                "Requests to /getactiveusers are not allowed to have a body.",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
 
         try:
+            self._session_manager.verify_request_is_allowed(request)
             active_user_names = self._session_manager.get_active_user_names()
         except BackendError as e:
             return self._error_handler.response(
@@ -332,3 +354,55 @@ class RequestManager:
             )
 
         return Response(active_user_names, status=status.HTTP_200_OK)
+
+    def get_remaining_session_time(self, request: Request) -> Response:
+        """TODO"""
+
+        self._logger.info(
+            "A /getusers request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
+        )
+
+        if request.body != b"":
+            return self._error_handler.response(
+                "Requests to /getremainingsessiontime are not allowed to have "
+                "a body.",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
+        # Note: no authentication required, used from clients to determine if
+        # they are still signed in
+
+        try:
+            remaining_session_time = (
+                self._session_manager.get_remaining_session_time(request)
+            )
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
+        return Response(
+            {"remaining_session_time": remaining_session_time},
+            status=status.HTTP_200_OK,
+        )
