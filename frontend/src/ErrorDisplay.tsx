@@ -19,9 +19,11 @@ export interface DisplayErrorCallbackProps {
 	 * 
 	 * @param message The error message to be displayed to the user.
 	 * 
+	 * @param returnToLoginPage Whether the app should return to the login page.
+	 * 
 	 * @returns A void Promise that can be waited on if one wants to wait for the function to complete.
 	 */
-	displayError: (message: string) => Promise<void>;
+	displayError: (message: string, returnToLoginPage: bool) => Promise<void>;
 }
 
 /**

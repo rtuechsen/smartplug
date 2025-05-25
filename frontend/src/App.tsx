@@ -33,11 +33,14 @@ function App(): JSX.Element {
 		setIsLoggedIn(true);
 	}
 
-	async function displayError(message: string): Promise<void> {
+	async function displayError(message: string, returnToLoginPage: bool = false): Promise<void> {
 		if (isErrorOpen) {
 			// close previous error if still open
 			// TODO: check if this works properly
 			setIsErrorOpen(false);
+		}
+		if (returnToLoginPage) {
+			setIsLoggedIn(false);
 		}
 		setCurrentErrorMessage(message);
 		setIsErrorOpen(true);
@@ -61,6 +64,9 @@ function App(): JSX.Element {
 
 		if (!response.ok) {
 			const responseData = await response.json();
+			if (response.status === 401) {
+				setIsLoggedIn(false);
+			}
 			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
 		}
 		else {
@@ -69,20 +75,20 @@ function App(): JSX.Element {
 	}
 
 	// TODO: remove, code for security checks
-	React.useEffect(() => {
+	// React.useEffect(() => {
 
-		// This is a test to see if API requests before authentication work
-		// fetch('/api/gettree/', {
-		// 	method: 'GET',
-		// 	credentials: 'include',
-		// 	mode: 'same-origin',
-		// });
+	// 	This is a test to see if API requests before authentication work
+	// 	fetch('/api/gettree/', {
+	// 		method: 'GET',
+	// 		credentials: 'include',
+	// 		mode: 'same-origin',
+	// 	});
 
-		// This is a test to see if API requests before authentication work
-		// new EventSource('/api/events/', {
-		// 	withCredentials: true
-		// });
-	}, []);
+	// 	This is a test to see if API requests before authentication work
+	// 	new EventSource('/api/events/', {
+	// 		withCredentials: true
+	// 	});
+	// }, []);
 
 	const theme = createTheme({
 		// even though only the dark theme is mentioned here, this will use the system preference of the user

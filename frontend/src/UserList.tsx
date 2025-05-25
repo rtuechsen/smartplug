@@ -67,16 +67,14 @@ function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element | un
 		const eventSource = new EventSource('/api/events/', {
 			withCredentials: true
 		});
-		// TODO: can this fail? error handling!
 
 		eventSource.addEventListener("user_list_update", (event) => {
 			const userData = JSON.parse(event.data) as string[];
 			setUserListState(userData);
 		});
 
-		// TODO: error handling
 		eventSource.onerror = function (): void {
-			displayError('Server Sent Events (SSE) have failed.');
+			displayError('ERROR: You either lost connection to the server or your session expired.', true);
 		};
 
 		return function (): void {

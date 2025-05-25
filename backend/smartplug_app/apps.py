@@ -7,7 +7,6 @@ TODO: more details ???
 # TODO: we need a tool to wrap comments and docstrings to the maximum line
 # lenght of PEP8, black formatter does not handle those
 
-import time
 import json
 import random
 import hashlib
@@ -44,9 +43,6 @@ class SmartplugApp(AppConfig):
     ## The name of the app (required by Django).
     name: str = "smartplug_app"
 
-    ## Boolean needed to avoid starting background task multiple times.
-    _background_task_started: bool = False
-
     ## The main data structure to hold the hierarchy of devices and groups and
     ## their current state.
     _device_tree: list[TreeItemDevice | TreeItemGroup]
@@ -71,58 +67,6 @@ class SmartplugApp(AppConfig):
 
         # load the config.json
         self._load_config()
-
-        # TODO: remove, used for debugging only
-        if not SmartplugApp._background_task_started:
-            SmartplugApp._background_task_started = True
-            # thread = threading.Thread(target=self.loop, daemon=True)
-            # thread.start()
-
-    # TODO: remove, used for debugging only
-    def loop(self) -> None:
-        time.sleep(2)
-        users = [
-            "Isaac Newton",
-            "Albert Einstein",
-            "Marie Curie",
-            "Charles Darwin",
-            "Galileo Galilei",
-            "Nikola Tesla",
-            "Leonardo da Vinci",
-            "Stephen Hawking",
-            "Alan Turing",
-            "Aristotle",
-            "Archimedes",
-            "Johannes Kepler",
-            "Michael Faraday",
-            "James Clerk Maxwell",
-            "Louis Pasteur",
-            "Rosalind Franklin",
-            "Gregor Mendel",
-            "Max Planck",
-            "Niels Bohr",
-            "Erwin Schrödinger",
-            "Werner Heisenberg",
-            "Richard Feynman",
-            "Carl Sagan",
-            "Neil deGrasse Tyson",
-            "Ada Lovelace",
-            "Emmy Noether",
-            "Copernicus",
-            "Robert Boyle",
-            "Antoine Lavoisier",
-            "Dmitri Mendeleev",
-        ]
-        while True:
-            time.sleep(2)
-            current_users = random.sample(users, random.randint(5, 15))
-            # TODO: remove, used for debugging only
-            # self.change_device_tree_randomly(10)
-            send_event(
-                "default",
-                "user_list_update",
-                current_users,
-            )
 
     def _load_config(self) -> list[TreeItemDevice | TreeItemGroup]:
         """Loads the hierarchy of devices and groups from `config.json`.

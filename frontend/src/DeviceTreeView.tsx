@@ -112,7 +112,6 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		const eventSource = new EventSource('/api/events/', {
 			withCredentials: true
 		});
-		// TODO: can this fail? error handling!
 
 		eventSource.addEventListener("device_tree_update", (event) => {
 			const treeData = JSON.parse(event.data) as DeviceTreeItemData[];
@@ -128,7 +127,7 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		// };
 
 		eventSource.onerror = function (): void {
-			displayError('Server Sent Events (SSE) have failed.');
+			displayError('ERROR: You either lost connection to the server or your session expired.', true);
 		};
 
 		return function (): void {

@@ -15,6 +15,7 @@ from rest_framework import status
 from rest_framework.request import Request
 import django_eventstream
 from .error_handler import BackendError
+from .logger import Logger
 
 
 class SessionManager:
@@ -24,6 +25,8 @@ class SessionManager:
     _invalidate_sessions_thread: threading.Thread
 
     _invalidate_sessions_thread_lock: threading.Lock = threading.Lock()
+
+    _logger: Logger = Logger()
 
     def __new__(cls):
         """Creates an instance of the class.
@@ -46,11 +49,7 @@ class SessionManager:
 
     def _invalidate_sessions(self) -> None:
 
-        print("thread started.")
-
         while True:
-
-            print("Woke up, checking for expired sessions.")
 
             # check which sessions have expired
             session_model = apps.get_model("sessions", "Session")
@@ -77,10 +76,12 @@ class SessionManager:
             # invalidate SSE for user
             users = user_model.objects.filter(id__in=expired_user_ids)
             for user in users:
-                print("removed user:", user)
                 # TODO: this will send a response to the client with some JSON
                 # data -> try to send own response to hide implementation details
                 django_eventstream.channel_permission_changed(user, "default")
+                self._logger.info(
+                    message="A user session expired.", username=user.username
+                )
 
             # send updated user list (if there was a change)
             self._send_list_of_active_users()
@@ -90,16 +91,11 @@ class SessionManager:
                 for sess in active_sessions
             ]
 
-            print(f"upcoming expiry times: {expiry_times}")
-
             # if no open sessions: end thread
             if len(expiry_times) == 0:
-                print("no active users left, terminating")
                 return
 
             time_to_next_expiry = min(expiry_times)
-
-            print(f"next session expires in {time_to_next_expiry}s")
 
             # set sleep timer to the expiry time of the next open session
             # (+ some threshold to make sure session is really expired)
@@ -115,8 +111,9 @@ class SessionManager:
         user = authenticate(request, username=username, password=password)
 
         login(request, user)
+        # need to save to database, otherwise user is not guarantied to be
+        # available in following queries
         request.session.save()
-        print("logged in")
 
         with SessionManager._invalidate_sessions_thread_lock:
             if not SessionManager._invalidate_sessions_thread.is_alive():
@@ -125,7 +122,6 @@ class SessionManager:
                 )
                 SessionManager._invalidate_sessions_thread.start()
 
-        # TODO: send SSE event: list of active users
         self._send_list_of_active_users()
 
     def logout(self, request: Request) -> None:
@@ -133,10 +129,10 @@ class SessionManager:
         self.verify_request_is_allowed(request)
 
         logout(request)
+        # need to save to database, otherwise user is not guarantied to be
+        # available in following queries
         request.session.save()
-        print("logged out")
 
-        # TODO: send SSE event: list of active users
         self._send_list_of_active_users()
 
     def _send_list_of_active_users(self):
@@ -163,8 +159,6 @@ class SessionManager:
             user_id: str = session_data.get("_auth_user_id")
             if user_id:
                 active_user_ids.append(user_id)
-
-        print("active user ids:", active_user_ids)
 
         active_users = user_model.objects.filter(id__in=active_user_ids)
         acitve_user_names = [
