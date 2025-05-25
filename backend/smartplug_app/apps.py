@@ -76,8 +76,8 @@ class SmartplugApp(AppConfig):
         # TODO: remove, used for debugging only
         if not SmartplugApp._background_task_started:
             SmartplugApp._background_task_started = True
-            thread = threading.Thread(target=self.loop, daemon=True)
-            thread.start()
+            # thread = threading.Thread(target=self.loop, daemon=True)
+            # thread.start()
 
     # TODO: remove, used for debugging only
     def loop(self) -> None:

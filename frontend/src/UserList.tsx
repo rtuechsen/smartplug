@@ -8,7 +8,7 @@ import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
-import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
+// import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import { JSX } from '@emotion/react/jsx-runtime';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
@@ -37,7 +37,7 @@ function UserListItem({ name }: UserListItemProps): JSX.Element {
 }
 
 
-function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element {
+function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element | undefined {
 
 	// state for holding the data of the tree, triggers updates to the tree if the data changes
 	const [userListState, setUserListState] = React.useState<string[]>();
@@ -90,7 +90,7 @@ function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element {
 	}, []);	// empty dependencies => will only run once after component mounted
 
 	return (
-		userListState == undefined ? null :
+		userListState == undefined ? undefined :
 			<Stack direction='column'>
 				<Typography variant="h5" sx={{ paddingBottom: '1rem', paddingLeft: '1rem' }}>
 					Active Users

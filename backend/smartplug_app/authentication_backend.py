@@ -74,6 +74,11 @@ class AuthenticationBackend(BaseBackend):
                 or username == "MYLAB\\mmustermann"
             ) and password == "FHKiel123!":
                 return ("Max", "Mustermann")
+            elif (
+                username == "john.doe@mylab.local"
+                or username == "MYLAB\\mmustermann"
+            ) and password == "FHKiel123!":
+                return ("John", "")
             else:
                 raise BackendError(
                     message=f"Credentials mismatch on user: {username}.",

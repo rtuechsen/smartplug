@@ -123,7 +123,7 @@ function App(): JSX.Element {
 							>
 								sign out
 							</LoadingButton>
-							<UserList />
+							<UserList displayError={displayError} />
 
 						</Stack>
 
