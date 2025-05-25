@@ -11,7 +11,6 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.utils import timezone
 from django.contrib.auth.models import User
-from django.contrib.sessions.backends.db import SessionStore
 from rest_framework import status
 from rest_framework.request import Request
 import django_eventstream
