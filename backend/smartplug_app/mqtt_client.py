@@ -73,6 +73,8 @@ class MQTTClient:
 
                 if self._on_update_callback:
                     self._on_update_callback(device, "online", state)
+                if state:
+                    self.request_status(device)
 
         elif topic.endswith("/status/switch:0"):
             device = topic.split("/")[0]
@@ -87,7 +89,7 @@ class MQTTClient:
                         self.last_status[device] = output
                         # TODO: remove debug print ???
                         print(
-                            f"[{device}] power is: {'ON' if output else 'OFF'}"
+                            f"[{device}] Ausgang über switch: {'EIN' if output else 'AUS'}"
                         )
 
                         if self._on_update_callback:
@@ -99,13 +101,41 @@ class MQTTClient:
                     f"{topic}: {payload}"
                 ) from e
 
-        else:
-            # TODO Debug Code, should we catch errors here?
-            # shellyplugsg3-b08184a48764/events/rpc   (Topic bei button)
-            data = json.loads(payload)
-            output = data.get("output")
-            print(topic)
-            print(data)
+        elif topic.endswith("/rpc"):
+            device = topic.split("/")[0]
+            try:
+                data = json.loads(payload)
+                device = data.get("src")
+                result = data.get("result")
+                if isinstance(result, dict) and "output" in result:
+                    output = result["output"]
+                    last = self.last_status.get(device)
+                    if last != output:
+                        self.last_status[device] = output
+                        print(
+                            f"[{device}] Ausgang (via RPC): {'EIN' if output else 'AUS'}"
+                        )
+                        if self._on_update_callback:
+                            self._on_update_callback(device, "output", output)
+            except json.JSONDecodeError:
+                print(f"[{topic}] Ungültiges JSON in RPC: {payload}")
+
+    # else:
+    # TODO Debug Code, should we catch errors here?
+    # shellyplugsg3-b08184a48764/events/rpc   (Topic bei button)
+    #    data = json.loads(payload)
+    #   output = data.get("output")
+    #  print(topic)
+    # print(data)
+
+    def request_status(self, device_id: str):
+        payload = {
+            "id": 1,
+            "src": "shelly",
+            "method": "Switch.GetStatus",
+            "params": {"id": 0},
+        }
+        self._client.publish(device_id + self._sub_topic, json.dumps(payload))
 
     def disconnect(self):
         self._client.disconnect()
