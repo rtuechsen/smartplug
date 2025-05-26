@@ -145,7 +145,7 @@ class SmartplugApp(AppConfig):
             SmartplugApp._device_tree = self._object_list_to_tree_item_list(
                 lab_config_python_obj
             )
-        self.set_all_devices_unavailable()
+        self._set_all_devices_unavailable()
         # TODO: get values (isOn, ...) from devices
 
         # TODO: remove, used for debugging only
@@ -155,7 +155,7 @@ class SmartplugApp(AppConfig):
         #   len(SmartplugApp._device_id_to_tree_item_mapping.keys()) * 2
         # )
 
-    def set_all_devices_unavailable(self):
+    def _set_all_devices_unavailable(self):
         with SmartplugApp._device_tree_mutex:
             for (
                 tree_item
@@ -293,6 +293,7 @@ class SmartplugApp(AppConfig):
                 f"Received an update for deviceId {deviceId} via MQTT, but "
                 "deviceId is not known."
             )
+            return
 
         device = SmartplugApp._device_id_to_tree_item_mapping.get(deviceId)
 

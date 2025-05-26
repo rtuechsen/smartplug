@@ -6,7 +6,7 @@ from .error_handler import BackendError
 
 class MQTTClient:
 
-    def __init__(self, on_update_callback=None):
+    def __init__(self, on_update_callback):
 
         ## The logger instance (singleton) to log events and errors.
         self._logger: Logger = Logger()
@@ -32,7 +32,7 @@ class MQTTClient:
 
         self.connect()
         self._on_update_callback = on_update_callback
-        self._client.on_message = self.on_message
+        self._client.on_message = self._on_message
         # TODO: make members protected ???
         self.last_online = {}
         self.last_status = {}
@@ -56,8 +56,7 @@ class MQTTClient:
         )
 
     # TODO: make members protected ???
-    # TODO: userdata -> _
-    def on_message(self, client, userdata, msg):
+    def _on_message(self, client, userdata, msg):
         topic = msg.topic
         payload = msg.payload.decode()
 
@@ -65,16 +64,16 @@ class MQTTClient:
             device = topic.split("/")[0]
             state = payload.strip().lower() == "true"
 
-            if self.last_online.get(device) != state:
-                self.last_online[device] = state
+            # if self.last_online.get(device) != state:
+            #   self.last_online[device] = state
 
-                # TODO: remove debug print ???
-                print(f"[{device}] is {'ONLINE' if state else 'OFFLINE'}")
+            # TODO: remove debug print ???
+            print(f"[{device}] is {'ONLINE' if state else 'OFFLINE'}")
 
-                if self._on_update_callback:
-                    self._on_update_callback(device, "online", state)
-                if state:
-                    self.request_status(device)
+            if self._on_update_callback:
+                self._on_update_callback(device, "online", state)
+            if state:
+                self._request_status(device)
 
         elif topic.endswith("/status/switch:0"):
             device = topic.split("/")[0]
@@ -82,18 +81,13 @@ class MQTTClient:
                 data = json.loads(payload)
                 output = data.get("output")
 
-                if output is not None:
-                    last = self.last_status.get(device)
+                # TODO: remove debug print ???
+                print(
+                    f"[{device}] Ausgang über switch: {'EIN' if output else 'AUS'}"
+                )
 
-                    if last != output:
-                        self.last_status[device] = output
-                        # TODO: remove debug print ???
-                        print(
-                            f"[{device}] Ausgang über switch: {'EIN' if output else 'AUS'}"
-                        )
-
-                        if self._on_update_callback:
-                            self._on_update_callback(device, "output", output)
+                if self._on_update_callback:
+                    self._on_update_callback(device, "output", output)
 
             except json.JSONDecodeError as e:
                 raise BackendError(
@@ -109,14 +103,12 @@ class MQTTClient:
                 result = data.get("result")
                 if isinstance(result, dict) and "output" in result:
                     output = result["output"]
-                    last = self.last_status.get(device)
-                    if last != output:
-                        self.last_status[device] = output
-                        print(
-                            f"[{device}] Ausgang (via RPC): {'EIN' if output else 'AUS'}"
-                        )
-                        if self._on_update_callback:
-                            self._on_update_callback(device, "output", output)
+
+                    print(
+                        f"[{device}] Ausgang (via RPC): {'EIN' if output else 'AUS'}"
+                    )
+                    if self._on_update_callback:
+                        self._on_update_callback(device, "output", output)
             except json.JSONDecodeError:
                 print(f"[{topic}] Ungültiges JSON in RPC: {payload}")
 
@@ -128,7 +120,7 @@ class MQTTClient:
     #  print(topic)
     # print(data)
 
-    def request_status(self, device_id: str):
+    def _request_status(self, device_id: str):
         payload = {
             "id": 1,
             "src": "shelly",
