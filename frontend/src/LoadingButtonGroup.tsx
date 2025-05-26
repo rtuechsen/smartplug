@@ -94,12 +94,12 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 	async function sendSwitchRequest(desired_isOn: boolean): Promise<void> {
 		const response = await fetch('/api/switch/', {
 			method: 'POST',
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
 			headers: {
 				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
 				'Content-type': 'application/json; charset=UTF-8'
 			},
-			credentials: 'include',
-			mode: 'same-origin',	// prevents sending token to another website
 			body: JSON.stringify({
 				id: id,
 				desired_isOn: desired_isOn
@@ -113,9 +113,9 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 	}
 
 	return (
-		<ButtonGroup variant="outlined" size="small">
-			<LoadingButton onClick={async () => { await sendSwitchRequest(true); }}>Turn on</LoadingButton>
-			<LoadingButton onClick={async () => { await sendSwitchRequest(false); }}>Turn off</LoadingButton>
+		<ButtonGroup size="small">
+			<LoadingButton onClick={async () => { await sendSwitchRequest(true); }} variant='outlined'>turn on</LoadingButton>
+			<LoadingButton onClick={async () => { await sendSwitchRequest(false); }} variant='outlined'>turn off</LoadingButton>
 		</ButtonGroup>
 	);
 }

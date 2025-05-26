@@ -1,8 +1,8 @@
 """Contains the RequestManager that handles incoming requests from the REST
 API."""
 
+import copy
 from pathlib import Path
-from django.middleware.csrf import get_token
 from django.apps import apps
 from rest_framework.response import Response
 from rest_framework.request import Request
@@ -12,11 +12,11 @@ import yaml
 from .apps import SmartplugApp
 from .logger import Logger
 from .error_handler import ErrorHandler, BackendError
-from .login_manager import LoginManager
+from .session_manager import SessionManager
 
 # TODO: verify that having multiple instances of the session manager does not
 # lead to problems (when serving multiple users in multiple threads)
-login_manager = LoginManager()
+session_manager = SessionManager()
 
 
 # rules for input validation (OWASP):
@@ -41,14 +41,14 @@ class RequestManager:
     def __init__(self):
         """Constructor for the class."""
 
-        # The logger instance (singleton) to log events and errors.
+        ## The logger instance (singleton) to log events and errors.
         self._logger: Logger = Logger()
 
-        # An instance of ErrorHandler to simultaneously log an error and
-        # generate a response for the REST API.
+        ## An instance of ErrorHandler to simultaneously log an error and
+        ## generate a response for the REST API.
         self._error_handler: ErrorHandler = ErrorHandler()
 
-        # The instance of TODO that manages the device tree.
+        ## The instance of TODO that manages the device tree.
         self.smartplug_app: SmartplugApp = apps.get_app_config("smartplug_app")
 
         # Because openapi.yaml already contains schemas for the requests for
@@ -102,9 +102,7 @@ class RequestManager:
                 ),
             )
 
-        return Response(
-            {"csrfToken": get_token(request)}, status=status.HTTP_200_OK
-        )
+        return Response(status=status.HTTP_200_OK)
 
     def login(self, request: Request) -> Response:
         """TODO."""
@@ -137,7 +135,7 @@ class RequestManager:
             )
 
         try:
-            login_manager.login(request)
+            session_manager.login(request)
         except BackendError as e:
             return self._error_handler.response(
                 e.message,
@@ -156,14 +154,17 @@ class RequestManager:
     def logout(self, request: Request) -> Response:
         """TODO."""
 
+        # TODO: note, username would not be available by the time the event is
+        # logged
+        username = copy.copy(
+            request.session["USERNAME"]
+            if "USERNAME" in request.session
+            else None
+        )
         self._logger.info(
             "A /logout request has been received.",
             request.META["REMOTE_ADDR"],
-            (
-                request.session["USERNAME"]
-                if "USERNAME" in request.session
-                else None
-            ),
+            username,
         )
 
         if request.body != b"":
@@ -180,7 +181,7 @@ class RequestManager:
             )
 
         try:
-            login_manager.logout(request)
+            session_manager.logout(request)
         except BackendError as e:
             return self._error_handler.response(
                 e.message,
@@ -229,7 +230,7 @@ class RequestManager:
             )
 
         try:
-            login_manager.get_user_permission(request)
+            session_manager.verify_request_is_allowed(request)
 
             device_tree = self.smartplug_app.get_device_tree_dicts()
         except BackendError as e:
@@ -283,7 +284,7 @@ class RequestManager:
             )
 
         try:
-            login_manager.get_user_permission(request)
+            session_manager.verify_request_is_allowed(request)
 
             # instruct the app to perform the switch
             self.smartplug_app.switch(

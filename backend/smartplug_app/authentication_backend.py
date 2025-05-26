@@ -1,12 +1,8 @@
-"""Contains ... TODO.
-
-TODO: more details ???
-"""
-
 import ldap
+from django.contrib.auth.backends import BaseBackend
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.request import Request
-from django.conf import settings
 from .error_handler import BackendError
 from .admin_settings import (
     USE_LDAP,
@@ -14,24 +10,27 @@ from .admin_settings import (
     LDAP_TIMEOUT_SECONDS,
 )
 
+# source: https://docs.djangoproject.com/en/5.2/topics/auth/customizing/#specifying-authentication-backends
 
-# TODO: better: SessionManager ???
-class LoginManager:
 
-    # TODO: use cycle_key() ???
+class AuthenticationBackend(BaseBackend):
+    """TODO"""
 
-    # TODO: not used ???
-    def __init__(self):
-        pass
+    def authenticate(
+        self, request: Request, username: str = None, password: str = None
+    ) -> User:
 
-    def login(self, request: Request) -> None:
-        username = request.data.get("username")
-        password = request.data.get("password")
+        first_name, last_name = self._authenticate_ldap(username, password)
 
-        first_name, last_name = self._authenticate(
-            username=username, password=password
-        )
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            user = User(
+                username=username, first_name=first_name, last_name=last_name
+            )
+            user.save()
 
+        # store data about the user in the session
         request.session["USERNAME"] = username
         request.session["FIRSTNAME"] = first_name
         request.session["LASTNAME"] = last_name
@@ -41,42 +40,17 @@ class LoginManager:
         ]
         request.session["REMOTE_ADDR"] = request.META["REMOTE_ADDR"]
 
-        # TODO: send SSE event: list of active users
+        return user
 
-    def logout(self, request: Request) -> None:
-        # Flushing the session will delete it and protects
-        # from session fixation:
-        # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
-        request.session.flush()
-
-    # TODO: better name ???
-    def get_user_permission(self, request: Request) -> None:
-        # user will be None unless logged in. Per default we use a
-        # database-backed session management. The session data is
-        # stored server-side and referenced by the session-id.
-        # https://stackoverflow.com/questions/5113421/what-is-the-difference-between-a-cookie-and-a-session-in-django
-        # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
-
-        # We validate the origin of the request. _validate_request_origin()
-        # will throw an exception if anything is wrong.
-        self._validate_request_origin(request)
-
+    def get_user(self, user_id):
         try:
-            user = request.session.get("USERNAME")
-        except KeyError as e:
-            raise BackendError(
-                message="A request has been made by a user who is not signed in.",
-                status_code=status.HTTP_400_BAD_REQUEST,
-                user_message="Authentication failed. Are you signed in?",
-            ) from e
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None
 
-        if user:
-            # If there is a user and the user needs permission, it means an
-            # action happened.
-            # We therefor reset the expiry using the value in our settings.
-            request.session.set_expiry(settings.SESSION_COOKIE_AGE)
-
-    def _authenticate(self, username: str, password: str) -> tuple[str, str]:
+    def _authenticate_ldap(
+        self, username: str, password: str
+    ) -> tuple[str, str]:
         """Verifies that the combination of username and passowrd belongs to a
         user in the Active Directory.
 
@@ -104,8 +78,11 @@ class LoginManager:
                     user_message="Either your password or username were incorrect.",
                 )
 
-        try:
+        # TODO: need to get either logon name or UPN from ldap, use the same
+        # kind no matter what kind of login was used to ensure it gets mapped
+        # to the same user
 
+        try:
             conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
 
             # debug level 255 is the most verbose
@@ -118,6 +95,13 @@ class LoginManager:
 
             # Important for AD: disable referrals
             conn.set_option(ldap.OPT_REFERRALS, 0)
+
+            # TODO: explain TLS code is commented out, mention in docs
+            # https://www.python-ldap.org/en/python-ldap-3.4.3/reference/ldap.html?highlight=tls#tls-options
+            # conn.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
+            # conn.set_option(ldap.OPT_X_TLS_CACERTFILE, "./cacert.pem")      # get/set path to PEM file with CA certs
+            # conn.set_option(ldap.OPT_X_TLS_NEWCTX, 0)
+            # conn.start_tls_s()
 
             # The bind performs the actual request to verify the credentials
             conn.simple_bind_s(username, password)
@@ -147,8 +131,8 @@ class LoginManager:
 
                 _, entry = result[0]
 
-                # Note: Active Directory apparently requires either the first name
-                # or the last name when creating a user
+                # Note: Active Directory apparently requires either the first
+                # name or the last name when creating a user
 
                 if "givenName" in entry:
                     first_name = entry["givenName"][0].decode("utf-8")
@@ -167,12 +151,15 @@ class LoginManager:
                 first_name = username.split("\\")[1]
                 last_name = ""
 
-            # TODO: should we unbind as well if error happens after binding?
             conn.unbind_s()
 
             return (first_name, last_name)
 
         except ldap.INVALID_CREDENTIALS as e:
+
+            # TODO: should we unbind as well if error happens after binding?
+            # conn.unbind_s()
+
             raise BackendError(
                 message=f"Credentials mismatch on user: {username}.",
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -180,44 +167,12 @@ class LoginManager:
             ) from e
 
         except ldap.LDAPError as e:
+
+            # TODO: should we unbind as well if error happens after binding?
+            # conn.unbind_s()
+
             raise BackendError(
                 message=f"LDAP bind failed: {e}",
                 user_message="Verifying credentials using Active Directory "
                 "failed. Please contact the admin.",
-            ) from e
-
-    def _validate_request_origin(self, request: Request) -> None:
-        # Check that the values from the start of the session match
-        # with the values of this request.
-        try:
-            # This data has been set on login and will be checked when verifying
-            # the request origin.
-            user_agent = request.session["HTTP_USER_AGENT"]
-            accept_language = request.session["HTTP_ACCEPT_LANGUAGE"]
-            ip_address = request.session["REMOTE_ADDR"]
-
-            # Compare request header to origin of login.
-            if all(
-                [
-                    user_agent == request.META.get("HTTP_USER_AGENT"),
-                    accept_language
-                    == request.META.get("HTTP_ACCEPT_LANGUAGE"),
-                    ip_address == request.META.get("REMOTE_ADDR"),
-                ]
-            ):
-                return
-
-            raise BackendError(
-                message=f"Request origin mismatch on user: {request.session['USERNAME']}.",
-                status_code=status.HTTP_401_UNAUTHORIZED,
-            )
-
-        # TODO: the comment does not match the error message ?!
-        # KeyError occurs when the request is missing necessary data for
-        # verification.
-        except KeyError as e:
-            raise BackendError(
-                message="A request has been made by a user who is not signed in.",
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                user_message="Authentication failed. Are you signed in?",
             ) from e

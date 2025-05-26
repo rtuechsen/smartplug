@@ -3,7 +3,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { JSX } from '@emotion/react/jsx-runtime';
 import LoadingButtonGroup from './LoadingButtonGroup';
-import { AvailableIcon, OnIcon } from './StatusIcons';
+import { OnIcon, AvailableIcon } from './StatusIcons';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 

@@ -8,6 +8,7 @@ all requests to an instance of RequestManager.
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import api_view
+from django.views.decorators.csrf import ensure_csrf_cookie
 from .request_manager import RequestManager
 
 # Django requires all functions for the API endpoints to be defined in this
@@ -18,6 +19,7 @@ from .request_manager import RequestManager
 request_manager = RequestManager()
 
 
+@ensure_csrf_cookie
 @api_view(["GET"])
 def csrf(request: Request) -> Response:
     """Callback for the /csrf endpoint.
