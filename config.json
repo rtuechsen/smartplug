@@ -135,257 +135,260 @@
 			"deviceId": "20016"
 		}
 	],
-	"tree": [
-		{
-			"label": "Labor 1",
-			"children": [
-				{
-					"deviceId": "shellyplugsg3-b08184a654b8"
-				},
-				{
-					"deviceId": "10002"
-				},
-				{
-					"label": "Anlage 1",
-					"children": [
-						{
-							"label": "Konsolen",
-							"children": [
-								{
-									"label": "Konsole 1",
-									"children": [
-										{
-											"deviceId": "shellyplugsg3-b08184a4b8e4"
-										},
-										{
-											"deviceId": "shellyplugsg3-b08184a48764"
-										},
-										{
-											"deviceId": "shellyplugsg3-8cbfea90f128"
-										}
-									]
-								},
-								{
-									"label": "Konsole 2",
-									"children": [
-										{
-											"deviceId": "10006"
-										},
-										{
-											"deviceId": "10007"
-										}
-									]
-								}
-							]
-						},
-						{
-							"label": "Switches",
-							"children": [
-								{
-									"deviceId": "10008"
-								},
-								{
-									"deviceId": "10009"
-								}
-							]
-						}
-					]
-				},
-				{
-					"label": "Anlage 2",
-					"children": [
-						{
-							"label": "Konsolen",
-							"children": [
-								{
-									"label": "Konsole 3",
-									"children": [
-										{
-											"deviceId": "10010"
-										},
-										{
-											"deviceId": "10011"
-										},
-										{
-											"deviceId": "10012"
-										}
-									]
-								},
-								{
-									"label": "Konsole 4",
-									"children": [
-										{
-											"deviceId": "10013"
-										},
-										{
-											"deviceId": "10014"
-										}
-									]
-								}
-							]
-						},
-						{
-							"label": "Switches",
-							"children": [
-								{
-									"deviceId": "10015"
-								},
-								{
-									"deviceId": "10016"
-								}
-							]
-						}
-					]
-				}
-			]
-		},
-		{
-			"label": "Labor 2",
-			"children": [
-				{
-					"deviceId": "20001"
-				},
-				{
-					"deviceId": "20002"
-				},
-				{
-					"label": "Anlage 3",
-					"children": [
-						{
-							"label": "Konsolen",
-							"children": [
-								{
-									"label": "Konsole 5",
-									"children": [
-										{
-											"deviceId": "20003"
-										},
-										{
-											"deviceId": "20004"
-										},
-										{
-											"deviceId": "20005"
-										}
-									]
-								},
-								{
-									"label": "Konsole 6",
-									"children": [
-										{
-											"deviceId": "20006"
-										},
-										{
-											"deviceId": "20007"
-										}
-									]
-								}
-							]
-						},
-						{
-							"label": "Switches",
-							"children": [
-								{
-									"deviceId": "20008"
-								},
-								{
-									"deviceId": "20009"
-								}
-							]
-						}
-					]
-				},
-				{
-					"label": "Anlage 4",
-					"children": [
-						{
-							"label": "Konsolen",
-							"children": [
-								{
-									"label": "Konsole 7",
-									"children": [
-										{
-											"deviceId": "20010"
-										},
-										{
-											"deviceId": "20011"
-										},
-										{
-											"deviceId": "20012"
-										}
-									]
-								},
-								{
-									"label": "Konsole 8",
-									"children": [
-										{
-											"deviceId": "20013"
-										},
-										{
-											"deviceId": "20014"
-										}
-									]
-								}
-							]
-						},
-						{
-							"label": "Switches",
-							"children": [
-								{
-									"deviceId": "20015"
-								},
-								{
-									"deviceId": "20016"
-								}
-							]
-						}
-					]
-				}
-			]
-		},
-		{
-			"label": "Labor 3",
-			"children": []
-		},
-		{
-			"label": "Monitore",
-			"children": [
-				{
-					"deviceId": "shellyplugsg3-b08184a48764"
-				},
-				{
-					"deviceId": "shellyplugsg3-8cbfea90f128"
-				},
-				{
-					"deviceId": "10007"
-				},
-				{
-					"deviceId": "10011"
-				},
-				{
-					"deviceId": "10012"
-				},
-				{
-					"deviceId": "10014"
-				},
-				{
-					"deviceId": "20004"
-				},
-				{
-					"deviceId": "20005"
-				},
-				{
-					"deviceId": "20007"
-				},
-				{
-					"deviceId": "20011"
-				},
-				{
-					"deviceId": "20012"
-				},
-				{
-					"deviceId": "20014"
-				}
-			]
-		}
-	]
+	"tree": {
+		"label": "Labore",
+		"children": [
+			{
+				"label": "Labor 1",
+				"children": [
+					{
+						"deviceId": "shellyplugsg3-b08184a654b8"
+					},
+					{
+						"deviceId": "10002"
+					},
+					{
+						"label": "Anlage 1",
+						"children": [
+							{
+								"label": "Konsolen",
+								"children": [
+									{
+										"label": "Konsole 1",
+										"children": [
+											{
+												"deviceId": "shellyplugsg3-b08184a4b8e4"
+											},
+											{
+												"deviceId": "shellyplugsg3-b08184a48764"
+											},
+											{
+												"deviceId": "shellyplugsg3-8cbfea90f128"
+											}
+										]
+									},
+									{
+										"label": "Konsole 2",
+										"children": [
+											{
+												"deviceId": "10006"
+											},
+											{
+												"deviceId": "10007"
+											}
+										]
+									}
+								]
+							},
+							{
+								"label": "Switches",
+								"children": [
+									{
+										"deviceId": "10008"
+									},
+									{
+										"deviceId": "10009"
+									}
+								]
+							}
+						]
+					},
+					{
+						"label": "Anlage 2",
+						"children": [
+							{
+								"label": "Konsolen",
+								"children": [
+									{
+										"label": "Konsole 3",
+										"children": [
+											{
+												"deviceId": "10010"
+											},
+											{
+												"deviceId": "10011"
+											},
+											{
+												"deviceId": "10012"
+											}
+										]
+									},
+									{
+										"label": "Konsole 4",
+										"children": [
+											{
+												"deviceId": "10013"
+											},
+											{
+												"deviceId": "10014"
+											}
+										]
+									}
+								]
+							},
+							{
+								"label": "Switches",
+								"children": [
+									{
+										"deviceId": "10015"
+									},
+									{
+										"deviceId": "10016"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"label": "Labor 2",
+				"children": [
+					{
+						"deviceId": "20001"
+					},
+					{
+						"deviceId": "20002"
+					},
+					{
+						"label": "Anlage 3",
+						"children": [
+							{
+								"label": "Konsolen",
+								"children": [
+									{
+										"label": "Konsole 5",
+										"children": [
+											{
+												"deviceId": "20003"
+											},
+											{
+												"deviceId": "20004"
+											},
+											{
+												"deviceId": "20005"
+											}
+										]
+									},
+									{
+										"label": "Konsole 6",
+										"children": [
+											{
+												"deviceId": "20006"
+											},
+											{
+												"deviceId": "20007"
+											}
+										]
+									}
+								]
+							},
+							{
+								"label": "Switches",
+								"children": [
+									{
+										"deviceId": "20008"
+									},
+									{
+										"deviceId": "20009"
+									}
+								]
+							}
+						]
+					},
+					{
+						"label": "Anlage 4",
+						"children": [
+							{
+								"label": "Konsolen",
+								"children": [
+									{
+										"label": "Konsole 7",
+										"children": [
+											{
+												"deviceId": "20010"
+											},
+											{
+												"deviceId": "20011"
+											},
+											{
+												"deviceId": "20012"
+											}
+										]
+									},
+									{
+										"label": "Konsole 8",
+										"children": [
+											{
+												"deviceId": "20013"
+											},
+											{
+												"deviceId": "20014"
+											}
+										]
+									}
+								]
+							},
+							{
+								"label": "Switches",
+								"children": [
+									{
+										"deviceId": "20015"
+									},
+									{
+										"deviceId": "20016"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"label": "Labor 3",
+				"children": []
+			},
+			{
+				"label": "Monitore",
+				"children": [
+					{
+						"deviceId": "shellyplugsg3-b08184a48764"
+					},
+					{
+						"deviceId": "shellyplugsg3-8cbfea90f128"
+					},
+					{
+						"deviceId": "10007"
+					},
+					{
+						"deviceId": "10011"
+					},
+					{
+						"deviceId": "10012"
+					},
+					{
+						"deviceId": "10014"
+					},
+					{
+						"deviceId": "20004"
+					},
+					{
+						"deviceId": "20005"
+					},
+					{
+						"deviceId": "20007"
+					},
+					{
+						"deviceId": "20011"
+					},
+					{
+						"deviceId": "20012"
+					},
+					{
+						"deviceId": "20014"
+					}
+				]
+			}
+		]
+	}
 }

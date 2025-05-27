@@ -4,6 +4,7 @@ import datetime
 
 
 # TODO: make ALL members protected, add getter and setter
+# TODO: to_dict -> abstract method of TreeItem ???
 
 
 class TreeItem:
@@ -16,9 +17,10 @@ class TreeItem:
         ## in a UI.
         self.label: str
 
+        # TODO: Explain: ids[0] belongs to parents[0]
         ## The unique id of the item. A string of hexadecimal digits of length
         ## 64.
-        self.id: str
+        self.ids: list[str] = []
 
         ## A boolean indicating if the item should be turned on (True) or off
         ## (False). Ignores PEP8 naming convention to match the name of the
@@ -81,14 +83,15 @@ class TreeItemDevice(TreeItem):
             TreeItemDevice
         ] = []
 
-    def to_dict(self) -> dict:
+    def to_dict(self, parent: "TreeItemGroup") -> dict:
         """Converts the class to a dictionary.
 
         @return A dictionary representing the current state of the class.
         """
+
         return {
             "label": self.label,
-            "id": self.id,
+            "id": self.ids[self.parents.index(parent)],
             "isOn": self._isOn,
             "isAvailable": self._isAvailable,
         }
@@ -104,7 +107,7 @@ class TreeItemGroup(TreeItem):
         ## A list of TreeItems that this group combines.
         self.children: "list[TreeItemDevice|TreeItemGroup]" = []
 
-    def to_dict(self) -> dict:
+    def to_dict(self, parent: "TreeItemGroup") -> dict:
         """Converts the class to a hierarchy of dictionaries and lists.
 
         @return A dictionary representing the current state of the class.
@@ -113,12 +116,12 @@ class TreeItemGroup(TreeItem):
         # collect the data from all direct children,
         # recursive call, will travel down the hierarchy
         children_dict: list[dict] = [
-            child.to_dict() for child in self.children
+            child.to_dict(self) for child in self.children
         ]
 
         return {
             "label": self.label,
-            "id": self.id,
+            "id": self.ids[0],
             "isOn": self._isOn,
             "isAvailable": self._isAvailable,
             "children": children_dict,

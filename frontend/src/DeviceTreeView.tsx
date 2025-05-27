@@ -77,10 +77,10 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 				return;
 			}
 
-			const treeData = responseData as DeviceTreeItemData[]; // convert JSON to hierarchy of interfaces
+			const treeData = responseData as DeviceTreeItemData; // convert JSON to hierarchy of interfaces
 
 			// set the state with it to trigger the tree to update
-			setDeviceTreeDataState(treeData);
+			setDeviceTreeDataState([treeData]);
 
 			const treeItemIds: string[] = [];
 			/**
@@ -96,7 +96,7 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 			}
 
 			// collect all ids and set the state to trigger the tree to update
-			treeData.forEach((treeItem) => { collectIds(treeItem); });
+			collectIds(treeData);
 			setExpandedIdsState(treeItemIds);
 
 			// set the state bool to trigger useLayoutEffect()
@@ -116,7 +116,7 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		// from JSON to interface and updates the state to trigger the tree to update
 		eventSource.onmessage = function (event): void {
 			const treeData = JSON.parse(event.data) as DeviceTreeItemData[];
-			setDeviceTreeDataState(treeData);
+			setDeviceTreeDataState([treeData]);
 		};
 
 		eventSource.onerror = function (): void {

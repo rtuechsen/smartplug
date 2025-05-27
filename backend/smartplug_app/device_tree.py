@@ -96,9 +96,9 @@ class DeviceTree:
 
             self._device_id_to_device_mapping[device.deviceId] = device
 
-        self._tree = self._object_list_to_tree_item_list(tree_obj, None)
+        self._tree = self._object_to_tree_item(tree_obj, None)
 
-        self._collect_dependencies(config_obj)
+        self._collect_dependencies(tree_obj)
 
     def _parse_device(self, device_obj: dict) -> TreeItemDevice:
 
@@ -201,7 +201,7 @@ class DeviceTree:
                 )
 
             device.parents.append(parent)
-            self._assign_unique_id(device)
+            self._add_unique_id(device, parent)
             return device
 
         # ---------------------------------------------------------------------
@@ -221,28 +221,35 @@ class DeviceTree:
         group = TreeItemGroup()
         group.label = obj.get("label")
         group.parents = [parent]
-        self._assign_unique_id(group)
+        self._add_unique_id(group, parent)
 
         group.children = self._object_list_to_tree_item_list(
             obj.get("children"), group
         )
         return group
 
-    def _assign_unique_id(self, tree_item: TreeItem):
+    def _add_unique_id(self, tree_item: TreeItem, parent: TreeItemGroup):
 
         # Use (cryptographic) hash of the items label for the id in order to
         # keep the same id across runs.
         # This hides the deviceId of the smartplugs from the clients and gives
         # ids to groups as well.
         hash_source: str = tree_item.label
-        tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
-        while tree_item.id in self._id_to_tree_item_mapping:
+
+        if parent is not None:
+            # index 0 because parent has to be a group, those have only ever
+            # one id
+            hash_source += parent.ids[0]
+
+        tree_item_id: str = hashlib.sha256(str.encode(hash_source)).hexdigest()
+        while tree_item_id in self._id_to_tree_item_mapping:
             # if the label is not unique in the file change the hash source
             # (deterministically) until a unique hash is created
             hash_source += "0"
-            tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
+            tree_item_id = hashlib.sha256(str.encode(hash_source)).hexdigest()
 
-        self._id_to_tree_item_mapping[tree_item.id] = tree_item
+        tree_item.ids.append(tree_item_id)
+        self._id_to_tree_item_mapping[tree_item_id] = tree_item
 
     def _collect_dependencies(self, config_obj: list):
         """
@@ -255,31 +262,40 @@ class DeviceTree:
 
         graph_edges: list[tuple[str]] = []
 
-        def convert_ids_to_references(obj: dict, device: TreeItemDevice):
+        def convert_ids_to_references(obj: dict, tree_item: TreeItem):
 
-            if "turn_off_if_all_in_list_are_off" not in obj:
-                return
+            if isinstance(tree_item, TreeItemDevice):
 
-            for deviceId in obj["turn_off_if_all_in_list_are_off"]:
+                if "turn_off_if_all_in_list_are_off" not in obj:
+                    return
 
-                if deviceId not in self._device_id_to_device_mapping:
+                for deviceId in obj["turn_off_if_all_in_list_are_off"]:
 
-                    raise BackendError(
-                        f"Specified deviceId {deviceId} in "
-                        f"'turn_off_if_all_in_list_are_off' of device "
-                        f"{obj} does not exist."
+                    if deviceId not in self._device_id_to_device_mapping:
+
+                        raise BackendError(
+                            f"Specified deviceId {deviceId} in "
+                            f"'turn_off_if_all_in_list_are_off' of device "
+                            f"{obj} does not exist."
+                        )
+                    trigger_item: TreeItemDevice = (
+                        self._device_id_to_device_mapping[deviceId]
                     )
-                trigger_item: TreeItemDevice = (
-                    self._device_id_to_device_mapping[deviceId]
-                )
-                device.turn_off_if_all_in_list_are_off.append(trigger_item)
-                trigger_item.other_devices_listening_for_this_device_switching_off.append(
-                    device
-                )
-                graph_edges.append((trigger_item.deviceId, device.deviceId))
+                    tree_item.turn_off_if_all_in_list_are_off.append(
+                        trigger_item
+                    )
+                    trigger_item.other_devices_listening_for_this_device_switching_off.append(
+                        tree_item
+                    )
+                    graph_edges.append(
+                        (trigger_item.deviceId, tree_item.deviceId)
+                    )
 
-        for obj, item in zip(config_obj, self._tree):
-            convert_ids_to_references(obj, item)
+            elif isinstance(tree_item, TreeItemGroup):
+                for obj, child in zip(obj.get("children"), tree_item.children):
+                    convert_ids_to_references(obj, child)
+
+        convert_ids_to_references(config_obj, self._tree)
 
         graph = networkx.DiGraph(graph_edges)
         cycles = networkx.recursive_simple_cycles(graph)
@@ -298,13 +314,7 @@ class DeviceTree:
         state of the device tree.
         """
 
-        device_tree_dict: list[dict] = []
-
-        for tree_item in self._tree:
-            tree_item_dict = tree_item.to_dict()
-            device_tree_dict.append(tree_item_dict)
-
-        return device_tree_dict
+        return self._tree.to_dict(None)
 
     def get_item(self, id: str) -> TreeItem:
 
