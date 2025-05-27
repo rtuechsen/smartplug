@@ -16,7 +16,7 @@ class MQTTClient:
         self._broker_port: int = 1883
         self._keep_alive_seconds: float = 60
         self._sub_topic: str = "/rpc"
-        self._client = mqtt.Client()
+        self._client: mqtt.Client = mqtt.Client()
 
         # TLS --------------------------------------
 
@@ -24,7 +24,8 @@ class MQTTClient:
         # self._password = "pass"
 
         # TODO: generate / add certificates when installing / starting
-        # or add them to git and copy them when installing / starting
+        # or add them to git and copy them when installing / starting ???
+
         # self._client.tls_set(
         #     ca_certs="/var/lib/mosquitto/ssl/server.crt",
         #     certfile="/home/admin/shelly-dirigent/backend/certs/client.crt",
@@ -36,23 +37,17 @@ class MQTTClient:
 
         # -------------------------------------------
 
-        self.connect()
+        self._connect()
         self._on_update_callback = on_update_callback
-        self._client.on_message = self.on_message
-        # TODO: make members protected ???
-        self.last_online = {}
-        self.last_status = {}
+        self._client.on_message = self._on_message
         self._client.loop_start()
 
-    # TODO: make members protected ???
-    def connect(self):
+    def _connect(self):
 
-        # TODO: userdata -> _
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
                 client.subscribe("#")
                 self._logger.info("Connected successfully to MQTT broker.")
-
             else:
                 raise BackendError("Failed to connect to MQTT broker.")
 
@@ -61,66 +56,70 @@ class MQTTClient:
             self._broker_ip, self._broker_port, self._keep_alive_seconds
         )
 
-    # TODO: make members protected ???
     def _on_message(self, client, userdata, msg):
+
         topic = msg.topic
         payload = msg.payload.decode()
 
         if topic.endswith("/online"):
-            device = topic.split("/")[0]
+            deviceId = topic.split("/")[0]
             state = payload.strip().lower() == "true"
 
-            # if self.last_online.get(device) != state:
-            #     self.last_online[device] = state
+            # TODO: remove debug print ??? or use logger ???
+            print(f"[{deviceId}] is {'ONLINE' if state else 'OFFLINE'}")
 
-            # TODO: remove debug print ???
-            print(f"[{device}] is {'ONLINE' if state else 'OFFLINE'}")
-
-            # TODO: check not needed
-            if self._on_update_callback:
-                self._on_update_callback(device, "online", state)
+            self._on_update_callback(deviceId, "online", state)
 
         elif topic.endswith("/rpc"):
-            device = topic.split("/")[0]
+            deviceId = topic.split("/")[0]
             try:
                 data = json.loads(payload)
-                device = data.get("src")
+                deviceId = data.get("src")
+
+                # TODO: better name for variable - what is this ???
                 result = data.get("result")
+
+                # TODO: what could 'result' be? what are the different cases ???
                 if isinstance(result, dict) and "output" in result:
-                    output = result["output"]
 
+                    # TODO: better name for variable - what is this ???
+                    output = result.get("output")
+
+                    # TODO: remove debug print ??? or use logger ???
                     print(
-                        f"[{device}] Ausgang (via RPC): {'EIN' if output else 'AUS'}"
+                        f"[{deviceId}](via RPC) is: {'ON' if output else 'OFF'}"
                     )
-                    if self._on_update_callback:
-                        self._on_update_callback(device, "output", output)
-            except json.JSONDecodeError:
-                print(f"[{topic}] Ungültiges JSON in RPC: {payload}")
+                    self._on_update_callback(deviceId, "output", output)
 
-        else:
-            # TODO Debug Code, should we catch errors here?
-            # shellyplugsg3-b08184a48764/events/rpc   (Topic bei button)
-            data = json.loads(payload)
-            output = data.get("output")
-            print(topic)
-            print(data)
+            except json.JSONDecodeError:
+                # TODO: in which cases can this happen ??? is this only to
+                # catch errors in json.loads()
+                print(f"[{topic}] Invalid JSON in RPC: {payload}")
+
+        # else:
+        #     # TODO Debug Code, should we catch errors here?
+        #     # shellyplugsg3-b08184a48764/events/rpc   (Topic bei button)
+        #     data = json.loads(payload)
+        #     output = data.get("output")
+        #     print(topic)
+        #     print(data)
 
     def disconnect(self):
         self._client.disconnect()
 
-    def switch(self, deviceId: str, isOn: bool):
+    def switch(self, deviceId: str, desired_isOn: bool):
 
         payload = {
             "id": 1,
             "src": "user",
             "method": "Switch.Set",
-            "params": {"id": 0, "on": isOn},
+            "params": {"id": 0, "on": desired_isOn},
         }
 
         self._client.publish(deviceId + self._sub_topic, json.dumps(payload))
 
         # TODO: remove debug print
-        print(f"Switch command (ON={isOn}) was sent.")
+        print(f"Switch command (ON={desired_isOn}) was sent.")
 
         # TODO: error handling ??? or not possible ??? Might not be required,
         # further research please.
