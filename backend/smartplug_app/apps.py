@@ -576,7 +576,7 @@ class SmartplugApp(AppConfig):
                         raise BackendError(
                             f"Specified deviceId {deviceId} in "
                             f"turn_off_if_all_in_list_are_off of object "
-                            f"{tree_item} does not exist."
+                            f"{tree_item.to_dict()} does not exist."
                         )
                     trigger_item: TreeItemDevice = (
                         SmartplugApp._device_id_to_tree_item_mapping[deviceId]
