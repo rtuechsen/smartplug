@@ -382,10 +382,8 @@ class RequestManager:
                 ),
             )
 
-        # Note: no authentication required, used from clients to determine if
-        # they are still signed in
-
         try:
+            self._session_manager.verify_request_is_allowed(request)
             remaining_session_time = (
                 self._session_manager.get_remaining_session_time(request)
             )
