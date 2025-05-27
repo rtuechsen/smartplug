@@ -126,7 +126,6 @@ class MQTTClient:
 
         # TODO: remove, used for debugging only
         # else:
-        #     # shellyplugsg3-b08184a48764/events/rpc   (Topic bei button)
         #     data = json.loads(payload)
         #     output = data.get("output")
         #     print(topic)
