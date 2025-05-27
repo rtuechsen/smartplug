@@ -8,7 +8,7 @@
 			},
 			{
 				"label": "PC 1",
-				"deviceId": "10002"
+				"deviceId": "10001"
 			},
 			{
 				"label": "Anlage 1",
@@ -246,64 +246,5 @@
 	{
 		"label": "Labor 3",
 		"children": []
-	},
-	{
-		"label": "Monitore",
-		"children": [
-			{
-				"label": "Monitor 1 (real)",
-				"deviceId": "shellyplugsg3-b08184a48764",
-				"turn_off_if_all_in_list_are_off": [
-					"shellyplugsg3-b08184a4b8e4"
-				]
-			},
-			{
-				"label": "Monitor 2 (real)",
-				"deviceId": "shellyplugsg3-8cbfea90f128",
-				"turn_off_if_all_in_list_are_off": [
-					"shellyplugsg3-b08184a4b8e4"
-				]
-			},
-			{
-				"label": "Monitor 3",
-				"deviceId": "10007"
-			},
-			{
-				"label": "Monitor 4",
-				"deviceId": "10011"
-			},
-			{
-				"label": "Monitor 5",
-				"deviceId": "10012"
-			},
-			{
-				"label": "Monitor 6",
-				"deviceId": "1014"
-			},
-			{
-				"label": "Monitor 7",
-				"deviceId": "20004"
-			},
-			{
-				"label": "Monitor 8",
-				"deviceId": "20005"
-			},
-			{
-				"label": "Monitor 9",
-				"deviceId": "20007"
-			},
-			{
-				"label": "Monitor 10",
-				"deviceId": "20011"
-			},
-			{
-				"label": "Monitor 11",
-				"deviceId": "20012"
-			},
-			{
-				"label": "Monitor 12",
-				"deviceId": "20014"
-			}
-		]
 	}
 ]
