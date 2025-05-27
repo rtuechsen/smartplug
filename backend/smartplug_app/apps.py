@@ -4,6 +4,8 @@ backend and also handles background tasks the REST API does not handle.
 TODO: more details ???
 """
 
+# TODO: break apps.py into smaller classes / files
+
 import time
 import json
 import hashlib
