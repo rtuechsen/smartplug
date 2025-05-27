@@ -219,7 +219,8 @@ class SmartplugApp(AppConfig):
             ]
 
             if all(state is False for state in trigger_states):
-                SmartplugApp.switch(self, listener_device.id, False)
+                # TODO: is simply choosing index 0 here okay? if so, write comment!
+                SmartplugApp.switch(self, listener_device.ids[0], False)
 
     def switch(self, id: str, desired_isOn: bool) -> None:
         """Function to answer a call to /switch, turns devices and groups

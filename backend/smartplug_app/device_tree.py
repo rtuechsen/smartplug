@@ -98,7 +98,7 @@ class DeviceTree:
 
         self._tree = self._object_to_tree_item(tree_obj, None)
 
-        self._collect_dependencies(tree_obj)
+        self._collect_dependencies(device_objs)
 
     def _parse_device(self, device_obj: dict) -> TreeItemDevice:
 
@@ -251,7 +251,7 @@ class DeviceTree:
         tree_item.ids.append(tree_item_id)
         self._id_to_tree_item_mapping[tree_item_id] = tree_item
 
-    def _collect_dependencies(self, config_obj: list):
+    def _collect_dependencies(self, device_objs: list):
         """
 
         TODO: warning: does not use mutex
@@ -262,40 +262,35 @@ class DeviceTree:
 
         graph_edges: list[tuple[str]] = []
 
-        def convert_ids_to_references(obj: dict, tree_item: TreeItem):
+        def convert_ids_to_references(obj: dict):
 
-            if isinstance(tree_item, TreeItemDevice):
+            if "turn_off_if_all_in_list_are_off" not in obj:
+                return
 
-                if "turn_off_if_all_in_list_are_off" not in obj:
-                    return
+            tree_item: TreeItemDevice = self._device_id_to_device_mapping.get(
+                obj.get("deviceId")
+            )
 
-                for deviceId in obj["turn_off_if_all_in_list_are_off"]:
+            for deviceId in obj["turn_off_if_all_in_list_are_off"]:
 
-                    if deviceId not in self._device_id_to_device_mapping:
+                if deviceId not in self._device_id_to_device_mapping:
 
-                        raise BackendError(
-                            f"Specified deviceId {deviceId} in "
-                            f"'turn_off_if_all_in_list_are_off' of device "
-                            f"{obj} does not exist."
-                        )
-                    trigger_item: TreeItemDevice = (
-                        self._device_id_to_device_mapping[deviceId]
+                    raise BackendError(
+                        f"Specified deviceId {deviceId} in "
+                        f"'turn_off_if_all_in_list_are_off' of device "
+                        f"{obj} does not exist."
                     )
-                    tree_item.turn_off_if_all_in_list_are_off.append(
-                        trigger_item
-                    )
-                    trigger_item.other_devices_listening_for_this_device_switching_off.append(
-                        tree_item
-                    )
-                    graph_edges.append(
-                        (trigger_item.deviceId, tree_item.deviceId)
-                    )
+                trigger_item: TreeItemDevice = (
+                    self._device_id_to_device_mapping[deviceId]
+                )
+                tree_item.turn_off_if_all_in_list_are_off.append(trigger_item)
+                trigger_item.other_devices_listening_for_this_device_switching_off.append(
+                    tree_item
+                )
+                graph_edges.append((trigger_item.deviceId, tree_item.deviceId))
 
-            elif isinstance(tree_item, TreeItemGroup):
-                for obj, child in zip(obj.get("children"), tree_item.children):
-                    convert_ids_to_references(obj, child)
-
-        convert_ids_to_references(config_obj, self._tree)
+        for obj in device_objs:
+            convert_ids_to_references(obj)
 
         graph = networkx.DiGraph(graph_edges)
         cycles = networkx.recursive_simple_cycles(graph)
