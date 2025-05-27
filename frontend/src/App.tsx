@@ -68,6 +68,7 @@ function App(): JSX.Element {
 			const responseData = await response.json();
 			if (response.status === 401) {
 				setIsLoggedIn(false);
+				setRemainingSessionTime(0.0);
 			}
 			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
 		}
@@ -89,12 +90,20 @@ function App(): JSX.Element {
 			const responseData = await response.json();
 
 			if (!response.ok) {
-				displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
-				// abort tree view creation
+				if (response.status === 401) {
+					setIsLoggedIn(false);
+					setRemainingSessionTime(0.0);
+				} else {
+					displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+				}
+				console.log(remainingSessionTime);
 				return;
 			}
-
-			setRemainingSessionTime(responseData.remaining_session_time);
+			else {
+				setIsLoggedIn(true);
+				setRemainingSessionTime(responseData.remaining_session_time);
+				console.log(remainingSessionTime);
+			}
 		}
 
 		getRemainingSessionTime();
