@@ -11,6 +11,10 @@ from rest_framework.decorators import api_view
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .request_manager import RequestManager
 
+# Django requires all functions for the API endpoints to be defined in this
+# file at file level.
+# So to combine the handling of requests in a class we have to forward each of
+# them.
 ## The instance of the RequestManager. All requests are forwared to it.
 request_manager = RequestManager()
 

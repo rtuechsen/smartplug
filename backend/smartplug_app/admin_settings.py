@@ -30,3 +30,6 @@ considered a timeout."""
 
 # TODO remove, development variable
 USE_MQTT: bool = False
+
+# TODO remove, development variable
+USE_MQTT: bool = False

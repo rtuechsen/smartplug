@@ -7,7 +7,7 @@ from .admin_settings import USE_MQTT
 
 class MQTTClient:
 
-    def __init__(self, on_update_callback=None):
+    def __init__(self, on_update_callback):
 
         ## The logger instance (singleton) to log events and errors.
         self._logger: Logger = Logger()
@@ -62,7 +62,7 @@ class MQTTClient:
         )
 
     # TODO: make members protected ???
-    def on_message(self, client, userdata, msg):
+    def _on_message(self, client, userdata, msg):
         topic = msg.topic
         payload = msg.payload.decode()
 
@@ -70,41 +70,32 @@ class MQTTClient:
             device = topic.split("/")[0]
             state = payload.strip().lower() == "true"
 
-            if self.last_online.get(device) != state:
-                self.last_online[device] = state
+            # if self.last_online.get(device) != state:
+            #     self.last_online[device] = state
 
-                # TODO: remove debug print ???
-                print(f"[{device}] is {'ONLINE' if state else 'OFFLINE'}")
+            # TODO: remove debug print ???
+            print(f"[{device}] is {'ONLINE' if state else 'OFFLINE'}")
 
-                # TODO: check not needed
-                if self._on_update_callback:
-                    self._on_update_callback(device, "online", state)
+            # TODO: check not needed
+            if self._on_update_callback:
+                self._on_update_callback(device, "online", state)
 
-        elif topic.endswith("/status/switch:0"):
+        elif topic.endswith("/rpc"):
             device = topic.split("/")[0]
             try:
                 data = json.loads(payload)
-                output = data.get("output")
+                device = data.get("src")
+                result = data.get("result")
+                if isinstance(result, dict) and "output" in result:
+                    output = result["output"]
 
-                if output is not None:
-                    last = self.last_status.get(device)
-
-                    if last != output:
-                        self.last_status[device] = output
-                        # TODO: remove debug print ???
-                        print(
-                            f"[{device}] power is: {'ON' if output else 'OFF'}"
-                        )
-
-                        # TODO: check not needed
-                        if self._on_update_callback:
-                            self._on_update_callback(device, "output", output)
-
-            except json.JSONDecodeError as e:
-                raise BackendError(
-                    f"MQTT client received an invalid JSON for topic "
-                    f"{topic}: {payload}"
-                ) from e
+                    print(
+                        f"[{device}] Ausgang (via RPC): {'EIN' if output else 'AUS'}"
+                    )
+                    if self._on_update_callback:
+                        self._on_update_callback(device, "output", output)
+            except json.JSONDecodeError:
+                print(f"[{topic}] Ungültiges JSON in RPC: {payload}")
 
         else:
             # TODO Debug Code, should we catch errors here?

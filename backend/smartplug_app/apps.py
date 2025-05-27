@@ -58,7 +58,7 @@ class SmartplugApp(AppConfig):
 
     ## The main data structure to hold the hierarchy of devices and groups and
     ## their current state.
-    _device_tree: list[TreeItemDevice | TreeItemGroup]
+    _device_tree: list[TreeItemDevice | TreeItemGroup] = []
 
     ## A mutex to avoid race conditions on the device tree. Needed because
     ## async calls from the REST API are possible. ALWAYS lock this mutex when
@@ -149,7 +149,6 @@ class SmartplugApp(AppConfig):
             )
 
         # 3. convert to classes
-
         with SmartplugApp._device_tree_mutex:
             # errors from parsing will not be logged but will result in an
             # unhandled exception immediately after starting the server
@@ -158,14 +157,24 @@ class SmartplugApp(AppConfig):
             )
             self._collect_dependencies(lab_config_python_obj)
 
+            self._set_all_devices_unavailable()
+
         # TODO: get values (isOn, ...) from devices
 
         # TODO: remove, used for debugging only
-        random.seed(42)  # make the changes reproducible
+        # random.seed(42)  # make the changes reproducible
         # set a (fixed) random initial state
-        self.change_device_tree_randomly(
-            len(SmartplugApp._device_id_to_tree_item_mapping.keys()) * 2
-        )
+        # self.change_device_tree_randomly(
+        #   len(SmartplugApp._device_id_to_tree_item_mapping.keys()) * 2
+        # )
+
+    def _set_all_devices_unavailable(self):
+        with SmartplugApp._device_tree_mutex:
+            for (
+                tree_item
+            ) in SmartplugApp._device_id_to_tree_item_mapping.values():
+                tree_item.isOn = False
+                tree_item.isAvailable = False
 
     def _object_list_to_tree_item_list(
         self,
