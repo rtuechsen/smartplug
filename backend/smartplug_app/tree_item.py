@@ -3,6 +3,9 @@
 import datetime
 
 
+# TODO: make ALL members protected, add getter and setter
+
+
 class TreeItem:
     """A pure data class that groups common properties of a tree items."""
 
@@ -27,7 +30,7 @@ class TreeItem:
         ## project.
         self._isAvailable: bool = False
 
-        self.parent: TreeItemGroup
+        self.parents: list[TreeItemGroup] = []
 
     def get_isOn(self) -> bool:
         return self._isOn
@@ -37,8 +40,10 @@ class TreeItem:
         if new_isOn != self._isOn:
             self._isOn = new_isOn
 
-            if self.parent is not None:
-                self.parent.update_isOn_from_children()
+            for parent in self.parents:
+                if parent is None:
+                    continue
+                parent.update_isOn_from_children()
 
     def get_isAvailable(self) -> bool:
         return self._isAvailable
@@ -46,11 +51,12 @@ class TreeItem:
     def set_isAvailable(self, new_isAvailable: bool) -> None:
 
         if new_isAvailable != self._isAvailable:
-
             self._isAvailable = new_isAvailable
 
-            if self.parent is not None:
-                self.parent.update_isAvailable_from_children()
+            for parent in self.parents:
+                if parent is None:
+                    continue
+                parent.update_isAvailable_from_children()
 
 
 class TreeItemDevice(TreeItem):
@@ -96,7 +102,7 @@ class TreeItemGroup(TreeItem):
         super().__init__()
 
         ## A list of TreeItems that this group combines.
-        self.children: "list[TreeItemDevice|TreeItemGroup]"
+        self.children: "list[TreeItemDevice|TreeItemGroup]" = []
 
     def to_dict(self) -> dict:
         """Converts the class to a hierarchy of dictionaries and lists.

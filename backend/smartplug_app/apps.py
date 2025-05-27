@@ -5,12 +5,8 @@ TODO: more details ???
 """
 
 import time
-import json
-import hashlib
-import threading
-from pathlib import Path
 import datetime
-import networkx
+import threading
 from django.apps import AppConfig
 from rest_framework import status
 import django_eventstream
@@ -18,6 +14,7 @@ from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup
 from .mqtt_client import MQTTClient
+from .device_tree import DeviceTree
 from .admin_settings import (
     USE_SWITCHING_DELAYS,
     SWITCHING_TOGGLE_DELAY,
@@ -49,30 +46,22 @@ class SmartplugApp(AppConfig):
     ## The name of the app (required by Django).
     name: str = "smartplug_app"
 
-    ## Boolean needed to avoid starting background task multiple times.
+    # TODO: remove, used for debugging only
     _background_task_started: bool = False
 
-    ## The main data structure to hold the hierarchy of devices and groups and
-    ## their current state.
-    _device_tree: list[TreeItemDevice | TreeItemGroup] = []
+    _device_tree: DeviceTree
 
     ## A mutex to avoid race conditions on the device tree. Needed because
-    ## async calls from the REST API are possible. ALWAYS lock this mutex when
-    ## reading or manipulating the device tree!
+    ## async calls from the REST API are possible. ALWAYS lock this mutex
+    ## when reading or manipulating the device tree!
     _device_tree_mutex: threading.Lock = threading.Lock()
-
-    ## A mapping to get the TreeItem for a given id.
-    _id_to_tree_item_mapping: dict[str, TreeItem] = {}
-
-    ## A mapping to get the TreeItem for a given deviceId.
-    _device_id_to_tree_item_mapping: dict[str, TreeItemDevice] = {}
-
-    ## The logger instance (singleton) to log events and errors.
-    _logger: Logger = Logger()
 
     _last_switch_on_date_time: datetime.datetime = datetime.datetime.now()
 
     _last_switch_on_date_time_mutex: threading.Lock = threading.Lock()
+
+    ## The logger instance (singleton) to log events and errors.
+    _logger: Logger = Logger()
 
     _mqtt_client: MQTTClient
 
@@ -80,8 +69,8 @@ class SmartplugApp(AppConfig):
 
         SmartplugApp._logger.info("Server was started.")
 
-        # load the config.json
-        self._load_config()
+        with SmartplugApp._device_tree_mutex:
+            SmartplugApp._device_tree = DeviceTree("./config.json")
 
         SmartplugApp._mqtt_client = MQTTClient(
             on_update_callback=self.handle_mqtt_update
@@ -104,179 +93,6 @@ class SmartplugApp(AppConfig):
     #             "device_tree_update", "message", self.get_device_tree_dicts()
     #         )
 
-    def _load_config(self) -> list[TreeItemDevice | TreeItemGroup]:
-        """Loads the hierarchy of devices and groups from `config.json`.
-
-        The file 'config.json' is expected to be located in the root
-        directory of this project.
-
-        @return The hierarchy of devices and groups.
-        """
-
-        # 1. read the config.json file
-
-        config_file_path: str = "./config.json"
-
-        lab_config_path = (
-            Path(__file__).parent.parent.parent / config_file_path
-        )
-
-        try:
-            with open(lab_config_path, "r", encoding="utf8") as file:
-                lab_config_json_string = file.read()
-        except FileNotFoundError:
-            self._logger.error(
-                f"Could not find the file config.json at {lab_config_path}."
-            )
-        except IOError:
-            self._logger.error(
-                f"Error while reading the file config.json at "
-                f"{lab_config_path}."
-            )
-
-        # 2. convert string from file to JSON (dicts and lists)
-
-        try:
-            lab_config_python_obj: list = json.loads(lab_config_json_string)
-        except ValueError as e:
-            self._logger.error(
-                "Could not parse config.json to JSON because "
-                f"{e}: {lab_config_json_string}."
-            )
-
-        # 3. convert to classes
-        with SmartplugApp._device_tree_mutex:
-            # errors from parsing will not be logged but will result in an
-            # unhandled exception immediately after starting the server
-            SmartplugApp._device_tree = self._object_list_to_tree_item_list(
-                lab_config_python_obj, None, []
-            )
-            self._collect_dependencies(lab_config_python_obj)
-
-        # self._set_all_devices_unavailable()
-
-    # TODO: should not be needed, both values are initialized with False
-    # in tree_item.py
-    # def _set_all_devices_unavailable(self):
-    #     with SmartplugApp._device_tree_mutex:
-    #         for (
-    #             device
-    #         ) in SmartplugApp._device_id_to_tree_item_mapping.values():
-    #             device.set_isOn(False)
-    #             device.set_isAvailable(False)
-
-    def _object_list_to_tree_item_list(
-        self,
-        object_list: list[dict],
-        parent: TreeItemGroup,
-        turn_off_if_all_in_list_are_off: list[TreeItemDevice],
-    ) -> list[TreeItem]:
-        """Converts a list of dictionaries (JSON) to a list of TreeItems.
-
-        TODO: warning: does not use mutex
-
-        @param object_list A list of dictionaries representing tree items.
-
-        @return A list of TreeItems.
-        """
-
-        if not isinstance(object_list, list):
-            raise BackendError(
-                f"Object {object_list} should be a list, but isn't."
-            )
-
-        return list(
-            map(
-                lambda obj_list: self._object_to_tree_item(
-                    obj_list, parent, turn_off_if_all_in_list_are_off
-                ),
-                object_list,
-            )
-        )
-
-    def _object_to_tree_item(
-        self,
-        obj: dict,
-        parent: TreeItemGroup,
-        turn_off_if_all_in_list_are_off: list[TreeItemDevice],
-    ) -> TreeItem:
-        """Converts a (hierarchy of) dictionary(s) (aka JSON) to a (hierarchy
-        of) TreeItem(s).
-
-        Verifies the structure of the data and provides feedback.
-
-        TODO: warning: does not use mutex
-
-        @param obj A dictionary representing a tree item, possibly with more
-        tree items as childrens.
-
-        @return A TreeItem with possibly more TreeItems as its children.
-        """
-
-        # also verifies the correctness of the data, providing feedback to the
-        # admin using error messages
-
-        if "label" not in obj:
-            raise BackendError(f"Object {obj} is missing property 'label'.")
-
-        if "turn_off_if_all_in_list_are_off" in obj:
-            if len(obj.keys()) != 3:
-                raise BackendError(
-                    f"Object {obj} has wrong amount of properties."
-                )
-        else:
-            if len(obj.keys()) != 2:
-                raise BackendError(
-                    f"Object {obj} has wrong amount of properties."
-                )
-
-        if "deviceId" in obj:
-            if obj["deviceId"] in self._device_id_to_tree_item_mapping:
-                raise BackendError(
-                    f"Property 'deviceId' of {obj} is not unique."
-                )
-            tree_item = TreeItemDevice()
-            tree_item.deviceId = obj["deviceId"]
-            self._device_id_to_tree_item_mapping[tree_item.deviceId] = (
-                tree_item
-            )
-
-        elif "children" in obj:
-            tree_item = TreeItemGroup()
-            if "turn_off_if_all_in_list_are_off" in obj:
-                turn_off_if_all_in_list_are_off.extend(
-                    obj["turn_off_if_all_in_list_are_off"]
-                )
-            tree_item.children = self._object_list_to_tree_item_list(
-                obj["children"], tree_item, turn_off_if_all_in_list_are_off
-            )
-            if len(tree_item.children) == 0:
-                self._logger.warn(f"Object {obj} is a group without children.")
-
-        else:
-            raise BackendError(
-                f"Object {obj} is missing both 'deviceId' and 'children'."
-            )
-
-        tree_item.label = obj["label"]
-        tree_item.parent = parent
-
-        # Use (cryptographic) hash of the items label for the id in order to
-        # keep the same id across runs.
-        # This hides the deviceId of the smartplugs from the clients and gives
-        # ids to groups as well.
-        hash_source: str = tree_item.label
-        tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
-        while tree_item.id in SmartplugApp._id_to_tree_item_mapping:
-            # if the label is not unique in the file change the hash source
-            # (deterministically) until a unique hash is created
-            hash_source += "0"
-            tree_item.id = hashlib.sha256(str.encode(hash_source)).hexdigest()
-
-        SmartplugApp._id_to_tree_item_mapping[tree_item.id] = tree_item
-
-        return tree_item
-
     def get_device_tree_dicts(self) -> list[dict]:
         """Function to answer a call to /gettree, returns the current state of
         the tree.
@@ -284,16 +100,10 @@ class SmartplugApp(AppConfig):
         @return A hierarchy of dictionaries and lists representing the current
         state of the device tree.
         """
-
-        device_tree_dict: list[dict] = []
-
-        # always lock the tree before working on it
         with SmartplugApp._device_tree_mutex:
-            for tree_item in SmartplugApp._device_tree:
-                tree_item_dict = tree_item.to_dict()
-                device_tree_dict.append(tree_item_dict)
+            tree_dicts = SmartplugApp._device_tree.get_device_tree_dicts()
 
-        return device_tree_dict
+        return tree_dicts
 
     def _filter_devices_not_allowed_to_switch_on(
         self,
@@ -361,9 +171,7 @@ class SmartplugApp(AppConfig):
     def handle_mqtt_update(self, deviceId: str, kind: str, value: bool):
         """TODO"""
 
-        device: TreeItemDevice = (
-            SmartplugApp._device_id_to_tree_item_mapping.get(deviceId)
-        )
+        device: TreeItemDevice = SmartplugApp._device_tree.get_device(deviceId)
 
         if device is None:
             SmartplugApp._logger.warn(
@@ -426,8 +234,9 @@ class SmartplugApp(AppConfig):
 
         # TODO: break function into smaller parts
 
-        if id not in SmartplugApp._id_to_tree_item_mapping:
+        tree_item: TreeItem = SmartplugApp._device_tree.get_item(id)
 
+        if id is None:
             raise BackendError(
                 f"Specified id {id} does not exist.",
                 status.HTTP_400_BAD_REQUEST,
@@ -435,7 +244,7 @@ class SmartplugApp(AppConfig):
             )
 
         devices_to_switch: list[TreeItemDevice] = (
-            self._choose_devices_to_switch(id, desired_isOn)
+            self._choose_devices_to_switch(tree_item, desired_isOn)
         )
 
         # if requests are dropped due to SWITCHING_TOGGLE_DELAY
@@ -519,7 +328,7 @@ class SmartplugApp(AppConfig):
         return False
 
     def _choose_devices_to_switch(
-        self, id: str, desired_isOn: bool
+        self, tree_item: TreeItem, desired_isOn: bool
     ) -> list[TreeItemDevice]:
 
         def get_devices(tree_item: TreeItem):
@@ -533,7 +342,6 @@ class SmartplugApp(AppConfig):
                     devices.extend(get_devices(child))
                 return devices
 
-        tree_item = SmartplugApp._id_to_tree_item_mapping[id]
         all_devices: list[TreeItemDevice] = get_devices(tree_item)
 
         devices_to_switch: list[TreeItemDevice] = [
@@ -550,64 +358,3 @@ class SmartplugApp(AppConfig):
             )
 
         return devices_to_switch
-
-    def _collect_dependencies(self, lab_config_python_obj: list):
-        """
-
-        TODO: warning: does not use mutex
-
-        """
-
-        # TODO: detect cyclic dependencies
-
-        graph_edges: list[tuple[str]] = []
-
-        def convert_ids_to_references(obj: dict, tree_item: TreeItem):
-
-            if isinstance(tree_item, TreeItemDevice):
-
-                if "turn_off_if_all_in_list_are_off" not in obj:
-                    return
-
-                deviceIds = obj["turn_off_if_all_in_list_are_off"]
-                for deviceId in deviceIds:
-                    if (
-                        deviceId
-                        not in SmartplugApp._device_id_to_tree_item_mapping
-                    ):
-
-                        raise BackendError(
-                            f"Specified deviceId {deviceId} in "
-                            f"turn_off_if_all_in_list_are_off of object "
-                            f"{tree_item.to_dict()} does not exist."
-                        )
-                    trigger_item: TreeItemDevice = (
-                        SmartplugApp._device_id_to_tree_item_mapping[deviceId]
-                    )
-                    tree_item.turn_off_if_all_in_list_are_off.append(
-                        trigger_item
-                    )
-                    trigger_item.other_devices_listening_for_this_device_switching_off.append(
-                        tree_item
-                    )
-                    graph_edges.append(
-                        (trigger_item.deviceId, tree_item.deviceId)
-                    )
-
-            elif isinstance(tree_item, TreeItemGroup):
-                for child_obj, child_item in zip(
-                    obj["children"], tree_item.children
-                ):
-                    convert_ids_to_references(child_obj, child_item)
-
-        for obj, item in zip(lab_config_python_obj, SmartplugApp._device_tree):
-            convert_ids_to_references(obj, item)
-
-        graph = networkx.DiGraph(graph_edges)
-        cycles = networkx.recursive_simple_cycles(graph)
-
-        if len(cycles) != 0:
-            raise BackendError(
-                f"The dependencies formed by 'turn_off_if_all_in_list_are_off' "
-                f"result in cyclic dependencies: {cycles}"
-            )
