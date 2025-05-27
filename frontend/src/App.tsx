@@ -26,12 +26,18 @@ import { getCsrfToken } from './RequestTools';
  */
 function App(): JSX.Element {
 	// TODO: is isLoggedIn redundant now? get also check remainingSessionTime ...
-	const [remainingSessionTime, setRemainingSessionTime] = React.useState<number>(undefined);
+	const [remainingSessionTimeString, setRemainingSessionTimeString] = React.useState<string>(undefined);
 	const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
 
+	// need to be refs, because states would cause re-renders and are not guarantied to be up to date
+	// local variables would be reset on re-render
+	const remainingSessionTimeRef = React.useRef<number>(undefined);
+	const intervalTimerRef = React.useRef<NodeJS.Timeout>(undefined);
+
 	function onLoginSuccess(): void {
+		getRemainingSessionTime();
 		setIsLoggedIn(true);
 	}
 
@@ -64,47 +70,72 @@ function App(): JSX.Element {
 			},
 		});
 
+		if (response.status === 401) {
+			setIsLoggedIn(false);
+			setRemainingSessionTimeString('00:00:00');
+			return;
+		}
+
 		if (!response.ok) {
 			const responseData = await response.json();
-			if (response.status === 401) {
-				setIsLoggedIn(false);
-				setRemainingSessionTime(0.0);
-			}
 			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+			return;
 		}
-		else {
+
+		setIsLoggedIn(false);
+	}
+
+	function updateSessionTimeString(time_seconds: number): void {
+		setRemainingSessionTimeString(time_seconds.toString(2));
+	}
+
+	async function getRemainingSessionTime(): Promise<void> {
+
+		const response = await fetch('/api/getremainingsessiontime/', {
+			method: 'GET',
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
+		});
+
+		const responseData = await response.json();
+
+		if (response.status === 401) {
 			setIsLoggedIn(false);
+			setRemainingSessionTimeString('00:00:00');
+			return;
 		}
+
+		if (!response.ok) {
+			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+			return;
+		}
+
+		setIsLoggedIn(true);
+		updateSessionTimeString(responseData.remaining_session_time);
+
+		if (intervalTimerRef.current !== undefined) {
+			clearInterval(intervalTimerRef.current);
+		}
+
+		// Note: not perfectly precise this way, but good enough for UI
+		// Exact calculation is done in backend 
+		intervalTimerRef.current = setInterval(() => {
+			const newRemainingSessionTime: number = remainingSessionTimeRef.current - 1.0;
+			if (newRemainingSessionTime <= 0.0) {
+				setRemainingSessionTime('00:00:00');
+				clearInterval(intervalTimerRef.current);
+			}
+			else {
+				updateSessionTimeString(newRemainingSessionTime);
+			}
+		}, 1000);
 	}
 
 	React.useEffect(() => {
+		console.log("remainingSessionTime updated to:", remainingSessionTime);
+	}, [remainingSessionTime]);
 
-		async function getRemainingSessionTime(): Promise<void> {
-
-			const response = await fetch('/api/getremainingsessiontime/', {
-				method: 'GET',
-				credentials: 'include',
-				mode: 'same-origin',	// prevents sending token to another website
-			});
-
-			const responseData = await response.json();
-
-			if (!response.ok) {
-				if (response.status === 401) {
-					setIsLoggedIn(false);
-					setRemainingSessionTime(0.0);
-				} else {
-					displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
-				}
-				console.log(remainingSessionTime);
-				return;
-			}
-			else {
-				setIsLoggedIn(true);
-				setRemainingSessionTime(responseData.remaining_session_time);
-				console.log(remainingSessionTime);
-			}
-		}
+	React.useEffect(() => {
 
 		getRemainingSessionTime();
 
@@ -115,7 +146,6 @@ function App(): JSX.Element {
 		// 	credentials: 'include',
 		// 	mode: 'same-origin',
 		// });
-
 		// This is a test to see if API requests before authentication work
 		// new EventSource('/api/events/', {
 		// 	withCredentials: true
@@ -156,6 +186,9 @@ function App(): JSX.Element {
 									justifyContent='top'
 									spacing={'2rem'}
 								>
+									<Typography sx={{ whiteSpace: 'nowrap' }}>
+										Remaining session time: {remainingSessionTime}
+									</Typography>
 									<LoadingButton
 										onClick={logout}
 										variant='contained'
