@@ -1,4 +1,6 @@
 import json
+import random
+import time
 import paho.mqtt.client as mqtt
 from .logger import Logger
 from .error_handler import BackendError
@@ -42,8 +44,32 @@ class MQTTClient:
         self._client.on_message = self._on_message
         self._client.loop_start()
 
+        # TODO: remove, used for debugging only
+        if not USE_MQTT:
+            self.init_devices_randomly()
+
+    # TODO: remove, used for debugging only
+    def init_devices_randomly(self):
+
+        random.seed(42)
+
+        deviceIds = [
+            "shellyplugsg3-b08184a48764",
+            "shellyplugsg3-8cbfea90f128",
+            "shellyplugsg3-b08184a4b8e4",
+            "shellyplugsg3-b08184a654b8",
+        ]
+
+        for deviceId in deviceIds:
+            isAvailable: bool = random.choice([True, True, True, False])
+            isOn: bool = random.choice([True, False])
+
+            self._on_update_callback(deviceId, "isAvailable", isAvailable)
+            self._on_update_callback(deviceId, "isOn", isOn)
+
     def _connect(self):
 
+        # TODO: type hints
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
                 client.subscribe("#")
@@ -56,6 +82,7 @@ class MQTTClient:
             self._broker_ip, self._broker_port, self._keep_alive_seconds
         )
 
+    # TODO: type hints
     def _on_message(self, client, userdata, msg):
 
         topic = msg.topic
@@ -68,7 +95,7 @@ class MQTTClient:
             # TODO: remove debug print ??? or use logger ???
             print(f"[{deviceId}] is {'ONLINE' if state else 'OFFLINE'}")
 
-            self._on_update_callback(deviceId, "online", state)
+            self._on_update_callback(deviceId, "isAvailable", state)
 
         elif topic.endswith("/rpc"):
             deviceId = topic.split("/")[0]
@@ -89,11 +116,12 @@ class MQTTClient:
                     print(
                         f"[{deviceId}](via RPC) is: {'ON' if output else 'OFF'}"
                     )
-                    self._on_update_callback(deviceId, "output", output)
+                    self._on_update_callback(deviceId, "isOn", output)
 
             except json.JSONDecodeError:
                 # TODO: in which cases can this happen ??? is this only to
                 # catch errors in json.loads()
+                # TODO: create propper error
                 print(f"[{topic}] Invalid JSON in RPC: {payload}")
 
         # else:
@@ -108,6 +136,11 @@ class MQTTClient:
         self._client.disconnect()
 
     def switch(self, deviceId: str, desired_isOn: bool):
+
+        # TODO: remove, used for debugging only
+        if not USE_MQTT:
+            time.sleep(0.5)
+            self._on_update_callback(deviceId, "isOn", desired_isOn)
 
         payload = {
             "id": 1,

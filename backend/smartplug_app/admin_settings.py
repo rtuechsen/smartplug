@@ -3,7 +3,7 @@
 # TODO: store settings here or in settings_base.py ???
 
 # TODO: remove, development variable
-USE_SWITCHING_DELAYS: bool = True
+USE_SWITCHING_DELAYS: bool = False
 
 SWITCHING_TOGGLE_DELAY: float = 1.0
 """A float value in seconds that determines how long to wait before switching a
@@ -27,9 +27,6 @@ It should start with
 LDAP_TIMEOUT_SECONDS: int = 5
 """The time in seconds after which a request to the active directory server is
 considered a timeout."""
-
-# TODO remove, development variable
-USE_MQTT: bool = False
 
 # TODO remove, development variable
 USE_MQTT: bool = False

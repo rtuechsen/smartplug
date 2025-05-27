@@ -98,15 +98,15 @@ class SmartplugApp(AppConfig):
         #     thread.start()
 
     # TODO: remove, used for debugging only
-    def loop(self) -> None:
-        time.sleep(2)
-        while True:
-            time.sleep(2)
-            # TODO: remove, used for debugging only
-            # self.change_device_tree_randomly(10)
-            send_event(
-                "device_tree_update", "message", self.get_device_tree_dicts()
-            )
+    # def loop(self) -> None:
+    #     time.sleep(2)
+    #     while True:
+    #         time.sleep(2)
+    #         # TODO: remove, used for debugging only
+    #         # self.change_device_tree_randomly(10)
+    #         django_eventstream.send_event(
+    #             "device_tree_update", "message", self.get_device_tree_dicts()
+    #         )
 
     def _load_config(self) -> list[TreeItemDevice | TreeItemGroup]:
         """Loads the hierarchy of devices and groups from `config.json`.
@@ -157,24 +157,17 @@ class SmartplugApp(AppConfig):
             )
             self._collect_dependencies(lab_config_python_obj)
 
-            self._set_all_devices_unavailable()
+        # self._set_all_devices_unavailable()
 
-        # TODO: get values (isOn, ...) from devices
-
-        # TODO: remove, used for debugging only
-        # random.seed(42)  # make the changes reproducible
-        # set a (fixed) random initial state
-        # self.change_device_tree_randomly(
-        #   len(SmartplugApp._device_id_to_tree_item_mapping.keys()) * 2
-        # )
-
-    def _set_all_devices_unavailable(self):
-        with SmartplugApp._device_tree_mutex:
-            for (
-                tree_item
-            ) in SmartplugApp._device_id_to_tree_item_mapping.values():
-                tree_item.isOn = False
-                tree_item.isAvailable = False
+    # TODO: should not be needed, both values are initialized with False
+    # in tree_item.py
+    # def _set_all_devices_unavailable(self):
+    #     with SmartplugApp._device_tree_mutex:
+    #         for (
+    #             device
+    #         ) in SmartplugApp._device_id_to_tree_item_mapping.values():
+    #             device.set_isOn(False)
+    #             device.set_isAvailable(False)
 
     def _object_list_to_tree_item_list(
         self,
@@ -196,10 +189,6 @@ class SmartplugApp(AppConfig):
                 f"Object {object_list} should be a list, but isn't."
             )
 
-        # Note: passing a member function as a callback causes doxygen to think
-        # it is a new attribute.
-        # Seems to be a bug fixed in doxygen 1.13 but that is not available to
-        # linux via apt.
         return list(
             map(
                 lambda obj_list: self._object_to_tree_item(
@@ -292,27 +281,6 @@ class SmartplugApp(AppConfig):
 
         return tree_item
 
-    # TODO: remove, used for debugging only
-    def change_device_tree_randomly(self, number_of_changes=1) -> None:
-
-        for _ in range(number_of_changes):
-
-            device_id: str = random.choice(
-                list(self._device_id_to_tree_item_mapping.keys())
-            )
-            tree_item: TreeItemDevice = (
-                SmartplugApp._device_id_to_tree_item_mapping[device_id]
-            )
-
-            toggle_availability: bool = random.choice([True, False])
-
-            with SmartplugApp._device_tree_mutex:
-
-                if toggle_availability:
-                    tree_item.set_isAvailable(not tree_item.get_isAvailable())
-                else:
-                    tree_item.set_isOn(not tree_item.get_isOn())
-
     def get_device_tree_dicts(self) -> list[dict]:
         """Function to answer a call to /gettree, returns the current state of
         the tree.
@@ -404,10 +372,10 @@ class SmartplugApp(AppConfig):
 
         with SmartplugApp._device_tree_mutex:
 
-            if kind == "online":
+            if kind == "isAvailable":
                 device.set_isAvailable(value)
                 return
-            elif kind == "output":
+            elif kind == "isOn":
                 device.set_isOn(value)
 
         if value is True:
