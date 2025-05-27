@@ -374,9 +374,15 @@ class SmartplugApp(AppConfig):
 
             if kind == "isAvailable":
                 device.set_isAvailable(value)
-                return
             elif kind == "isOn":
                 device.set_isOn(value)
+
+        django_eventstream.send_event(
+            "device_tree_update", "message", self.get_device_tree_dicts()
+        )
+
+        if kind == "isAvailable":
+            return
 
         if value is True:
             return
@@ -456,13 +462,7 @@ class SmartplugApp(AppConfig):
 
         # TODO: remove, development code
         if USE_SWITCHING_DELAYS is False:
-            with SmartplugApp._device_tree_mutex:
-                device.set_isOn(desired_isOn)
-            django_eventstream.send_event(
-                "device_tree_update",
-                "message",
-                self.get_device_tree_dicts(),
-            )
+            SmartplugApp._mqtt_client.switch(device.deviceId, desired_isOn)
             return False
 
         with SmartplugApp._device_tree_mutex:
@@ -512,7 +512,7 @@ class SmartplugApp(AppConfig):
 
             device.time_last_switched = now
 
-            SmartplugApp._mqtt_client.switch(device.deviceId, desired_isOn)
+        SmartplugApp._mqtt_client.switch(device.deviceId, desired_isOn)
 
         return False
 
@@ -533,6 +533,7 @@ class SmartplugApp(AppConfig):
 
         tree_item = SmartplugApp._id_to_tree_item_mapping[id]
         all_devices: list[TreeItemDevice] = get_devices(tree_item)
+
         devices_to_switch: list[TreeItemDevice] = [
             device
             for device in all_devices

@@ -3,7 +3,7 @@
 # TODO: store settings here or in settings_base.py ???
 
 # TODO: remove, development variable
-USE_SWITCHING_DELAYS: bool = False
+USE_SWITCHING_DELAYS: bool = True
 
 SWITCHING_TOGGLE_DELAY: float = 1.0
 """A float value in seconds that determines how long to wait before switching a

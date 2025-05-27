@@ -61,11 +61,11 @@ class MQTTClient:
         ]
 
         for deviceId in deviceIds:
-            isAvailable: bool = random.choice([True, True, True, False])
+            # isAvailable: bool = random.choice([True, True, True, False])
             isOn: bool = random.choice([True, False])
 
-            self._on_update_callback(deviceId, "isAvailable", isAvailable)
-            self._on_update_callback(deviceId, "isOn", isOn)
+            self._on_update_callback(deviceId, "isAvailable", True)
+            self._on_update_callback(deviceId, "isOn", True)
 
     def _connect(self):
 
@@ -139,7 +139,6 @@ class MQTTClient:
 
         # TODO: remove, used for debugging only
         if not USE_MQTT:
-            time.sleep(0.5)
             self._on_update_callback(deviceId, "isOn", desired_isOn)
 
         payload = {
