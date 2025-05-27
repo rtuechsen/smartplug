@@ -124,8 +124,8 @@ class MQTTClient:
                 # TODO: create propper error
                 print(f"[{topic}] Invalid JSON in RPC: {payload}")
 
+        # TODO: remove, used for debugging only
         # else:
-        #     # TODO Debug Code, should we catch errors here?
         #     # shellyplugsg3-b08184a48764/events/rpc   (Topic bei button)
         #     data = json.loads(payload)
         #     output = data.get("output")

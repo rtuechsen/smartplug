@@ -9,7 +9,6 @@ TODO: more details ???
 
 import time
 import json
-import random
 import hashlib
 import threading
 from pathlib import Path
@@ -304,18 +303,22 @@ class SmartplugApp(AppConfig):
         devices_to_switch: list[TreeItemDevice],
     ):
 
-        # re-evaluating tree should not be necessary while resolving deps (because devices cannot depend on groups)
+        # re-evaluating tree should not be necessary while resolving deps
+        # (because devices cannot depend on groups)
 
         resolved_states: dict[str, bool] = {}
 
-        # only need to make sure that all the devices are allowed to switch, e.g. not switching monitor on without PC on
+        # only need to make sure that all the devices are allowed to switch,
+        # e.g. not switching monitor on without PC on
 
-        # traverse deps backwards: first leaves with no own deps, then their listeners
+        # traverse deps backwards: first leaves with no own deps, then their
+        # listeners
 
         # returns the new state a device
         def will_be_on(device: TreeItemDevice):
 
-            # check if device has already been checked, return that value in that case
+            # check if device has already been checked, return that value in
+            # that case
             if device.deviceId in resolved_states:
                 return resolved_states[device.deviceId]
 
@@ -323,12 +326,14 @@ class SmartplugApp(AppConfig):
                 resolved_states[device.deviceId] = True
                 return True
 
-            # device is OFF -> only way it might be ON afterwards if it is amoung devices_to_switch
+            # device is OFF -> only way it might be ON afterwards if it is
+            # amoung devices_to_switch
             if device not in devices_to_switch:
                 resolved_states[device.deviceId] = False
                 return False
 
-            # device is OFF, but is scheduled to be switched ON -> can still fail if all dependencies are off
+            # device is OFF, but is scheduled to be switched ON -> can still
+            # fail if all dependencies are off
 
             if len(device.turn_off_if_all_in_list_are_off) == 0:
                 resolved_states[device.deviceId] = True
