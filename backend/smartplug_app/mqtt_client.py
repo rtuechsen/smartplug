@@ -1,6 +1,5 @@
 import json
 import random
-import time
 import paho.mqtt.client as mqtt
 from .logger import Logger
 from .error_handler import BackendError
@@ -150,6 +149,7 @@ class MQTTClient:
         # TODO: remove, used for debugging only
         if not USE_MQTT:
             self._on_update_callback(deviceId, "isOn", desired_isOn)
+            return
 
         payload = {
             "id": 1,
