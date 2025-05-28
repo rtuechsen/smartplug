@@ -109,7 +109,7 @@ class MQTTClient:
                 print(
                     f"[{deviceId}] Ausgang über switch: {'EIN' if output else 'AUS'}"
                 )
-                self._on_update_callback(deviceId, "output", output)
+                self._on_update_callback(deviceId, "isOn", output)
 
             except json.JSONDecodeError as e:
                 raise BackendError(
