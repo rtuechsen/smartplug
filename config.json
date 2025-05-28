@@ -3,12 +3,12 @@
 		"label": "Labor 1",
 		"children": [
 			{
-				"label": "Sensor 1",
-				"deviceId": "10001"
+				"label": "Sensor 1 (real)",
+				"deviceId": "shellyplugsg3-b08184a654b8"
 			},
 			{
-				"label": "PC 1",
-				"deviceId": "10002"
+				"label": "PC 1 (real)",
+				"deviceId": "shellyplugsg3-b08184a5b0e0"
 			},
 			{
 				"label": "Anlage 1",
@@ -20,16 +20,22 @@
 								"label": "Konsole 1",
 								"children": [
 									{
-										"label": "PC 2",
-										"deviceId": "10003"
+										"label": "PC 2 (real)",
+										"deviceId": "shellyplugsg3-b08184a4b8e4"
 									},
 									{
-										"label": "Monitor 1",
-										"deviceId": "10004"
+										"label": "Monitor 1 (real)",
+										"deviceId": "shellyplugsg3-b08184a48764",
+										"turn_off_if_all_in_list_are_off": [
+											"shellyplugsg3-b08184a4b8e4"
+										]
 									},
 									{
-										"label": "Monitor 2",
-										"deviceId": "10005"
+										"label": "Monitor 2 (real)",
+										"deviceId": "shellyplugsg3-8cbfea90f128",
+										"turn_off_if_all_in_list_are_off": [
+											"shellyplugsg3-b08184a4b8e4"
+										]
 									}
 								]
 							},

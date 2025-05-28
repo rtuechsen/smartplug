@@ -49,7 +49,7 @@ class RequestManager:
         ## generate a response for the REST API.
         self._error_handler: ErrorHandler = ErrorHandler()
 
-        ## The instance of TODO that manages the device tree.
+        ## The instance of SmartplugApp that manages the device tree.
         self.smartplug_app: SmartplugApp = apps.get_app_config("smartplug_app")
 
         # Because openapi.yaml already contains schemas for the requests for
