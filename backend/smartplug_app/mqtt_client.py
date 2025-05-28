@@ -92,9 +92,6 @@ class MQTTClient:
             deviceId = topic.split("/")[0]
             state = payload.strip().lower() == "true"
 
-            # TODO: remove debug print ??? or use logger ???
-            print(f"[{deviceId}] is {'ONLINE' if state else 'OFFLINE'}")
-
             self._on_update_callback(deviceId, "isAvailable", state)
             if state:
                 self._request_status(deviceId)
@@ -105,10 +102,6 @@ class MQTTClient:
                 data = json.loads(payload)
                 output = data.get("output")
 
-                # TODO: remove debug print ???
-                print(
-                    f"[{deviceId}] Ausgang über switch: {'EIN' if output else 'AUS'}"
-                )
                 self._on_update_callback(deviceId, "isOn", output)
 
             except json.JSONDecodeError as e:
@@ -132,10 +125,6 @@ class MQTTClient:
                     # TODO: better name for variable - what is this ???
                     output = result.get("output")
 
-                    # TODO: remove debug print ??? or use logger ???
-                    print(
-                        f"[{deviceId}](via RPC) is: {'ON' if output else 'OFF'}"
-                    )
                     self._on_update_callback(deviceId, "isOn", output)
 
             except json.JSONDecodeError:
@@ -143,13 +132,6 @@ class MQTTClient:
                 # catch errors in json.loads()
                 # TODO: create propper error
                 print(f"[{topic}] Invalid JSON in RPC: {payload}")
-
-        # TODO: remove, used for debugging only
-        # else:
-        #     data = json.loads(payload)
-        #     output = data.get("output")
-        #     print(topic)
-        #     print(data)
 
     def _request_status(self, device_id: str):
         payload = {
@@ -177,9 +159,6 @@ class MQTTClient:
         }
 
         self._client.publish(deviceId + self._sub_topic, json.dumps(payload))
-
-        # TODO: remove debug print
-        print(f"Switch command (ON={desired_isOn}) was sent.")
 
         # TODO: error handling ??? or not possible ??? Might not be required,
         # further research please.
