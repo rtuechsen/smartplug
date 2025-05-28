@@ -96,6 +96,26 @@ class MQTTClient:
             print(f"[{deviceId}] is {'ONLINE' if state else 'OFFLINE'}")
 
             self._on_update_callback(deviceId, "isAvailable", state)
+            if state:
+                self._request_status(deviceId)
+
+        elif topic.endswith("/status/switch:0"):
+            deviceId = topic.split("/")[0]
+            try:
+                data = json.loads(payload)
+                output = data.get("output")
+
+                # TODO: remove debug print ???
+                print(
+                    f"[{deviceId}] Ausgang über switch: {'EIN' if output else 'AUS'}"
+                )
+                self._on_update_callback(deviceId, "output", output)
+
+            except json.JSONDecodeError as e:
+                raise BackendError(
+                    f"MQTT client received an invalid JSON for topic "
+                    f"{topic}: {payload}"
+                ) from e
 
         elif topic.endswith("/rpc"):
             deviceId = topic.split("/")[0]
@@ -130,6 +150,15 @@ class MQTTClient:
         #     output = data.get("output")
         #     print(topic)
         #     print(data)
+
+    def _request_status(self, device_id: str):
+        payload = {
+            "id": 1,
+            "src": "shelly",
+            "method": "Switch.GetStatus",
+            "params": {"id": 0},
+        }
+        self._client.publish(device_id + self._sub_topic, json.dumps(payload))
 
     def disconnect(self):
         self._client.disconnect()
