@@ -182,7 +182,6 @@ class RequestManager:
             )
 
         try:
-            self._session_manager.verify_request_is_allowed(request)
             self._session_manager.logout(request)
         except BackendError as e:
             return self._error_handler.response(
@@ -233,6 +232,7 @@ class RequestManager:
 
         try:
             self._session_manager.verify_request_is_allowed(request)
+
             device_tree = self.smartplug_app.get_device_tree_dicts()
         except BackendError as e:
             return self._error_handler.response(
@@ -286,6 +286,8 @@ class RequestManager:
 
         try:
             self._session_manager.verify_request_is_allowed(request)
+
+            # instruct the app to perform the switch
             self.smartplug_app.switch(
                 request.data["id"], request.data["desired_isOn"]
             )

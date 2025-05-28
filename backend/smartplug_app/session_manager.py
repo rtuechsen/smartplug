@@ -127,6 +127,8 @@ class SessionManager:
 
     def logout(self, request: Request) -> None:
 
+        self.verify_request_is_allowed(request)
+
         logout(request)
         # need to save to database, otherwise user is not guarantied to be
         # available in following queries
@@ -241,6 +243,11 @@ class SessionManager:
             ) from e
 
     def get_remaining_session_time(self, request: Request) -> float:
+
+        try:
+            self.verify_request_is_allowed(request)
+        except BackendError:
+            return 0.0
 
         return (
             request.session.get_expiry_date() - timezone.now()
