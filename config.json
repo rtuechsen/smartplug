@@ -24,8 +24,8 @@
 										"deviceId": "shellyplugsg3-b08184a4b8e4"
 									},
 									{
-										"label": "Monitor 1",
-										"deviceId": "10004"
+										"label": "Monitor 1(real",
+										"deviceId": "shellyplugsg3-b08184a5b0e0"
 									},
 									{
 										"label": "Monitor 2",
