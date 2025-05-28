@@ -143,7 +143,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Seconds until cookie expiry
-SESSION_COOKIE_AGE = 10
+SESSION_COOKIE_AGE = 120
 
 # transfer cookie only using https
 SESSION_COOKIE_SECURE = True

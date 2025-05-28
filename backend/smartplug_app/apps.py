@@ -16,7 +16,6 @@ import networkx
 from django.apps import AppConfig
 from rest_framework import status
 import django_eventstream
-import django_eventstream
 from .error_handler import BackendError
 from .logger import Logger
 from .tree_item import TreeItem, TreeItemDevice, TreeItemGroup

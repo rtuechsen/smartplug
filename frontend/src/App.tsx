@@ -96,13 +96,11 @@ function App(): JSX.Element {
 				} else {
 					displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
 				}
-				console.log(remainingSessionTime);
 				return;
 			}
 			else {
 				setIsLoggedIn(true);
 				setRemainingSessionTime(responseData.remaining_session_time);
-				console.log(remainingSessionTime);
 			}
 		}
 
