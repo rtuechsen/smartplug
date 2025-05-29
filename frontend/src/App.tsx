@@ -38,7 +38,6 @@ function App(): JSX.Element {
 	async function displayError(message: string, returnToLoginPage: boolean = false): Promise<void> {
 		if (isErrorOpen) {
 			// close previous error if still open
-			// TODO: check if this works properly
 			setIsErrorOpen(false);
 		}
 		if (returnToLoginPage) {

@@ -14,21 +14,6 @@ from .logger import Logger
 from .error_handler import ErrorHandler, BackendError
 from .session_manager import SessionManager
 
-# TODO: verify that having multiple instances of the session manager does not
-# lead to problems (when serving multiple users in multiple threads)
-
-
-# rules for input validation (OWASP):
-# - use schema: https://pypi.org/project/jsonschema/
-# - verify range of numbers
-# - verify string length
-# - regex patterns in strings
-#     - allow only certain characters
-#     - avoid: https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
-#     - use: https://owasp.org/www-community/OWASP_Validation_Regex_Repository
-
-# TODO: make RequestManager a singleton like Logger
-
 
 class RequestManager:
     """This class handles the incoming requests from the REST API.

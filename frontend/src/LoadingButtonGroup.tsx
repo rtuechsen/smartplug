@@ -49,8 +49,6 @@ export function LoadingButton({ onClick, variant, children, sx, ref }: React.Pro
 		setLoading(false);
 	}
 
-	// TODO: verify that new error messages replace older ones in the UI
-
 	return (
 		<Button
 			onClick={handleClick}
