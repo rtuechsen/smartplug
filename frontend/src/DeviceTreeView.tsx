@@ -62,6 +62,8 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		// declare an async function to fetch and process the data
 		async function getTree(): Promise<void> {
 
+			// TODO: add timeout if server cannot be reached ???
+
 			// fetch the tree data
 			const response = await fetch('/api/gettree/', {
 				method: 'GET',
@@ -110,17 +112,16 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		const eventSource = new EventSource('/api/events/', {
 			withCredentials: true
 		});
-		// TODO: can this fail? error handling!
 
 		// register a function to run when a SSE message arrives, converts the update to the tree view
 		// from JSON to interface and updates the state to trigger the tree to update
-		eventSource.onmessage = function (event): void {
+		eventSource.addEventListener("device_tree_update", (event) => {
 			const treeData = JSON.parse(event.data) as DeviceTreeItemData[];
 			setDeviceTreeDataState([treeData]);
 		};
 
 		eventSource.onerror = function (): void {
-			displayError('Server Sent Events (SSE) have failed.');
+			displayError('ERROR: You either lost connection to the server or your session expired.', true);
 		};
 
 		return function (): void {

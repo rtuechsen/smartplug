@@ -32,8 +32,11 @@ class AuthenticationBackend(BaseBackend):
 
         # store data about the user in the session
         request.session["USERNAME"] = username
+        # TODO: first and last name are already stored in the user: remove them
+        # from the session ???
         request.session["FIRSTNAME"] = first_name
         request.session["LASTNAME"] = last_name
+
         request.session["HTTP_USER_AGENT"] = request.META["HTTP_USER_AGENT"]
         request.session["HTTP_ACCEPT_LANGUAGE"] = request.META[
             "HTTP_ACCEPT_LANGUAGE"
@@ -71,6 +74,10 @@ class AuthenticationBackend(BaseBackend):
                 or username == "MYLAB\\mmustermann"
             ) and password == "FHKiel123!":
                 return ("Max", "Mustermann")
+            elif (
+                username == "john.doe@mylab.local" and password == "FHKiel123!"
+            ):
+                return ("John", "")
             else:
                 raise BackendError(
                     message=f"Credentials mismatch on user: {username}.",

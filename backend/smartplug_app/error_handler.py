@@ -16,9 +16,7 @@ class BackendError(Exception):
     an alternative user facing message.
     """
 
-    def __init__(
-        self, message: str, status_code: int = None, user_message: str = None
-    ):
+    def __init__(self, message: str, status_code: int = None, user_message: str = None):
         """Constructor for the class.
 
         @param message The main message. Usually includes technical details

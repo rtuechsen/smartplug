@@ -5,8 +5,8 @@
 			"deviceId": "shellyplugsg3-b08184a654b8"
 		},
 		{
-			"label": "PC 1",
-			"deviceId": "10002"
+			"label": "PC 1 (real)",
+			"deviceId": "shellyplugsg3-b08184a5b0e0"
 		},
 		{
 			"label": "PC 2 (real)",

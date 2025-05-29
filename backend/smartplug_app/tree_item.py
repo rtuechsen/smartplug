@@ -2,6 +2,9 @@
 
 import datetime
 
+# TODO: set last switched for devices to earlier so that one can switch 
+# immedialtely after the server start
+
 
 # TODO: make ALL members protected, add getter and setter
 # TODO: to_dict -> abstract method of TreeItem ???

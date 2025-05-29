@@ -46,9 +46,6 @@ class SmartplugApp(AppConfig):
     ## The name of the app (required by Django).
     name: str = "smartplug_app"
 
-    # TODO: remove, used for debugging only
-    _background_task_started: bool = False
-
     _device_tree: DeviceTree
 
     ## A mutex to avoid race conditions on the device tree. Needed because
@@ -75,23 +72,6 @@ class SmartplugApp(AppConfig):
         SmartplugApp._mqtt_client = MQTTClient(
             on_update_callback=self.handle_mqtt_update
         )
-
-        # TODO: remove, used for debugging only
-        # if not SmartplugApp._background_task_started:
-        #     SmartplugApp._background_task_started = True
-        #     thread = threading.Thread(target=self.loop, daemon=True)
-        #     thread.start()
-
-    # TODO: remove, used for debugging only
-    # def loop(self) -> None:
-    #     time.sleep(2)
-    #     while True:
-    #         time.sleep(2)
-    #         # TODO: remove, used for debugging only
-    #         # self.change_device_tree_randomly(10)
-    #         django_eventstream.send_event(
-    #             "device_tree_update", "message", self.get_device_tree_dicts()
-    #         )
 
     def get_device_tree_dicts(self) -> list[dict]:
         """Function to answer a call to /gettree, returns the current state of
@@ -188,7 +168,9 @@ class SmartplugApp(AppConfig):
                 device.set_isOn(value)
 
         django_eventstream.send_event(
-            "device_tree_update", "message", self.get_device_tree_dicts()
+            "default",
+            "device_tree_update",
+            self.get_device_tree_dicts(),
         )
 
         if kind == "isAvailable":
@@ -233,11 +215,9 @@ class SmartplugApp(AppConfig):
         name of the variable across the project.
         """
 
-        # TODO: break function into smaller parts
-
         tree_item: TreeItem = SmartplugApp._device_tree.get_item(id)
 
-        if id is None:
+        if tree_item is None:
             raise BackendError(
                 f"Specified id {id} does not exist.",
                 status.HTTP_400_BAD_REQUEST,

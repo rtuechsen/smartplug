@@ -4,7 +4,6 @@ from queue import Queue
 import threading
 import datetime
 from pathlib import Path
-from io import TextIOWrapper
 
 
 # TODO: ensure ubuntu settings for deleting old log files work as expected

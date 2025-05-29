@@ -5,6 +5,7 @@
 # TODO: remove, development variable
 USE_SWITCHING_DELAYS: bool = True
 
+# TODO: add unit (seconds) to time variables
 SWITCHING_TOGGLE_DELAY: float = 1.0
 """A float value in seconds that determines how long to wait before switching a
 recently switched device again."""

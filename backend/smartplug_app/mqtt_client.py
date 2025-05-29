@@ -1,6 +1,5 @@
 import json
 import random
-import time
 import paho.mqtt.client as mqtt
 from .logger import Logger
 from .error_handler import BackendError
@@ -92,10 +91,23 @@ class MQTTClient:
             deviceId = topic.split("/")[0]
             state = payload.strip().lower() == "true"
 
-            # TODO: remove debug print ??? or use logger ???
-            print(f"[{deviceId}] is {'ONLINE' if state else 'OFFLINE'}")
-
             self._on_update_callback(deviceId, "isAvailable", state)
+            if state:
+                self._request_status(deviceId)
+
+        elif topic.endswith("/status/switch:0"):
+            deviceId = topic.split("/")[0]
+            try:
+                data = json.loads(payload)
+                output = data.get("output")
+
+                self._on_update_callback(deviceId, "isOn", output)
+
+            except json.JSONDecodeError as e:
+                raise BackendError(
+                    f"MQTT client received an invalid JSON for topic "
+                    f"{topic}: {payload}"
+                ) from e
 
         elif topic.endswith("/rpc"):
             deviceId = topic.split("/")[0]
@@ -112,10 +124,6 @@ class MQTTClient:
                     # TODO: better name for variable - what is this ???
                     output = result.get("output")
 
-                    # TODO: remove debug print ??? or use logger ???
-                    print(
-                        f"[{deviceId}](via RPC) is: {'ON' if output else 'OFF'}"
-                    )
                     self._on_update_callback(deviceId, "isOn", output)
 
             except json.JSONDecodeError:
@@ -124,12 +132,14 @@ class MQTTClient:
                 # TODO: create propper error
                 print(f"[{topic}] Invalid JSON in RPC: {payload}")
 
-        # TODO: remove, used for debugging only
-        # else:
-        #     data = json.loads(payload)
-        #     output = data.get("output")
-        #     print(topic)
-        #     print(data)
+    def _request_status(self, device_id: str):
+        payload = {
+            "id": 1,
+            "src": "shelly",
+            "method": "Switch.GetStatus",
+            "params": {"id": 0},
+        }
+        self._client.publish(device_id + self._sub_topic, json.dumps(payload))
 
     def disconnect(self):
         self._client.disconnect()
@@ -139,6 +149,7 @@ class MQTTClient:
         # TODO: remove, used for debugging only
         if not USE_MQTT:
             self._on_update_callback(deviceId, "isOn", desired_isOn)
+            return
 
         payload = {
             "id": 1,
@@ -148,9 +159,6 @@ class MQTTClient:
         }
 
         self._client.publish(deviceId + self._sub_topic, json.dumps(payload))
-
-        # TODO: remove debug print
-        print(f"Switch command (ON={desired_isOn}) was sent.")
 
         # TODO: error handling ??? or not possible ??? Might not be required,
         # further research please.
