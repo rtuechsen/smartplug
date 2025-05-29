@@ -26,7 +26,7 @@ import { getCsrfToken } from './RequestTools';
  */
 function App(): JSX.Element {
 	// TODO: is isLoggedIn redundant now? get also check remainingSessionTime ...
-	const [remainingSessionTime, setRemainingSessionTime] = React.useState<number>(undefined);
+	const [remainingSessionTime, setRemainingSessionTime] = React.useState<number | undefined>(undefined);
 	const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);

@@ -116,7 +116,7 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		// register a function to run when a SSE message arrives, converts the update to the tree view
 		// from JSON to interface and updates the state to trigger the tree to update
 		eventSource.addEventListener("device_tree_update", (event) => {
-			const treeData = JSON.parse(event.data) as DeviceTreeItemData[];
+			const treeData = JSON.parse(event.data) as DeviceTreeItemData;
 			setDeviceTreeDataState([treeData]);
 		});
 
