@@ -146,7 +146,6 @@ class SessionManager:
 
     def get_active_user_names(self) -> list[str]:
 
-        # TODO: turn these into class variables ???
         session_model = apps.get_model("sessions", "Session")
         user_model = get_user_model()
 

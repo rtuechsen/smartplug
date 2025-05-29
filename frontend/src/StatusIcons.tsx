@@ -6,7 +6,6 @@ import SvgIcon from '@mui/material/SvgIcon';
 import Tooltip from '@mui/material/Tooltip';
 import { JSX } from '@emotion/react/jsx-runtime';
 
-// TODO: de-duplicate these two components ???
 
 /**
  * A data structure to pass information to an OnIcon.  
