@@ -60,9 +60,20 @@ class RequestManager:
             Path(__file__).parent.parent.parent / openapi_rel_path
         )
 
-        with open(openapi_abs_path, "r", encoding="UTF-8") as file:
-            self._openapi: dict = yaml.safe_load(file)
-            # TODO: handle errors
+        try:
+            with open(openapi_abs_path, "r", encoding="UTF-8") as file:
+                self._openapi: dict = yaml.safe_load(file)
+        except FileNotFoundError as e:
+            raise BackendError(
+                f"Could not find the file openapi.yaml at {openapi_abs_path}."
+            ) from e
+        except IOError as e:
+            raise BackendError(
+                f"Error while reading the file openapi.yaml at "
+                f"{openapi_abs_path}."
+            ) from e
+        except yaml.YAMLError as e:
+            raise BackendError(f"Error while parsing openapi.yaml:{e}.") from e
 
         self._schema_switch: dict = self._openapi["paths"]["/api/switch"][
             "post"

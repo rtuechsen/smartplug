@@ -70,7 +70,7 @@ function App(): JSX.Element {
 				setIsLoggedIn(false);
 				setRemainingSessionTime(0.0);
 			}
-			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+			displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 		}
 		else {
 			setIsLoggedIn(false);
@@ -94,7 +94,7 @@ function App(): JSX.Element {
 					setIsLoggedIn(false);
 					setRemainingSessionTime(0.0);
 				} else {
-					displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+					displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 				}
 				return;
 			}

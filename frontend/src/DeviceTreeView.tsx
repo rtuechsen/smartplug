@@ -74,7 +74,7 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 			const responseData = await response.json();
 
 			if (!response.ok) {
-				displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+				displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 				// abort tree view creation
 				return;
 			}

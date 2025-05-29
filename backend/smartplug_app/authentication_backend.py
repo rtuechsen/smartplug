@@ -142,12 +142,12 @@ class AuthenticationBackend(BaseBackend):
                 # name or the last name when creating a user
 
                 if "givenName" in entry:
-                    first_name = entry["givenName"][0].decode("utf-8")
+                    first_name = entry["givenName"][0].decode("UTF-8")
                 else:
                     first_name = ""
 
                 if "sn" in entry:
-                    last_name = entry["sn"][0].decode("utf-8")
+                    last_name = entry["sn"][0].decode("UTF-8")
                 else:
                     last_name = ""
 

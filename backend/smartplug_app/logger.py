@@ -6,11 +6,6 @@ import datetime
 from pathlib import Path
 
 
-# TODO: ensure ubuntu settings for deleting old log files work as expected
-# TODO: make sure to set correct time(-zone) and date for ubuntu system /
-# AD-server
-
-
 class Log:
     """A pure data class that groups properties of a log."""
 
@@ -164,7 +159,7 @@ class Logger:
 
         try:
             with open(
-                self._log_file_path, mode="a", encoding="utf-8"
+                self._log_file_path, mode="a", encoding="UTF-8"
             ) as log_file:
 
                 while True:
@@ -182,9 +177,6 @@ class Logger:
                     log_file.flush()
 
                     self._log_queue.task_done()
-
-        # TODO: during django migration reading files will fail. try to prevent
-        # these errors (low prio)
 
         except FileNotFoundError:
             # these errors are printed to console directly as logging obviously

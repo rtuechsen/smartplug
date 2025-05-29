@@ -55,7 +55,7 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 			onLoginSuccess();
 		} else {
 			const responseData = await response.json();
-			displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+			displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 		}
 
 	};

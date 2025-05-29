@@ -16,7 +16,9 @@ class BackendError(Exception):
     an alternative user facing message.
     """
 
-    def __init__(self, message: str, status_code: int = None, user_message: str = None):
+    def __init__(
+        self, message: str, status_code: int = None, user_message: str = None
+    ):
         """Constructor for the class.
 
         @param message The main message. Usually includes technical details
@@ -103,11 +105,9 @@ class ErrorHandler:
                 "admin."
             )
 
-        # TODO: use 'detail' instead of 'message' -> adjust error handling code
-        # in frontend accordingly (because native errors use 'detail')
         return Response(
             {
-                "message": f"ERROR: {user_message} "
+                "detail": f"ERROR: {user_message} "
                 f"[{date_time.strftime("%Y-%m-%d %H:%M:%S.%f")}]"
             },
             status=status_code,

@@ -201,7 +201,8 @@ class SmartplugApp(AppConfig):
             ]
 
             if all(state is False for state in trigger_states):
-                # TODO: is simply choosing index 0 here okay? if so, write comment!
+                # simply choosing index 0 when selecting an id for the device
+                # is okay, as all ids of this device refer to this device
                 SmartplugApp.switch(self, listener_device.ids[0], False)
 
     def switch(self, id: str, desired_isOn: bool) -> None:
@@ -266,8 +267,6 @@ class SmartplugApp(AppConfig):
             now = datetime.datetime.now()
 
             # need to save last 'switch ON time' (mutex), wait until below delay
-            # TODO: only delay between device switches, not at beginning or end
-            # of request - Todo already done ???
             if desired_isOn:
                 # only delay switching when switching ON (no inrush
                 # current when switching OFF)

@@ -112,7 +112,7 @@ function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.
 
 		if (!response.ok) {
 			const responseData = await response.json();
-			await displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+			await displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 		}
 	}
 

@@ -42,7 +42,7 @@ class DeviceTree:
         file_path_abs = Path(__file__).parent.parent.parent / file_path_rel
 
         try:
-            with open(file_path_abs, "r", encoding="utf8") as file:
+            with open(file_path_abs, "r", encoding="UTF-8") as file:
                 config_json_string = file.read()
         except FileNotFoundError as e:
             raise BackendError(
