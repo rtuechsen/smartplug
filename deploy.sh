@@ -44,9 +44,9 @@ cd ..
 
 # http server
 
-sudo systemctl start nginx
-
 cd backend
+
+sudo systemctl start nginx
 
 # TODO: adjust the number of workers or mention it in the admin documentation
 sudo -E env PATH="$PATH" gunicorn --bind 127.0.0.1:8000 smartplug_app.asgi:application --worker-class uvicorn.workers.UvicornWorker --workers 1 --graceful-timeout 0
