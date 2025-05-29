@@ -127,16 +127,13 @@ function App(): JSX.Element {
 		},
 	});
 
-	// TODO: paper of header gets squished when window is small
-	// TODO: SIGN OUT button jumps to the left once user list has loaded
-
 	return (
 		// The ThemeProvider has to encapsulate the whole app.
 		// Then a paper area is added to the top of the page to hold the title.
 		// Below that a Box contains all items of the pages body, e.g. the DeviceTreeView.
 		<ThemeProvider theme={theme}>
 			<CssBaseline />	 {/* used to remove default padding of html body */}
-			<Paper elevation={1} sx={{ padding: '2rem' }}>
+			<Paper elevation={1} sx={{ padding: '2rem', width: '100%' }}>
 				<Typography variant='h2' sx={{ whiteSpace: 'nowrap' }}>
 					Smartplug Dirigent
 				</Typography>
@@ -160,7 +157,7 @@ function App(): JSX.Element {
 									<LoadingButton
 										onClick={logout}
 										variant='contained'
-										sx={{ alignSelf: 'start', mr: '2rem', minWidth: 'fit-content' }}
+										sx={{ alignSelf: 'end', mr: '2rem', minWidth: 'fit-content' }}
 									>
 										sign out
 									</LoadingButton>
