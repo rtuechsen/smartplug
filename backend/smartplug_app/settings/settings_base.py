@@ -50,11 +50,12 @@ MIDDLEWARE = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+# TODO: add comment: http okay because nginx forwards to https
 frontend_origin = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://localhost:3000",
-    "https://127.0.0.1:3000",
+    "http://localhost",
+    "http://127.0.0.1",
+    "https://localhost",
+    "https://127.0.0.1",
 ]
 
 CORS_ORIGIN_WHITELIST = frontend_origin
@@ -110,6 +111,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 AUTHENTICATION_BACKENDS = [
     "smartplug_app.authentication_backend.AuthenticationBackend"
