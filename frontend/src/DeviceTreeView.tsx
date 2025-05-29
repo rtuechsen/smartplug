@@ -65,7 +65,7 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 			// TODO: add timeout if server cannot be reached ???
 
 			// fetch the tree data
-			const response = await fetch('/api/gettree/', {
+			const response = await fetch('/api/get-tree/', {
 				method: 'GET',
 				credentials: 'include',
 				mode: 'same-origin',	// prevents sending token to another website

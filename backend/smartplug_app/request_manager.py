@@ -198,7 +198,7 @@ class RequestManager:
 
         return Response(None, status=status.HTTP_200_OK)
 
-    def gettree(self, request: Request) -> Response:
+    def get_tree(self, request: Request) -> Response:
         """Function to process requests to /gettree .
 
         @param request The incoming request.

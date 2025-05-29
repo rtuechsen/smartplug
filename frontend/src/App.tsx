@@ -81,7 +81,7 @@ function App(): JSX.Element {
 
 		async function getRemainingSessionTime(): Promise<void> {
 
-			const response = await fetch('/api/getremainingsessiontime/', {
+			const response = await fetch('/api/get-remaining-session-time/', {
 				method: 'GET',
 				credentials: 'include',
 				mode: 'same-origin',	// prevents sending token to another website

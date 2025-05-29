@@ -48,7 +48,7 @@ function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element | un
 		async function getUserList(): Promise<void> {
 
 			// fetch the tree data
-			const response = await fetch('/api/getusers/', {
+			const response = await fetch('/api/get-active-users/', {
 				method: 'GET',
 				credentials: 'include',
 				mode: 'same-origin',	// prevents sending token to another website

@@ -54,14 +54,14 @@ def logout(request: Request) -> Response:
 
 
 @api_view(["GET"])
-def gettree(request: Request) -> Response:
+def get_tree(request: Request) -> Response:
     """Callback for the /gettree endpoint.
 
     @param request The request from the REST API.
 
     @return The response from the request manager for the REST API.
     """
-    return request_manager.gettree(request)
+    return request_manager.get_tree(request)
 
 
 @api_view(["POST"])
@@ -76,7 +76,7 @@ def switch(request: Request) -> Response:
 
 
 @api_view(["GET"])
-def getactiveusers(request: Request) -> Response:
+def get_active_users(request: Request) -> Response:
     """Callback for the /getusers endpoint.
 
     @param request The request from the REST API.
@@ -87,7 +87,7 @@ def getactiveusers(request: Request) -> Response:
 
 
 @api_view(["GET"])
-def getremainingsessiontime(request: Request) -> Response:
+def get_remaining_session_time(request: Request) -> Response:
     """Callback for the /getremainingsessiontime endpoint.
 
     @param request The request from the REST API.
