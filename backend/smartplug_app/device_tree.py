@@ -166,8 +166,6 @@ class DeviceTree:
                     f"expected ['label','deviceId']."
                 )
 
-        # TODO: check types of properties
-
         device = TreeItemDevice()
         device.label = device_obj.get("label")
         device.deviceId = device_obj.get("deviceId")
@@ -323,8 +321,6 @@ class DeviceTree:
         TODO: warning: does not use mutex
 
         """
-
-        # TODO: detect cyclic dependencies
 
         graph_edges: list[tuple[str]] = []
 
