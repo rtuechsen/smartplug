@@ -22,10 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Application definition
 
-# TODO: remove 'admin'?
-
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -52,10 +49,12 @@ CORS_ALLOW_CREDENTIALS = True
 
 # TODO: add comment: http okay because nginx forwards to https
 frontend_origin = [
-    "http://localhost",
-    "http://127.0.0.1",
-    "https://localhost",
-    "https://127.0.0.1",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:80",
+    "http://127.0.0.1:80",
+    "https://localhost:443",
+    "https://127.0.0.1:443",
 ]
 
 CORS_ORIGIN_WHITELIST = frontend_origin
