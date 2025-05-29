@@ -3,9 +3,6 @@
 import datetime
 from .admin_settings import SWITCHING_TOGGLE_DELAY
 
-# TODO: set last switched for devices to earlier so that one can switch
-# immedialtely after the server start
-
 
 # TODO: make ALL members protected, add getter and setter
 # TODO: to_dict -> abstract method of TreeItem ???
@@ -83,10 +80,8 @@ class TreeItemDevice(TreeItem):
             seconds=SWITCHING_TOGGLE_DELAY
         )
 
-        ## TODO: list of TreeItemDevices
         self.turn_off_if_all_in_list_are_off: list[TreeItemDevice] = []
 
-        ## TODO: list of TreeItemDevices
         self.other_devices_listening_for_this_device_switching_off: list[
             TreeItemDevice
         ] = []

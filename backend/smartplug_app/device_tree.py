@@ -41,45 +41,50 @@ class DeviceTree:
 
         file_path_abs = Path(__file__).parent.parent.parent / file_path_rel
 
-        # TODO: raise BackendError
         try:
             with open(file_path_abs, "r", encoding="utf8") as file:
                 config_json_string = file.read()
-        except FileNotFoundError:
-            self._logger.error(
+        except FileNotFoundError as e:
+            raise BackendError(
                 f"Could not find the file config.json at {file_path_abs}."
-            )
-        except IOError:
-            self._logger.error(
+            ) from e
+        except IOError as e:
+            raise BackendError(
                 f"Error while reading the file config.json at "
                 f"{file_path_abs}."
-            )
+            ) from e
 
         # 2. convert string from file to JSON (dicts and lists)
-        # TODO: raise BackendError
+
         try:
             config_obj: list = json.loads(config_json_string)
         except ValueError as e:
-            self._logger.error(
-                "Failed to parse config.json to JSON: "
+            raise BackendError(
+                f"Failed to parse config.json to JSON: "
                 f"{e}: {config_json_string}."
-            )
+            ) from e
 
         if not isinstance(config_obj, dict):
-            # TODO: Backenderror
-            pass
+            raise BackendError(
+                f"Expected a single JSON object at the highest level, but "
+                f"found {type(config_obj)}"
+            ) from e
 
         if len(config_obj) != 2:
-            # TODO: Backenderror
-            pass
+            raise BackendError(
+                f"Object {config_obj} has wrong amount of properties, should "
+                f"be ['devices', 'tree']."
+            )
 
         if "devices" not in config_obj:
-            # TODO: Backenderror
-            pass
+            raise BackendError(
+                f"Object {config_obj} is missing property 'devices'."
+            )
 
         if "tree" not in config_obj:
-            # TODO: Backenderror
-            pass
+            raise BackendError(
+                f"Object {config_obj} is missing property 'tree'."
+            )
 
         device_objs: list[dict] = config_obj.get("devices")
         tree_obj: list[dict] = config_obj.get("tree")
@@ -90,7 +95,7 @@ class DeviceTree:
             device: TreeItemDevice = self._parse_device(device_obj)
 
             if device.deviceId in self._deviceId_to_device_mapping:
-                raise BackendError(
+                self._logger.error(
                     f"The 'deviceId' of device {device_obj} is not unique."
                 )
 
@@ -114,20 +119,51 @@ class DeviceTree:
                 f"Device {device_obj} is missing property 'label'."
             )
 
+        if not isinstance(device_obj.get("label"), str):
+            raise BackendError(
+                f"Property 'label' in device {device_obj} has wrong type "
+                f"{type(device_obj.get('label'))}, expcted: str."
+            )
+
         if "deviceId" not in device_obj:
             raise BackendError(
                 f"Device {device_obj} is missing property 'deviceId'."
             )
 
+        if not isinstance(device_obj.get("deviceId"), str):
+            raise BackendError(
+                f"Property 'deviceId' in device {device_obj} has wrong type "
+                f"{type(device_obj.get('deviceId'))}, expcted: str."
+            )
+
         if "turn_off_if_all_in_list_are_off" in device_obj:
             if len(device_obj) != 3:
                 raise BackendError(
-                    f"Device {device_obj} has wrong amount of properties."
+                    f"Device {device_obj} has wrong amount of properties, "
+                    f"expected "
+                    f"['label','deviceId','turn_off_if_all_in_list_are_off']."
                 )
+            if not isinstance(
+                device_obj.get("turn_off_if_all_in_list_are_off"), list
+            ):
+                raise BackendError(
+                    f"Property 'turn_off_if_all_in_list_are_off' in device "
+                    f"{device_obj} has wrong type "
+                    f"{type(device_obj.get('turn_off_if_all_in_list_are_off'))}"
+                    ", expcted: list[str]."
+                )
+            for deviceId in device_obj.get("turn_off_if_all_in_list_are_off"):
+                if not isinstance(deviceId, str):
+                    raise BackendError(
+                        f"An item in property 'turn_off_if_all_in_list_are_off'"
+                        f" in device {device_obj} has wrong type {type(deviceId)}"
+                        f", expcted: str."
+                    )
         else:
             if len(device_obj) != 2:
                 raise BackendError(
-                    f"Device {device_obj} has wrong amount of properties."
+                    f"Device {device_obj} has wrong amount of properties, "
+                    f"expected ['label','deviceId']."
                 )
 
         # TODO: check types of properties
@@ -187,7 +223,8 @@ class DeviceTree:
 
         if not isinstance(obj, dict):
             raise BackendError(
-                f"Object {obj} should be a dictionary, but isn't."
+                f"Object {obj} should be a dictionary, but is of type "
+                f"{type(obj)}."
             )
 
         # ---------------------------------------------------------------------
@@ -196,7 +233,14 @@ class DeviceTree:
 
             if len(obj) != 1:
                 raise BackendError(
-                    f"Device reference {obj} has wrong amount of properties."
+                    f"Device reference {obj} has wrong amount of properties, "
+                    f"expected ['deviceId']."
+                )
+
+            if not isinstance(obj.get("deviceId"), str):
+                raise BackendError(
+                    f"Property 'deviceId' in device {obj} has wrong type "
+                    f"{type(obj.get('deviceId'))}, expcted: str."
                 )
 
             device = self._deviceId_to_device_mapping.get(obj.get("deviceId"))
@@ -216,11 +260,26 @@ class DeviceTree:
         if "label" not in obj:
             raise BackendError(f"Group {obj} is missing property 'label'.")
 
+        if not isinstance(obj.get("label"), str):
+            raise BackendError(
+                f"Property 'label' in device {obj} has wrong type "
+                f"{type(obj.get('label'))}, expcted: str."
+            )
+
         if "children" not in obj:
             raise BackendError(f"Group {obj} is missing property 'children'.")
 
+        if not isinstance(obj.get("children"), list):
+            raise BackendError(
+                f"Property 'children' in device {obj} has wrong type "
+                f"{type(obj.get('children'))}, expcted: list."
+            )
+
         if len(obj) != 2:
-            raise BackendError(f"Group {obj} has wrong amount of properties.")
+            raise BackendError(
+                f"Group {obj} has wrong amount of properties, expected "
+                f"['label','children']"
+            )
 
         if len(obj.get("children")) == 0:
             self._logger.warn(f"Group {obj} is a group without children.")
