@@ -77,6 +77,8 @@ export interface LoadingButtonGroupProps extends DisplayErrorCallbackProps {
 }
 
 
+// TODO: LoadingButtonGroup: pass callback as an argument OR name component differently
+
 /**
  * A combined group of 'ON' and 'OFF' button which each show a loading circle while waiting for its callback to finish.
  *
