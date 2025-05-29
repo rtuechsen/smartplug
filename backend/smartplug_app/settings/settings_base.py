@@ -78,8 +78,6 @@ TEMPLATES = [
     },
 ]
 
-# TODO: remove WSGI ???
-WSGI_APPLICATION = "smartplug_app.wsgi.application"
 ASGI_APPLICATION = "smartplug_app.asgi.application"
 
 # Database
