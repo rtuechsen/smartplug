@@ -92,7 +92,8 @@ class AuthenticationBackend(BaseBackend):
         try:
             conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
 
-            # debug level 255 is the most verbose
+            # TODO: set debugging to 0 in production as it might log user
+            # passwords
             conn.set_option(ldap.OPT_DEBUG_LEVEL, 255)
 
             # LDAP 3 is necessary for active directory
@@ -112,6 +113,7 @@ class AuthenticationBackend(BaseBackend):
 
             # The bind performs the actual request to verify the credentials
             conn.simple_bind_s(username, password)
+            print("Successful bind.")
 
             # next get first and last name of the user (if those exist)
 
