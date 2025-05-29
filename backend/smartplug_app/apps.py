@@ -64,7 +64,7 @@ class SmartplugApp(AppConfig):
     _id_to_tree_item_mapping: dict[str, TreeItem] = {}
 
     ## A mapping to get the TreeItem for a given deviceId.
-    _device_id_to_tree_item_mapping: dict[str, TreeItemDevice] = {}
+    _deviceId_to_tree_item_mapping: dict[str, TreeItemDevice] = {}
 
     ## The logger instance (singleton) to log events and errors.
     _logger: Logger = Logger()
@@ -201,13 +201,13 @@ class SmartplugApp(AppConfig):
                 )
 
         if "deviceId" in obj:
-            if obj["deviceId"] in self._device_id_to_tree_item_mapping:
+            if obj["deviceId"] in self._deviceId_to_tree_item_mapping:
                 raise BackendError(
                     f"Property 'deviceId' of {obj} is not unique."
                 )
             tree_item = TreeItemDevice()
             tree_item.deviceId = obj["deviceId"]
-            self._device_id_to_tree_item_mapping[tree_item.deviceId] = (
+            self._deviceId_to_tree_item_mapping[tree_item.deviceId] = (
                 tree_item
             )
 
@@ -332,7 +332,7 @@ class SmartplugApp(AppConfig):
         """TODO"""
 
         device: TreeItemDevice = (
-            SmartplugApp._device_id_to_tree_item_mapping.get(deviceId)
+            SmartplugApp._deviceId_to_tree_item_mapping.get(deviceId)
         )
 
         if device is None:
@@ -543,7 +543,7 @@ class SmartplugApp(AppConfig):
                 for deviceId in deviceIds:
                     if (
                         deviceId
-                        not in SmartplugApp._device_id_to_tree_item_mapping
+                        not in SmartplugApp._deviceId_to_tree_item_mapping
                     ):
 
                         raise BackendError(
@@ -552,7 +552,7 @@ class SmartplugApp(AppConfig):
                             f"{tree_item.to_dict()} does not exist."
                         )
                     trigger_item: TreeItemDevice = (
-                        SmartplugApp._device_id_to_tree_item_mapping[deviceId]
+                        SmartplugApp._deviceId_to_tree_item_mapping[deviceId]
                     )
                     tree_item.turn_off_if_all_in_list_are_off.append(
                         trigger_item
