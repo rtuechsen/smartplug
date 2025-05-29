@@ -98,6 +98,13 @@ class DeviceTree:
 
         self._tree = self._object_to_tree_item(tree_obj, None)
 
+        for device in self._deviceId_to_device_mapping.values():
+            if len(device.parents) == 0:
+                self._logger.warn(
+                    f"Device with deviceId {device.deviceId} is defined but "
+                    "not used in the tree."
+                )
+
         self._collect_dependencies(device_objs)
 
     def _parse_device(self, device_obj: dict) -> TreeItemDevice:

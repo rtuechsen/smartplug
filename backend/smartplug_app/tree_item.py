@@ -18,7 +18,7 @@ class TreeItem:
 
         ## The human readable label of the item. Used when displaying the item
         ## in a UI.
-        self.label: str
+        self.label: str = None
 
         # TODO: Explain: ids[0] belongs to parents[0]
         ## The unique id of the item. A string of hexadecimal digits of length
@@ -74,7 +74,7 @@ class TreeItemDevice(TreeItem):
 
         ## The unique id that is set on the smartplug. Ignores PEP8 naming
         ## convention to match the name of the variable across the project.
-        self.deviceId: str
+        self.deviceId: str = None
 
         self.time_last_switched: datetime.datetime = datetime.datetime.now()
 
