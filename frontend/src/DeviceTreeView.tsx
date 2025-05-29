@@ -118,7 +118,7 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		eventSource.addEventListener("device_tree_update", (event) => {
 			const treeData = JSON.parse(event.data) as DeviceTreeItemData[];
 			setDeviceTreeDataState([treeData]);
-		};
+		});
 
 		eventSource.onerror = function (): void {
 			displayError('ERROR: You either lost connection to the server or your session expired.', true);
