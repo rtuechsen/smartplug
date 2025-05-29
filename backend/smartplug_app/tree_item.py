@@ -1,8 +1,9 @@
 """Contains classes for storing the device tree."""
 
 import datetime
+from .admin_settings import SWITCHING_TOGGLE_DELAY
 
-# TODO: set last switched for devices to earlier so that one can switch 
+# TODO: set last switched for devices to earlier so that one can switch
 # immedialtely after the server start
 
 
@@ -76,7 +77,11 @@ class TreeItemDevice(TreeItem):
         ## convention to match the name of the variable across the project.
         self.deviceId: str = None
 
-        self.time_last_switched: datetime.datetime = datetime.datetime.now()
+        self.time_last_switched: (
+            datetime.datetime
+        ) = datetime.datetime.now() - datetime.timedelta(
+            seconds=SWITCHING_TOGGLE_DELAY
+        )
 
         ## TODO: list of TreeItemDevices
         self.turn_off_if_all_in_list_are_off: list[TreeItemDevice] = []
