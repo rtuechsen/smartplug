@@ -127,6 +127,9 @@ function App(): JSX.Element {
 		},
 	});
 
+	// TODO: paper of header gets squished when window is small
+	// TODO: SIGN OUT button jumps to the left once user list has loaded
+
 	return (
 		// The ThemeProvider has to encapsulate the whole app.
 		// Then a paper area is added to the top of the page to hold the title.

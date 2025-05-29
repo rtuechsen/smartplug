@@ -162,6 +162,7 @@ class SessionManager:
                 active_user_ids.append(user_id)
 
         active_users = user_model.objects.filter(id__in=active_user_ids)
+        # TODO: strip whitespace
         acitve_user_names = [
             f"{user.first_name} {user.last_name}" for user in active_users
         ]

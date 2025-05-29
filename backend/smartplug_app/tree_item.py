@@ -2,6 +2,9 @@
 
 import datetime
 
+# TODO: set last switched for devices to earlier so that one can switch 
+# immedialtely after the server start
+
 
 class TreeItem:
     """A pure data class that groups common properties of a tree items."""
