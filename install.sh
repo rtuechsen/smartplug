@@ -65,7 +65,9 @@ cd ..
 
 # ssl key
 
-sudo mkdir /etc/nginx/ssl/
+if ! [ -d /etc/nginx/ssl/ ]; then
+	sudo mkdir /etc/nginx/ssl/
+fi
 
 sudo openssl genpkey -algorithm RSA -out /etc/nginx/ssl/selfsigned.key
 
