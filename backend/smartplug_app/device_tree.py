@@ -22,7 +22,7 @@ class DeviceTree:
         self._id_to_tree_item_mapping: dict[str, TreeItem] = {}
 
         ## A mapping to get the TreeItem for a given deviceId.
-        self._device_id_to_device_mapping: dict[str, TreeItemDevice] = {}
+        self._deviceId_to_device_mapping: dict[str, TreeItemDevice] = {}
 
         self._load(file_path_rel)
 
@@ -89,12 +89,12 @@ class DeviceTree:
         for device_obj in device_objs:
             device: TreeItemDevice = self._parse_device(device_obj)
 
-            if device.deviceId in self._device_id_to_device_mapping:
+            if device.deviceId in self._deviceId_to_device_mapping:
                 raise BackendError(
                     f"The 'deviceId' of device {device_obj} is not unique."
                 )
 
-            self._device_id_to_device_mapping[device.deviceId] = device
+            self._deviceId_to_device_mapping[device.deviceId] = device
 
         self._tree = self._object_to_tree_item(tree_obj, None)
 
@@ -192,7 +192,7 @@ class DeviceTree:
                     f"Device reference {obj} has wrong amount of properties."
                 )
 
-            device = self._device_id_to_device_mapping.get(obj.get("deviceId"))
+            device = self._deviceId_to_device_mapping.get(obj.get("deviceId"))
 
             if device is None:
                 raise BackendError(
@@ -267,13 +267,13 @@ class DeviceTree:
             if "turn_off_if_all_in_list_are_off" not in obj:
                 return
 
-            tree_item: TreeItemDevice = self._device_id_to_device_mapping.get(
+            tree_item: TreeItemDevice = self._deviceId_to_device_mapping.get(
                 obj.get("deviceId")
             )
 
             for deviceId in obj["turn_off_if_all_in_list_are_off"]:
 
-                if deviceId not in self._device_id_to_device_mapping:
+                if deviceId not in self._deviceId_to_device_mapping:
 
                     raise BackendError(
                         f"Specified deviceId {deviceId} in "
@@ -281,7 +281,7 @@ class DeviceTree:
                         f"{obj} does not exist."
                     )
                 trigger_item: TreeItemDevice = (
-                    self._device_id_to_device_mapping[deviceId]
+                    self._deviceId_to_device_mapping[deviceId]
                 )
                 tree_item.turn_off_if_all_in_list_are_off.append(trigger_item)
                 trigger_item.other_devices_listening_for_this_device_switching_off.append(
@@ -317,4 +317,4 @@ class DeviceTree:
 
     def get_device(self, deviceId: str) -> TreeItemDevice:
 
-        return self._device_id_to_device_mapping.get(deviceId)
+        return self._deviceId_to_device_mapping.get(deviceId)
