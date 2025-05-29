@@ -350,7 +350,9 @@ class SmartplugApp(AppConfig):
                 device.set_isOn(value)
 
         django_eventstream.send_event(
-            "device_tree_update", "message", self.get_device_tree_dicts()
+            "default",
+            "device_tree_update",
+            self.get_device_tree_dicts(),
         )
 
         if kind == "isAvailable":
