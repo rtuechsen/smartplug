@@ -8,7 +8,6 @@ import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
-// import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import { JSX } from '@emotion/react/jsx-runtime';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
@@ -26,8 +25,7 @@ function UserListItem({ name }: UserListItemProps): JSX.Element {
 	return (
 		<ListItem sx={{ padding: '0.5rem' }}>
 			<ListItemAvatar sx={{ minWidth: '0rem', paddingRight: '0.7rem' }}>
-				<Avatar sx={{ width: 30, height: 30 }}>
-					{/* <PersonRoundedIcon /> */}
+				<Avatar sx={{ width: '2rem', height: '2rem' }}>
 					{name[0]}
 				</Avatar>
 			</ListItemAvatar>
