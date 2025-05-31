@@ -27,16 +27,13 @@ import CountdownTimer from './CountdownTimer';
  */
 function App(): JSX.Element {
 	// TODO: is isLoggedIn redundant now? get also check remainingSessionTime ...
+	// TODO: use unit for time
 	const [remainingSessionTime, setRemainingSessionTime] = React.useState<number | undefined>(undefined);
 	const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
 
-	// const timerRef = React.useRef<number>(120);
-	const [timerValue, setTimerValue] = React.useState<number>(120);
-	const handleReset = () => {
-		setTimerValue(150);
-	};
+	const [sessionCountdownTrigger, setSessionCountdownTrigger] = React.useState<boolean>(true);
 
 	function onLoginSuccess(): void {
 		setIsLoggedIn(true);
@@ -75,6 +72,7 @@ function App(): JSX.Element {
 			if (response.status === 401) {
 				setIsLoggedIn(false);
 				setRemainingSessionTime(0.0);
+				setSessionCountdownTrigger(!sessionCountdownTrigger);
 			}
 			displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 		}
@@ -94,11 +92,13 @@ function App(): JSX.Element {
 			});
 
 			const responseData = await response.json();
+			console.log(responseData);
 
 			if (!response.ok) {
 				if (response.status === 401) {
 					setIsLoggedIn(false);
 					setRemainingSessionTime(0.0);
+					setSessionCountdownTrigger(!sessionCountdownTrigger);
 				} else {
 					displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 				}
@@ -107,6 +107,7 @@ function App(): JSX.Element {
 			else {
 				setIsLoggedIn(true);
 				setRemainingSessionTime(responseData.remaining_session_time);
+				setSessionCountdownTrigger(!sessionCountdownTrigger);
 			}
 		}
 
@@ -146,8 +147,8 @@ function App(): JSX.Element {
 			</Paper>
 
 
-			<CountdownTimer initialTime={timerValue} />
-			<button onClick={handleReset}>Reset</button>
+			<CountdownTimer initialTime={remainingSessionTime} trigger={sessionCountdownTrigger} />
+			{/* <button onClick={handleReset}>Reset</button> */}
 
 
 			<Box sx={{ padding: '1.5rem' }}>

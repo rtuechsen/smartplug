@@ -6,9 +6,10 @@ import { JSX } from '@emotion/react/jsx-runtime';
 interface CountdownTimerProps {
 	// resetTimeSecondsRef: React.Ref<number>;
 	initialTime: number;
+	trigger: boolean;
 }
 
-function CountdownTimer({ initialTime }: CountdownTimerProps): JSX.Element {
+function CountdownTimer({ initialTime, trigger }: CountdownTimerProps): JSX.Element {
 
 	// const remainingTimeSecondsRef = React.useRef<number>(resetTimeSecondsRef?.current);
 	const [remainingTime, setRemainingTime] = React.useState<number>(initialTime);
@@ -24,12 +25,12 @@ function CountdownTimer({ initialTime }: CountdownTimerProps): JSX.Element {
 		if (intervalRef.current) {
 			clearInterval(intervalRef.current);
 		}
-	}, [initialTime]);
+	}, [initialTime, trigger]);
 
 	function secondsToString(remainingSeconds: number): string {
 		const minutes = Math.floor(remainingSeconds / 60);
 		const seconds = Math.floor(remainingSeconds % 60);
-		return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+		return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 	}
 
 	function updateTimer(): void {
