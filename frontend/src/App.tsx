@@ -36,7 +36,13 @@ function App(): JSX.Element {
 	const [sessionCountdownTrigger, setSessionCountdownTrigger] = React.useState<boolean>(true);
 
 	function onLoginSuccess(): void {
+		getRemainingSessionTime();
 		setIsLoggedIn(true);
+	}
+
+	function updateSessionTime(remainingTimeSecons: number): void {
+		setRemainingSessionTime(remainingTimeSecons);
+		setSessionCountdownTrigger(!sessionCountdownTrigger);
 	}
 
 	async function displayError(message: string, returnToLoginPage: boolean = false): Promise<void> {
@@ -71,8 +77,7 @@ function App(): JSX.Element {
 			const responseData = await response.json();
 			if (response.status === 401) {
 				setIsLoggedIn(false);
-				setRemainingSessionTime(0.0);
-				setSessionCountdownTrigger(!sessionCountdownTrigger);
+				updateSessionTime(0.0);
 			}
 			displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 		}
@@ -81,35 +86,33 @@ function App(): JSX.Element {
 		}
 	}
 
-	React.useEffect(() => {
+	async function getRemainingSessionTime(): Promise<void> {
 
-		async function getRemainingSessionTime(): Promise<void> {
+		const response = await fetch('/api/get-remaining-session-time/', {
+			method: 'GET',
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
+		});
 
-			const response = await fetch('/api/get-remaining-session-time/', {
-				method: 'GET',
-				credentials: 'include',
-				mode: 'same-origin',	// prevents sending token to another website
-			});
+		const responseData = await response.json();
+		console.log(responseData);
 
-			const responseData = await response.json();
-			console.log(responseData);
-
-			if (!response.ok) {
-				if (response.status === 401) {
-					setIsLoggedIn(false);
-					setRemainingSessionTime(0.0);
-					setSessionCountdownTrigger(!sessionCountdownTrigger);
-				} else {
-					displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
-				}
-				return;
+		if (!response.ok) {
+			if (response.status === 401) {
+				setIsLoggedIn(false);
+				updateSessionTime(0.0);
+			} else {
+				displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 			}
-			else {
-				setIsLoggedIn(true);
-				setRemainingSessionTime(responseData.remaining_session_time);
-				setSessionCountdownTrigger(!sessionCountdownTrigger);
-			}
+			return;
 		}
+		else {
+			setIsLoggedIn(true);
+			updateSessionTime(responseData.remaining_session_time);
+		}
+	}
+
+	React.useEffect(() => {
 
 		getRemainingSessionTime();
 
@@ -160,7 +163,7 @@ function App(): JSX.Element {
 								justifyContent='space-between'
 								spacing={'1rem'}
 							>
-								<DeviceTreeView displayError={displayError} />
+								<DeviceTreeView displayError={displayError} afterButtonClick={getRemainingSessionTime} />
 
 								<Stack
 									direction='column'
