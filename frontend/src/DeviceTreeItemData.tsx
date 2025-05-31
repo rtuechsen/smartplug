@@ -6,7 +6,8 @@
  *
  * The property 'children' is optional. If present the item will be considered a group.
  */
-interface DeviceTreeItemData {
+
+export interface DeviceTreeSingleItemData {
 
 	/**
 	 * The human readable label of the item. Used when displaying the item in a UI.
@@ -27,6 +28,10 @@ interface DeviceTreeItemData {
 	 * A boolean indicating if the item is currently reachable.
 	 */
 	isAvailable: boolean;
+
+}
+
+interface DeviceTreeItemData extends DeviceTreeSingleItemData {
 
 	/**
 	 * A list of TreeItems that this group combines. If defined the item is considered a group, not a device. While it does not make a lot of sense, the array can be empty.
