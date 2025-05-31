@@ -14,6 +14,7 @@ import UserList from './UserList';
 import Login from './Login';
 import { getCsrfToken } from './RequestTools';
 
+import CountdownTimer from './CountdownTimer';
 
 /**
  * The main App component.
@@ -30,6 +31,12 @@ function App(): JSX.Element {
 	const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
+
+	// const timerRef = React.useRef<number>(120);
+	const [timerValue, setTimerValue] = React.useState<number>(120);
+	const handleReset = () => {
+		setTimerValue(150);
+	};
 
 	function onLoginSuccess(): void {
 		setIsLoggedIn(true);
@@ -137,6 +144,12 @@ function App(): JSX.Element {
 					Smartplug Dirigent
 				</Typography>
 			</Paper>
+
+
+			<CountdownTimer initialTime={timerValue} />
+			<button onClick={handleReset}>Reset</button>
+
+
 			<Box sx={{ padding: '1.5rem' }}>
 				{remainingSessionTime === undefined ? undefined :
 					(
