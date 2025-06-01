@@ -1,3 +1,4 @@
+## TODO
 ## \mainpage
 ##
 ## # Title
@@ -7,3 +8,4 @@
 ## - mutex: Needed because async calls from the REST API are possible.
 ## - id/isOn: ignore linter to have the same names throughout the project
 ## - LDAP TLS code is commented out
+## - add example of config to docs
