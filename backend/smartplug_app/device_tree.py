@@ -1,3 +1,7 @@
+"""Contains the device tree which represents the hierarchy of devices and their
+current state in the backend.
+"""
+
 import json
 import hashlib
 from pathlib import Path
@@ -8,8 +12,17 @@ from .error_handler import BackendError
 
 
 class DeviceTree:
+    """A class to hold the hierarchy of devices and groups with their current
+    state.
+
+    It is responsable for its construction and offers functions to retreive
+    certain items.
+    """
 
     def __init__(self, file_path_rel: Path):
+        """Constructor of the class, constructs the device tree from a
+        configuration file.
+        """
 
         ## The logger instance (singleton) to log events and errors.
         self._logger: Logger = Logger()
@@ -18,10 +31,10 @@ class DeviceTree:
         ## and their current state.
         self._tree: list[TreeItemDevice | TreeItemGroup] = []
 
-        ## A mapping to get the TreeItem for a given id.
+        ## A mapping to get the tree item for a given id.
         self._id_to_tree_item_mapping: dict[str, TreeItem] = {}
 
-        ## A mapping to get the TreeItem for a given deviceId.
+        ## A mapping to get the device for a given deviceId.
         self._deviceId_to_device_mapping: dict[str, TreeItemDevice] = {}
 
         self._load(file_path_rel)
@@ -30,7 +43,9 @@ class DeviceTree:
         """Loads the hierarchy of devices and groups from `config.json`.
 
         The file 'config.json' is expected to be located in the root
-        directory of this project.
+        directory of the project.
+
+        Verifies the structure of the data and provides feedback.
 
         @return The hierarchy of devices and groups.
         """
@@ -113,6 +128,15 @@ class DeviceTree:
         self._collect_dependencies(device_objs)
 
     def _parse_device(self, device_obj: dict) -> TreeItemDevice:
+        """Function that takes a device in form of a dictionary and returns a
+        corresponding instance of TreeItemDevice.
+
+        Verifies the structure of the data and provides feedback.
+
+        @param The dictionary representing the device.
+
+        @return An instance of TreeItemDevice representing the device.
+        """
 
         if "label" not in device_obj:
             raise BackendError(
@@ -150,7 +174,7 @@ class DeviceTree:
                     f"Property 'turn_off_if_all_in_list_are_off' in device "
                     f"{device_obj} has wrong type "
                     f"{type(device_obj.get('turn_off_if_all_in_list_are_off'))}"
-                    ", expcted: list[str]."
+                    f", expcted: list[str]."
                 )
             for deviceId in device_obj.get("turn_off_if_all_in_list_are_off"):
                 if not isinstance(deviceId, str):
@@ -175,13 +199,15 @@ class DeviceTree:
     def _object_list_to_tree_item_list(
         self,
         object_list: list[dict],
-        parent: TreeItemGroup,
+        parent: TreeItemGroup | None,
     ) -> list[TreeItem]:
-        """Converts a list of dictionaries (JSON) to a list of TreeItems.
-
-        TODO: warning: does not use mutex
+        """Function to convert a list of dictionaries representing tree items
+        to a list of TreeItems.
 
         @param object_list A list of dictionaries representing tree items.
+
+        @param parent The group that is holding the list. None in case of the
+        root group of the tree.
 
         @return A list of TreeItems.
         """
@@ -201,23 +227,21 @@ class DeviceTree:
     def _object_to_tree_item(
         self,
         obj: dict,
-        parent: TreeItemGroup,
+        parent: TreeItemGroup | None,
     ) -> TreeItem:
-        """Converts a (hierarchy of) dictionary(s) (aka JSON) to a (hierarchy
-        of) TreeItem(s).
+        """Function to convert a dictionary representing a tree tiem to a
+        TreeItem.
 
         Verifies the structure of the data and provides feedback.
 
-        TODO: warning: does not use mutex
-
         @param obj A dictionary representing a tree item, possibly with more
-        tree items as childrens.
+        tree items as children.
+
+        @param parent The group that is holding the item. None in case of the
+        root group of the tree.
 
         @return A TreeItem with possibly more TreeItems as its children.
         """
-
-        # also verifies the correctness of the data, providing feedback to the
-        # admin using error messages
 
         if not isinstance(obj, dict):
             raise BackendError(
@@ -226,6 +250,8 @@ class DeviceTree:
             )
 
         # ---------------------------------------------------------------------
+
+        # TreeItemDevice
 
         if "deviceId" in obj:
 
@@ -254,6 +280,8 @@ class DeviceTree:
             return device
 
         # ---------------------------------------------------------------------
+
+        # TreeItemGroup
 
         if "label" not in obj:
             raise BackendError(f"Group {obj} is missing property 'label'.")
@@ -292,22 +320,32 @@ class DeviceTree:
         )
         return group
 
-    def _add_unique_id(self, tree_item: TreeItem, parent: TreeItemGroup):
+    def _add_unique_id(
+        self, tree_item: TreeItem, parent: TreeItemGroup
+    ) -> None:
+        """Function to generate a unique id for a given tree item.
 
-        # Use (cryptographic) hash of the items label for the id in order to
-        # keep the same id across runs.
-        # This hides the deviceId of the smartplugs from the clients and gives
-        # ids to groups as well.
+        A deterministic (cryptographic) hash of the items label is used for the
+        id in order to keep the same id across runs.
+        This hides the deviceId of the smartplugs from the clients and gives
+        ids to groups as well.
+
+        @param tree_item The tree item to generate an id for.
+
+        @param parent The group that is holding the item. None in case of the
+        root group of the tree.
+        """
+
         hash_source: str = tree_item.label
 
         if parent is not None:
-            # index 0 because parent has to be a group, those have only ever
-            # one id
+            # We use index 0 here because the parent is a group and those have
+            # only ever a single id.
             hash_source += parent.ids[0]
 
         tree_item_id: str = hashlib.sha256(str.encode(hash_source)).hexdigest()
         while tree_item_id in self._id_to_tree_item_mapping:
-            # if the label is not unique in the file change the hash source
+            # If the generated id is not unique we change the hash source
             # (deterministically) until a unique hash is created
             hash_source += "0"
             tree_item_id = hashlib.sha256(str.encode(hash_source)).hexdigest()
@@ -315,19 +353,32 @@ class DeviceTree:
         tree_item.ids.append(tree_item_id)
         self._id_to_tree_item_mapping[tree_item_id] = tree_item
 
-    def _collect_dependencies(self, device_objs: list):
+    def _collect_dependencies(self, device_objs: list) -> None:
+        """Function to collect dependencies between devices.
+
+        Some devices have an additional property
+        'turn_off_if_all_in_list_are_off' in their configuration. If all
+        devices in that list are turned OFF, so should this device.
+        This creates dependencies between devices.
+
+        This function also verifies that no cyclic dependencies exist.
+
+        @param device_objs List of tree items in form of dictionaries read from
+        the configuration file.
         """
 
-        TODO: warning: does not use mutex
+        # At the end of this function each TreeItemDevice should have one list
+        # with devices that they are watching for changes as well as a list of
+        # devices that they are being watched from.
 
-        """
+        # A list of pairs of deviceIds representing the edges of a directed
+        # graph, used to check for circular dependencies.
+        graph_edges: list[tuple[str, str]] = []
 
-        graph_edges: list[tuple[str]] = []
-
-        def convert_ids_to_references(obj: dict):
+        for obj in device_objs:
 
             if "turn_off_if_all_in_list_are_off" not in obj:
-                return
+                continue
 
             tree_item: TreeItemDevice = self._deviceId_to_device_mapping.get(
                 obj.get("deviceId")
@@ -351,9 +402,6 @@ class DeviceTree:
                 )
                 graph_edges.append((trigger_item.deviceId, tree_item.deviceId))
 
-        for obj in device_objs:
-            convert_ids_to_references(obj)
-
         graph = networkx.DiGraph(graph_edges)
         cycles = networkx.recursive_simple_cycles(graph)
 
@@ -364,8 +412,8 @@ class DeviceTree:
             )
 
     def get_device_tree_dicts(self) -> list[dict]:
-        """Function to answer a call to /gettree, returns the current state of
-        the tree.
+        """Function to answer a clients call to /gettree, returns the current
+        state of the tree.
 
         @return A hierarchy of dictionaries and lists representing the current
         state of the device tree.
@@ -374,9 +422,21 @@ class DeviceTree:
         return self._tree.to_dict(None)
 
     def get_item(self, id: str) -> TreeItem:
+        """Function to get a tree item for a given id.
+
+        @param id The id of the tree item to retrieve.
+
+        @return The tree item corresponding to the given id.
+        """
 
         return self._id_to_tree_item_mapping.get(id)
 
     def get_device(self, deviceId: str) -> TreeItemDevice:
+        """Function to get a device for a given deviceId.
+
+        @param id The deviceId of the device to retrieve.
+
+        @return The device corresponding to the given deviceId.
+        """
 
         return self._deviceId_to_device_mapping.get(deviceId)
