@@ -1,4 +1,6 @@
-"""TODO."""
+"""Contains variables that control the behavior of the backend and provide an easy
+way for the systems admin to change key aspects of the backend.
+"""
 
 # TODO: store settings here or in settings_base.py ???
 
