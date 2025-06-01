@@ -1,5 +1,9 @@
-"""Settings for development builds."""
+"""Settings specific for development builds.\ These settings extend those from
+settings_base.py.
+"""
 
+# From settings_base we import all settings shared between development and
+# production builds.
 from .settings_base import *
 
 DEBUG = True

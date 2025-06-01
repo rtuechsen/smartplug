@@ -1,13 +1,15 @@
-"""Settings for production builds."""
+"""Settings specific for production builds.\ These settings extend those from
+settings_base.py.
+"""
 
-import os
+# From settings_base we import all settings shared between development and
+# production builds.
 from .settings_base import *
+import os
 
-# don't run with debug turned on in production!
+# Don't run with debug turned on in production!
 DEBUG = False
 
-# keep the secret key used in production secret!
-# TODO: change secret key
+## The individual secret key of this project (for production builds).\ This
+## value is the used to securing signed data.
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "your-production-secret-key")
-
-STATIC_ROOT = os.path.join(BASE_DIR, "static/")
