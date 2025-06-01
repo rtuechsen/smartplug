@@ -58,7 +58,7 @@ class SmartplugApp(AppConfig):
     ## A mutex to avoid race conditions on _last_switch_on_date_time.
     _last_switch_on_date_time_mutex: Lock = Lock()
 
-    ## The logger instance (singleton) to log events and errors.
+    ## The logger instance (singleton) used to log events and errors.
     _logger: Logger = Logger()
 
     ## An instance of MQTTClient which is used to communicate with devices via

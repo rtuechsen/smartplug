@@ -24,7 +24,7 @@ class DeviceTree:
         configuration file.
         """
 
-        ## The logger instance (singleton) to log events and errors.
+        ## The logger instance (singleton) used to log events and errors.
         self._logger: Logger = Logger()
 
         ## The main data structure to hold the hierarchy of devices and groups

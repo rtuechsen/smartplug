@@ -1,4 +1,4 @@
-"""Contains the callbacks for the endpoints of the backend.
+"""Contains the callbacks for the REST API endpoints of the backend.
 
 Django requires the endpoints to be defined in this file on file level.
 In order to combine the handling of the endpoints in a class we forward
@@ -15,6 +15,7 @@ from .request_manager import RequestManager
 # file at file level.
 # So to combine the handling of requests in a class we have to forward each of
 # them.
+
 ## The instance of the RequestManager. All requests are forwared to it.
 request_manager = RequestManager()
 

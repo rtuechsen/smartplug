@@ -18,16 +18,17 @@ from .session_manager import SessionManager
 class RequestManager:
     """This class handles the incoming requests from the REST API.
 
-    It delegates work to the backend and construct responses for the
-    requests.
+    It delegates work to the backend and construct responses for the requests.
     """
 
     def __init__(self):
         """Constructor for the class."""
 
-        ## The logger instance (singleton) to log events and errors.
+        ## The logger instance (singleton) used to log events and errors.
         self._logger: Logger = Logger()
 
+        ## The SessionManager instance (singleton) used to authenticate
+        ## requests.
         self._session_manager = SessionManager()
 
         ## An instance of ErrorHandler to simultaneously log an error and
@@ -39,7 +40,7 @@ class RequestManager:
 
         # Because openapi.yaml already contains schemas for the requests for
         # documentation purposes, we extract those schemas and use them for
-        # validation
+        # validation.
         openapi_rel_path: str = "./openapi.yaml"
         openapi_abs_path: Path = (
             Path(__file__).parent.parent.parent / openapi_rel_path
@@ -60,10 +61,14 @@ class RequestManager:
         except yaml.YAMLError as e:
             raise BackendError(f"Error while parsing openapi.yaml:{e}.") from e
 
+        ## The OpenAPI schema for switch requests. Used to vaidate incoming
+        ## requests.
         self._schema_switch: dict = self._openapi["paths"]["/api/switch"][
             "post"
         ]["requestBody"]["content"]["application/json"]["schema"]
 
+        ## The OpenAPI schema for login requests. Used to vaidate incoming
+        ## requests.
         self._schema_login: dict = self._openapi["paths"]["/api/login"][
             "post"
         ]["requestBody"]["content"]["application/json"]["schema"]
@@ -86,6 +91,7 @@ class RequestManager:
             ),
         )
 
+        # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
                 "Requests to /csrf are not allowed to have a body.",
@@ -102,7 +108,12 @@ class RequestManager:
         return Response(status=status.HTTP_200_OK)
 
     def login(self, request: Request) -> Response:
-        """TODO."""
+        """Function to process requests to /login .
+
+        @param request The incoming request.
+
+        @return A response indication the success of the request.
+        """
 
         self._logger.info(
             "A /login request has been received.",
@@ -149,10 +160,15 @@ class RequestManager:
         return Response(None, status=status.HTTP_200_OK)
 
     def logout(self, request: Request) -> Response:
-        """TODO."""
+        """Function to process requests to /logout .
 
-        # TODO: note, username would not be available by the time the event is
-        # logged
+        @param request The incoming request.
+
+        @return A response indication the success of the request.
+        """
+
+        # Note: the username would not be available by the time the event is
+        # logged, as the session is invalidated. So we create a copy here.
         username = copy.copy(
             request.session["USERNAME"]
             if "USERNAME" in request.session
@@ -164,6 +180,7 @@ class RequestManager:
             username,
         )
 
+        # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
                 "Requests to /logout are not allowed to have a body.",
@@ -213,6 +230,7 @@ class RequestManager:
             ),
         )
 
+        # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
                 "Requests to /gettree are not allowed to have a body.",
@@ -320,6 +338,7 @@ class RequestManager:
             ),
         )
 
+        # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
                 "Requests to /getactiveusers are not allowed to have a body.",
@@ -364,6 +383,7 @@ class RequestManager:
             ),
         )
 
+        # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
                 "Requests to /getremainingsessiontime are not allowed to have "

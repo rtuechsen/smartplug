@@ -10,7 +10,7 @@ class MQTTClient:
 
     def __init__(self, on_update_callback):
 
-        ## The logger instance (singleton) to log events and errors.
+        ## The logger instance (singleton) used to log events and errors.
         self._logger: Logger = Logger()
 
         self._broker_ip: str = "localhost"
