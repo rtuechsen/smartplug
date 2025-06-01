@@ -31,10 +31,10 @@ class Logger:
     Because the class is a singleton its attributes are all class attributes.
 
     Log files are stored in '/var/log/smartplug_app/' with a file per day.
-    TODO: add note about linux removing files from /var/log/ regularly.
+    The linux tool 'logroate' is used in this project to switch the log file
+    and remove old log files regularly.
     """
 
-    # Note: type hint needs to be in quotes as the class is not defined yet.
     ## The (only) instance of this class.
     _instance: "Logger" = None
 
@@ -86,6 +86,13 @@ class Logger:
         from the message.
 
         @param message The message to be logged.
+
+        @param client_ip_address The IP address of the client making the
+        request.
+
+        @param username The username of the user making the request.
+
+        @param date_time The date and time when the error occured.
         """
 
         self._log("INFO: " + message, client_ip_address, username, date_time)
@@ -101,6 +108,13 @@ class Logger:
         newlines from the message.
 
         @param message The message to be logged.
+
+        @param client_ip_address The IP address of the client making the
+        request.
+
+        @param username The username of the user making the request.
+
+        @param date_time The date and time when the error occured.
         """
 
         self._log(
@@ -118,6 +132,13 @@ class Logger:
         from the message.
 
         @param message The message to be logged.
+
+        @param client_ip_address The IP address of the client making the
+        request.
+
+        @param username The username of the user making the request.
+
+        @param date_time The date and time when the error occured.
         """
 
         self._log("ERROR: " + message, client_ip_address, username, date_time)
@@ -133,6 +154,13 @@ class Logger:
         Log to the log_queue.
 
         @param message The message to be logged.
+
+        @param client_ip_address The IP address of the client making the
+        request.
+
+        @param username The username of the user making the request.
+
+        @param date_time The date and time when the error occured.
         """
 
         if date_time is None:
@@ -152,9 +180,9 @@ class Logger:
         self._log_queue.put(log)
 
     def _write_queue_to_file(self) -> None:
-        """Function for the worker thread.
+        """Function for the worker thread to write logs to file.
 
-        Takes incoming logs from the log_queue and writes them to a log file.
+        Takes incoming logs from the log_queue and writes them to the log file.
         """
 
         try:
