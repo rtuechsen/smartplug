@@ -100,6 +100,9 @@ class SessionManager:
 
             # set sleep timer to the expiry time of the next open session
             # (+ some threshold to make sure session is really expired)
+            # Note: sleep() is not needed for the program to work correctly, it
+            # is only used reduce CPU utilization. If removed the program will
+            # do 'busy waiting'.
             EXPIRY_TIME_THRESHOLD: float = 0.01
             time.sleep(time_to_next_expiry + EXPIRY_TIME_THRESHOLD)
 
