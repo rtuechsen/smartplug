@@ -97,22 +97,7 @@ class AuthenticationBackend(BaseBackend):
         """
         # TODO: remove, development code
         if not USE_LDAP:
-            if (
-                username == "max.mustermann@mylab.local"
-                or username == "MYLAB\\mmustermann"
-            ) and password == "FHKiel123!":
-                return ("Max", "Mustermann")
-            elif (
-                username == "john.doe@mylab.local" and password == "FHKiel123!"
-            ):
-                return ("John", "")
-            else:
-                raise BackendError(
-                    message=f"Credentials mismatch on user: {username}.",
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    user_message="Either your password or username were"
-                    "incorrect.",
-                )
+            return ("Max", "Mustermann")
 
         # TODO: need to get either logon name or UPN from ldap, use the same
         # kind no matter what kind of login was used to ensure it gets mapped
