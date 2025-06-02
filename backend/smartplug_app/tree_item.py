@@ -16,7 +16,6 @@ class TreeItem:
         ## in a UI.
         self.label: str = None
 
-        # TODO: Explain: ids[0] belongs to parents[0]
         ## The unique id of the item. A string of hexadecimal digits of length
         ## 64. Ignores the similarity to pythons build-in 'id' to match the
         ## name of the variable across the project. The first id in this list
