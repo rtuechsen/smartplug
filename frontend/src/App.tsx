@@ -116,6 +116,14 @@ function App(): JSX.Element {
 
 		getRemainingSessionTime();
 
+		addEventListener("mousemove", (event) => { console.log(`mousemove ${Math.random()}`); });
+		addEventListener("mousedown", (event) => { console.log(`mousedown ${Math.random()}`); });
+		addEventListener("mouseup", (event) => { console.log(`mouseup ${Math.random()}`); });
+		addEventListener("keydown", (event) => { console.log(`keydown ${Math.random()}`); });
+		addEventListener("keyup", (event) => { console.log(`keyup ${Math.random()}`); });
+		addEventListener("scroll", (event) => { console.log(`scroll ${Math.random()}`); });
+		addEventListener("resize", (event) => { console.log(`resize ${Math.random()}`); });
+
 		// TODO: remove, code for security checks
 		// This is a test to see if API requests before authentication work
 		// fetch('/api/gettree/', {
