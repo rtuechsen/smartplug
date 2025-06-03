@@ -127,7 +127,7 @@ class TreeItemDevice(TreeItem):
             TreeItemDevice
         ] = []
 
-    def to_dict(self, parent: "TreeItemGroup" | None) -> dict:
+    def to_dict(self, parent: "TreeItemGroup | None") -> dict:
         """Function to convert the class to a dictionary.
 
         @param parent The group that is holding the list. None in case of the
