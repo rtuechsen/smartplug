@@ -26,26 +26,25 @@ import CountdownTimer from './CountdownTimer';
  * @return The react component of the main app.
  */
 function App(): JSX.Element {
-	// TODO: is isLoggedIn redundant now? get also check remainingSessionTime ...
-	// TODO: use unit for time
-	const [remainingSessionTime, setRemainingSessionTime] = React.useState<number | undefined>(undefined);
-	const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
+
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
 
+	const [remainingSessionTimeSeconds, setRemainingSessionTimeSeconds] = React.useState<number | undefined>(undefined);
 	const [sessionCountdownTrigger, setSessionCountdownTrigger] = React.useState<boolean>(true);
 
 	const lastPingRef = React.useRef<Date>(new Date());
 	const lastUserInputRef = React.useRef<Date>(new Date());
 	const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
+	const remainingSessionTimeSecondsRef = React.useRef<number | null>(null);
 
 	function onLoginSuccess(): void {
 		getRemainingSessionTime();
-		setIsLoggedIn(true);
 	}
 
-	function updateSessionTime(remainingTimeSecons: number): void {
-		setRemainingSessionTime(remainingTimeSecons);
+	function updateSessionTime(remainingTimeSeconds: number): void {
+		setRemainingSessionTimeSeconds(remainingTimeSeconds);
+		remainingSessionTimeSecondsRef.current = remainingTimeSeconds;
 		setSessionCountdownTrigger(!sessionCountdownTrigger);
 	}
 
@@ -55,7 +54,7 @@ function App(): JSX.Element {
 			setIsErrorOpen(false);
 		}
 		if (returnToLoginPage) {
-			setIsLoggedIn(false);
+			updateSessionTime(0);
 		}
 		setCurrentErrorMessage(message);
 		setIsErrorOpen(true);
@@ -80,49 +79,46 @@ function App(): JSX.Element {
 		if (!response.ok) {
 			const responseData = await response.json();
 			if (response.status === 401) {
-				setIsLoggedIn(false);
-				updateSessionTime(0.0);
+				updateSessionTime(0);
 			}
 			displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 		}
 		else {
-			setIsLoggedIn(false);
+			updateSessionTime(0);
 		}
 	}
 
 	async function getRemainingSessionTime(): Promise<void> {
 
-		const response = await fetch('/api/get-remaining-session-time/', {
+		const response = await fetch('/api/get-session-expiry-date/', {
 			method: 'GET',
 			credentials: 'include',
 			mode: 'same-origin',	// prevents sending token to another website
 		});
 
 		const responseData = await response.json();
-		console.log(responseData);
 
 		if (!response.ok) {
 			if (response.status === 401) {
-				setIsLoggedIn(false);
-				updateSessionTime(0.0);
+				updateSessionTime(0);
 			} else {
 				displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 			}
 			return;
 		}
 		else {
-			setIsLoggedIn(true);
-			updateSessionTime(responseData.remaining_session_time);
+			const sessionExpiryDate: Date = new Date(responseData.session_expiry_date);
+			const remainingTimeSeconds = (sessionExpiryDate.getTime() - Date.now()) / 1000;
+			updateSessionTime(remainingTimeSeconds);
 		}
 	}
 
 	async function pingServer(): Promise<void> {
 
-		// console.log(isLoggedIn);
-		// if (!isLoggedIn) {
-		// 	console.log('NOT signed in, NOT sending ping.');
-		// 	return;
-		// }
+		if (remainingSessionTimeSecondsRef.current === 0) {
+			console.log('NOT signed in, NOT sending ping.');
+			return;
+		}
 
 		if (lastPingRef.current > lastUserInputRef.current) {
 			console.log('There was NO user input, NOT sending ping.');
@@ -192,14 +188,13 @@ function App(): JSX.Element {
 			</Paper>
 
 
-			<CountdownTimer initialTime={remainingSessionTime} trigger={sessionCountdownTrigger} />
-			{/* <button onClick={handleReset}>Reset</button> */}
+			<CountdownTimer initialTime={remainingSessionTimeSecondsRef.current} trigger={sessionCountdownTrigger} />
 
 
 			<Box sx={{ padding: '1.5rem' }}>
-				{remainingSessionTime === undefined ? undefined :
+				{remainingSessionTimeSeconds === undefined ? undefined :
 					(
-						isLoggedIn ?
+						remainingSessionTimeSeconds > 0 ?
 							<Stack
 								direction='row'
 								justifyContent='space-between'

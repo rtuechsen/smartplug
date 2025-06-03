@@ -87,11 +87,11 @@ def get_active_users(request: Request) -> Response:
 
 
 @api_view(["GET"])
-def get_remaining_session_time(request: Request) -> Response:
-    """Callback for the /getremainingsessiontime endpoint.
+def get_session_expiry_date(request: Request) -> Response:
+    """Callback for the TODO endpoint.
 
     @param request The request from the REST API.
 
     @return The response from the request manager for the REST API.
     """
-    return request_manager.get_remaining_session_time(request)
+    return request_manager.get_session_expiry_date(request)

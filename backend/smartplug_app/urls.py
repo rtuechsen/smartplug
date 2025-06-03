@@ -14,7 +14,7 @@ urlpatterns = [
     path("api/get-tree/", views.get_tree),
     path("api/switch/", views.switch),
     path("api/get-active-users/", views.get_active_users),
-    path("api/get-remaining-session-time/", views.get_remaining_session_time),
+    path("api/get-session-expiry-date/", views.get_session_expiry_date),
     path(
         "api/events/",
         include(django_eventstream.urls),

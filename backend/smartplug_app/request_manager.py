@@ -351,7 +351,7 @@ class RequestManager:
 
         return Response(active_user_names, status=status.HTTP_200_OK)
 
-    def get_remaining_session_time(self, request: Request) -> Response:
+    def get_session_expiry_date(self, request: Request) -> Response:
         """TODO"""
 
         self._logger.info(
@@ -380,8 +380,8 @@ class RequestManager:
 
         try:
             self._session_manager.verify_request_is_allowed(request)
-            remaining_session_time = (
-                self._session_manager.get_remaining_session_time(request)
+            session_expiry_date = (
+                self._session_manager.get_session_expiry_date(request)
             )
         except BackendError as e:
             return self._error_handler.response(
@@ -397,6 +397,6 @@ class RequestManager:
             )
 
         return Response(
-            {"remaining_session_time": remaining_session_time},
+            {"session_expiry_date": session_expiry_date},
             status=status.HTTP_200_OK,
         )
