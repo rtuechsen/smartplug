@@ -35,6 +35,10 @@ function App(): JSX.Element {
 
 	const [sessionCountdownTrigger, setSessionCountdownTrigger] = React.useState<boolean>(true);
 
+	const lastPingRef = React.useRef<Date>(new Date());
+	const lastUserInputRef = React.useRef<Date>(new Date());
+	const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
+
 	function onLoginSuccess(): void {
 		getRemainingSessionTime();
 		setIsLoggedIn(true);
@@ -112,17 +116,47 @@ function App(): JSX.Element {
 		}
 	}
 
+	async function pingServer(): Promise<void> {
+
+		// console.log(isLoggedIn);
+		// if (!isLoggedIn) {
+		// 	console.log('NOT signed in, NOT sending ping.');
+		// 	return;
+		// }
+
+		if (lastPingRef.current > lastUserInputRef.current) {
+			console.log('There was NO user input, NOT sending ping.');
+			return;
+		}
+
+		lastPingRef.current = new Date();
+		console.log('There was user input, sending ping.');
+		getRemainingSessionTime();
+	}
+
+	async function onUserInput(event: Event): Promise<void> {
+		lastUserInputRef.current = new Date();
+	}
+
 	React.useEffect(() => {
 
 		getRemainingSessionTime();
 
-		addEventListener("mousemove", (event) => { console.log(`mousemove ${Math.random()}`); });
-		addEventListener("mousedown", (event) => { console.log(`mousedown ${Math.random()}`); });
-		addEventListener("mouseup", (event) => { console.log(`mouseup ${Math.random()}`); });
-		addEventListener("keydown", (event) => { console.log(`keydown ${Math.random()}`); });
-		addEventListener("keyup", (event) => { console.log(`keyup ${Math.random()}`); });
-		addEventListener("scroll", (event) => { console.log(`scroll ${Math.random()}`); });
-		addEventListener("resize", (event) => { console.log(`resize ${Math.random()}`); });
+		addEventListener("mousemove", onUserInput);
+		addEventListener("mousedown", onUserInput);
+		addEventListener("mouseup", onUserInput);
+		addEventListener("keydown", onUserInput);
+		addEventListener("keyup", onUserInput);
+		addEventListener("scroll", onUserInput);
+		addEventListener("resize", onUserInput);
+
+		intervalRef.current = setInterval(pingServer, 3000);
+
+		return function (): void {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+			}
+		};
 
 		// TODO: remove, code for security checks
 		// This is a test to see if API requests before authentication work
