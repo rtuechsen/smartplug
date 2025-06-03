@@ -14,6 +14,7 @@ import UserList from './UserList';
 import Login from './Login';
 import { getCsrfToken } from './RequestTools';
 import CountdownTimer from './CountdownTimer';
+import { SESSION_UPDATE_INTERVAL_MS } from './AdminSessting';
 
 /**
  * The main App component.
@@ -145,8 +146,7 @@ function App(): JSX.Element {
 		addEventListener("scroll", onUserInput);
 		addEventListener("resize", onUserInput);
 
-		// TODO: add admin setting for ping interval
-		intervalRef.current = setInterval(pingServer, 2000);
+		intervalRef.current = setInterval(pingServer, SESSION_UPDATE_INTERVAL_MS);
 
 		return function (): void {
 			if (intervalRef.current) {
