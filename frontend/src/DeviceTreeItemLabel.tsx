@@ -18,7 +18,6 @@ export interface DeviceTreeItemLabelProps extends DeviceTreeSingleItemData, Disp
 	 * If the item is a group or a device.
 	 */
 	isGroup: boolean;
-	afterButtonClick: () => Promise<void>;
 }
 
 
@@ -31,7 +30,7 @@ export interface DeviceTreeItemLabelProps extends DeviceTreeSingleItemData, Disp
  * 
  * @return The react component of the label.
  */
-export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, displayError, afterButtonClick }: DeviceTreeItemLabelProps): JSX.Element {
+export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, displayError }: DeviceTreeItemLabelProps): JSX.Element {
 
 	/**
 	 * Function to send the switch request to the API.
@@ -59,8 +58,6 @@ export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, dis
 			const responseData = await response.json();
 			await displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 		}
-
-		afterButtonClick();
 	}
 
 	return (

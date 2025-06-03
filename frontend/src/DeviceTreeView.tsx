@@ -18,10 +18,6 @@ export interface RichTreeViewItemSlotOwnerState {
 	label: string;
 }
 
-interface DeviceTreeViewProps extends DisplayErrorCallbackProps {
-	afterButtonClick: () => Promise<void>;
-}
-
 /**
  * The Tree View that displays all devices and groups in a hierarchy
  *
@@ -31,7 +27,7 @@ interface DeviceTreeViewProps extends DisplayErrorCallbackProps {
  * 
  * @return The react component of the tree view.
  */
-function DeviceTreeView({ afterButtonClick, displayError }: DeviceTreeViewProps): JSX.Element {
+function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Element {
 
 	const ref = React.useRef<HTMLDivElement>(null);
 
@@ -160,7 +156,7 @@ function DeviceTreeView({ afterButtonClick, displayError }: DeviceTreeViewProps)
 					items={deviceTreeDataState}		// the data for the tree, updates when the state changes
 					slots={{ item: DeviceTreeItem as React.JSXElementConstructor<TreeItem2Props> }}	// a custom tree item that includes label, icons and buttons
 					expansionTrigger='iconContainer'	// only collapse/expand when clicking the arrow, not the whole panel (interferes with buttons)
-					slotProps={{ item: { displayError: displayError, afterButtonClick: afterButtonClick } as SlotComponentPropsFromProps<TreeItem2Props, object, RichTreeViewItemSlotOwnerState> }}		// need to cast our properties to the type the slot is expecting
+					slotProps={{ item: { displayError: displayError } as SlotComponentPropsFromProps<TreeItem2Props, object, RichTreeViewItemSlotOwnerState> }}		// need to cast our properties to the type the slot is expecting
 					itemChildrenIndentation={'1.5rem'}
 					expandedItems={expandedIdsState}	// the ids of the items to expand, updates when the state changes
 					onExpandedItemsChange={(_event, ids) => setExpandedIdsState(ids)}	// because we set the expanded items explicitly, user interaction will not work anymore => need to apply user interactions manually

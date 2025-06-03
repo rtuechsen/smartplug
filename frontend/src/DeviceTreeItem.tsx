@@ -10,10 +10,7 @@ import { DisplayErrorCallbackProps } from './ErrorDisplay';
 /**
  * A data structure that combines the TreeItem2Props required by the RichTreeView item slot with out own properties for triggering error messages.
  */
-export interface DeviceTreeItemProps extends TreeItem2Props, DisplayErrorCallbackProps {
-
-	afterButtonClick: () => Promise<void>;
-}
+export interface DeviceTreeItemProps extends TreeItem2Props, DisplayErrorCallbackProps { }
 
 /**
  * Tree item to be passed to RichTreeViews item slot
@@ -53,7 +50,7 @@ function DeviceTreeItem(props: DeviceTreeItemProps, ref: React.Ref<HTMLLIElement
 	}, [itemData.isAvailable]);	// watches for changes of isAvailable in tree data
 
 	// Because TreeItem2 expects only TreeItem2Props as props, we need to split off our own props. Then we can pass each one spearately to the label.
-	const { displayError, afterButtonClick, ...treeItem2Props } = props;
+	const { displayError, ...treeItem2Props } = props;
 
 	return (
 		// Code needed according to the documentation to pass the custom label to the tree items slot
@@ -70,8 +67,7 @@ function DeviceTreeItem(props: DeviceTreeItemProps, ref: React.Ref<HTMLLIElement
 					isOn: isOnState,		// pass isOn state as variable state
 					isAvailable: isAvailableState,	// pass isAvailable state as variable state
 					isGroup: itemData.children == undefined ? false : true,		// let the label know if it is a device or group
-					displayError: displayError,	// here we pass our callback to trigger error messages
-					afterButtonClick: afterButtonClick
+					displayError: displayError	// here we pass our callback to trigger error messages
 				} as DeviceTreeItemLabelProps,
 			}}
 		/>

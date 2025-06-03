@@ -146,7 +146,8 @@ function App(): JSX.Element {
 		addEventListener("scroll", onUserInput);
 		addEventListener("resize", onUserInput);
 
-		intervalRef.current = setInterval(pingServer, 3000);
+		// TODO: add admin setting for ping interval
+		intervalRef.current = setInterval(pingServer, 2000);
 
 		return function (): void {
 			if (intervalRef.current) {
