@@ -13,7 +13,6 @@ import ErrorDisplay from './ErrorDisplay';
 import UserList from './UserList';
 import Login from './Login';
 import { getCsrfToken } from './RequestTools';
-
 import CountdownTimer from './CountdownTimer';
 
 /**
@@ -188,10 +187,6 @@ function App(): JSX.Element {
 				</Typography>
 			</Paper>
 
-
-			<CountdownTimer initialTime={remainingSessionTimeSecondsRef.current} trigger={sessionCountdownTrigger} />
-
-
 			<Box sx={{ padding: '1.5rem' }}>
 				{remainingSessionTimeSeconds === undefined ? undefined :
 					(
@@ -208,13 +203,25 @@ function App(): JSX.Element {
 									justifyContent='top'
 									spacing={'2rem'}
 								>
-									<LoadingButton
-										onClick={logout}
-										variant='contained'
-										sx={{ alignSelf: 'end', mr: '2rem', minWidth: 'fit-content' }}
+									<Stack
+										direction='row'
+										sx={{ alignSelf: 'end', mr: '2rem' }}
 									>
-										sign out
-									</LoadingButton>
+										<CountdownTimer
+											initialTime={remainingSessionTimeSecondsRef.current}
+											trigger={sessionCountdownTrigger}
+											sx={{ mr: '1rem' }}
+										/>
+										<LoadingButton
+											onClick={logout}
+											variant='contained'
+											sx={{ minWidth: 'fit-content' }}
+										>
+											sign out
+										</LoadingButton>
+
+									</Stack>
+
 									<UserList displayError={displayError} />
 
 								</Stack>

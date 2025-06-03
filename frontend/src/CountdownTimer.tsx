@@ -1,24 +1,25 @@
 
 import * as React from 'react';
 import { JSX } from '@emotion/react/jsx-runtime';
+import Typography from '@mui/material/Typography';
 
 
+// TODO: remove trigger
 interface CountdownTimerProps {
-	// resetTimeSecondsRef: React.Ref<number>;
 	initialTime: number;
 	trigger: boolean;
+	sx?: object;
 }
 
-function CountdownTimer({ initialTime, trigger }: CountdownTimerProps): JSX.Element {
+// TODO: add source
 
-	// const remainingTimeSecondsRef = React.useRef<number>(resetTimeSecondsRef?.current);
+function CountdownTimer({ initialTime, trigger, sx }: CountdownTimerProps): JSX.Element {
+
 	const [remainingTime, setRemainingTime] = React.useState<number>(initialTime);
 	const [timeString, setTimeString] = React.useState('');
 	const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
 	React.useEffect(() => {
-		// remainingTimeSecondsRef.current = resetTimeSecondsRef.current;
-		// setRemainingTime(resetTimeSecondsRef?.current);
 		setRemainingTime(initialTime);
 		setTimeString(secondsToString(initialTime));
 
@@ -62,9 +63,9 @@ function CountdownTimer({ initialTime, trigger }: CountdownTimerProps): JSX.Elem
 	}, [remainingTime]);
 
 	return (
-		<div>
+		<Typography sx={{ display: 'flex', alignItems: 'center', lineHeight: 1, whiteSpace: 'nowrap', ...sx }}>
 			{timeString}
-		</div>
+		</Typography>
 	);
 }
 
