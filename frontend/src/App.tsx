@@ -31,7 +31,6 @@ function App(): JSX.Element {
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
 
 	const [remainingSessionTimeSeconds, setRemainingSessionTimeSeconds] = React.useState<number | undefined>(undefined);
-	const [sessionCountdownTrigger, setSessionCountdownTrigger] = React.useState<boolean>(true);
 
 	const lastPingRef = React.useRef<Date>(new Date());
 	const lastUserInputRef = React.useRef<Date>(new Date());
@@ -45,7 +44,6 @@ function App(): JSX.Element {
 	function updateSessionTime(remainingTimeSeconds: number): void {
 		setRemainingSessionTimeSeconds(remainingTimeSeconds);
 		remainingSessionTimeSecondsRef.current = remainingTimeSeconds;
-		setSessionCountdownTrigger(!sessionCountdownTrigger);
 	}
 
 	async function displayError(message: string, returnToLoginPage: boolean = false): Promise<void> {
@@ -209,7 +207,6 @@ function App(): JSX.Element {
 									>
 										<CountdownTimer
 											initialTime={remainingSessionTimeSecondsRef.current}
-											trigger={sessionCountdownTrigger}
 											sx={{ mr: '1rem' }}
 										/>
 										<LoadingButton

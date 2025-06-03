@@ -7,13 +7,12 @@ import Typography from '@mui/material/Typography';
 // TODO: remove trigger
 interface CountdownTimerProps {
 	initialTime: number;
-	trigger: boolean;
 	sx?: object;
 }
 
 // TODO: add source
 
-function CountdownTimer({ initialTime, trigger, sx }: CountdownTimerProps): JSX.Element {
+function CountdownTimer({ initialTime, sx }: CountdownTimerProps): JSX.Element {
 
 	const [remainingTime, setRemainingTime] = React.useState<number>(initialTime);
 	const [timeString, setTimeString] = React.useState('');
@@ -26,7 +25,7 @@ function CountdownTimer({ initialTime, trigger, sx }: CountdownTimerProps): JSX.
 		if (intervalRef.current) {
 			clearInterval(intervalRef.current);
 		}
-	}, [initialTime, trigger]);
+	}, [initialTime]);
 
 	function secondsToString(remainingSeconds: number): string {
 		const minutes = Math.floor(remainingSeconds / 60);
