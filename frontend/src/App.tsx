@@ -128,7 +128,7 @@ function App(): JSX.Element {
 		getRemainingSessionTime();
 	}
 
-	async function onUserInput(event: Event): Promise<void> {
+	async function onUserInput(): Promise<void> {
 		lastUserInputRef.current = new Date();
 	}
 
@@ -194,7 +194,7 @@ function App(): JSX.Element {
 								justifyContent='space-between'
 								spacing={'1rem'}
 							>
-								<DeviceTreeView displayError={displayError} afterButtonClick={getRemainingSessionTime} />
+								<DeviceTreeView displayError={displayError} />
 
 								<Stack
 									direction='column'
@@ -206,7 +206,7 @@ function App(): JSX.Element {
 										sx={{ alignSelf: 'end', mr: '2rem' }}
 									>
 										<CountdownTimer
-											initialTime={remainingSessionTimeSecondsRef.current}
+											initialTime={remainingSessionTimeSecondsRef.current ? remainingSessionTimeSecondsRef.current : 0}
 											sx={{ mr: '1rem' }}
 										/>
 										<LoadingButton
