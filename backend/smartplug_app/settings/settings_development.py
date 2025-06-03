@@ -1,4 +1,4 @@
-"""Settings specific for development builds.\ These settings extend those from
+"""Settings specific for development builds, these settings extend those from
 settings_base.py.
 """
 

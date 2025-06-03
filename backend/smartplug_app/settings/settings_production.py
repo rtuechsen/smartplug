@@ -1,4 +1,4 @@
-"""Settings specific for production builds.\ These settings extend those from
+"""Settings specific for production builds, these settings extend those from
 settings_base.py.
 """
 

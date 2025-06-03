@@ -1,6 +1,6 @@
 """
 In order to use different settings for django in development and production
-builds we use this \__init__.py file to switch between two different
+builds we use this file to switch between two different
 configurations.
 """
 
