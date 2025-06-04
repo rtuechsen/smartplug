@@ -90,7 +90,7 @@ DATABASES = {
     }
 }
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.133.195"]
 
 AUTHENTICATION_BACKENDS = [
     "smartplug_app.authentication_backend.AuthenticationBackend"
