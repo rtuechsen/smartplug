@@ -88,7 +88,7 @@ def get_active_users(request: Request) -> Response:
 
 @api_view(["GET"])
 def get_session_expiry_date(request: Request) -> Response:
-    """Callback for the TODO endpoint.
+    """Callback for the /get-session-expiry-date endpoint.
 
     @param request The request from the REST API.
 

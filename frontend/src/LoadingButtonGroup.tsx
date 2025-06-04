@@ -60,7 +60,8 @@ export function LoadingButton({ onClick, variant, children, sx, ref }: React.Pro
 	);
 }
 
-
+// TODO : onClickLeft -> onClickLeftButton
+// TODO : Button Label pass as Properties
 /**
  * A data structure to pass information to an LoadingButtonGroup.  
  */

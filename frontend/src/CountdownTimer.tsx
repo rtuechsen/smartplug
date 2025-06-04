@@ -49,7 +49,7 @@ function CountdownTimer({ initialTime, sx }: CountdownTimerProps): JSX.Element {
 		if (intervalRef.current) {
 			clearInterval(intervalRef.current);
 		}
-
+		// TODO 1000 Magic Number explain 
 		if (remainingTime > 0) {
 			intervalRef.current = setInterval(updateTimer, 1000);
 		}

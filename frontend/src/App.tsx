@@ -14,7 +14,7 @@ import UserList from './UserList';
 import Login from './Login';
 import { getCsrfToken } from './RequestTools';
 import CountdownTimer from './CountdownTimer';
-import { SESSION_UPDATE_INTERVAL_MS } from './AdminSessting';
+import { SESSION_UPDATE_INTERVAL_MS } from './AdminSettings';
 
 /**
  * The main App component.
@@ -114,17 +114,14 @@ function App(): JSX.Element {
 	async function pingServer(): Promise<void> {
 
 		if (remainingSessionTimeSecondsRef.current === 0) {
-			console.log('NOT signed in, NOT sending ping.');
 			return;
 		}
 
 		if (lastPingRef.current > lastUserInputRef.current) {
-			console.log('There was NO user input, NOT sending ping.');
 			return;
 		}
 
 		lastPingRef.current = new Date();
-		console.log('There was user input, sending ping.');
 		getRemainingSessionTime();
 	}
 
