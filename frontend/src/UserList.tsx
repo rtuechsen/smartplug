@@ -56,7 +56,7 @@ export function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Eleme
 			withCredentials: true
 		});
 
-		eventSource.addEventListener("user_list_update", (event) => {
+		eventSource.addEventListener('user_list_update', (event) => {
 			const userData = JSON.parse(event.data) as string[];
 			setUserListState(userData);
 		});
@@ -78,7 +78,7 @@ export function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Eleme
 	return (
 		userListState == undefined ? undefined :
 			<Stack direction='column'>
-				<Typography variant="h5" sx={{ paddingBottom: '1rem', paddingLeft: '1rem' }}>
+				<Typography variant='h5' sx={{ paddingBottom: '1rem', paddingLeft: '1rem' }}>
 					Active Users
 				</Typography>
 				<Paper sx={{ maxHeight: '30rem', padding: '0.7rem' }}>

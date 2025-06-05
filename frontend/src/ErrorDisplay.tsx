@@ -70,12 +70,12 @@ export function ErrorDisplay({ message, isErrorOpen, setIsErrorOpen }: ErrorDisp
 	const action = (
 		<React.Fragment>
 			<IconButton
-				size="small"
-				aria-label="close"
-				color="inherit"
+				size='small'
+				aria-label='close'
+				color='inherit'
 				onClick={handleClose}
 			>
-				<CloseIcon fontSize="small" />
+				<CloseIcon fontSize='small' />
 			</IconButton>
 		</React.Fragment>
 	);
@@ -89,8 +89,8 @@ export function ErrorDisplay({ message, isErrorOpen, setIsErrorOpen }: ErrorDisp
 		>
 			<Alert
 				onClose={handleClose}
-				severity="error"
-				variant="filled"
+				severity='error'
+				variant='filled'
 			>
 				{message}
 			</Alert>

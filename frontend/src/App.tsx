@@ -121,13 +121,13 @@ export function App(): JSX.Element {
 
 		getRemainingSessionTime();
 
-		addEventListener("mousemove", onUserInput);
-		addEventListener("mousedown", onUserInput);
-		addEventListener("mouseup", onUserInput);
-		addEventListener("keydown", onUserInput);
-		addEventListener("keyup", onUserInput);
-		addEventListener("scroll", onUserInput);
-		addEventListener("resize", onUserInput);
+		addEventListener('mousemove', onUserInput);
+		addEventListener('mousedown', onUserInput);
+		addEventListener('mouseup', onUserInput);
+		addEventListener('keydown', onUserInput);
+		addEventListener('keyup', onUserInput);
+		addEventListener('scroll', onUserInput);
+		addEventListener('resize', onUserInput);
 
 		intervalRef.current = setInterval(pingServer, SESSION_UPDATE_INTERVAL_MS);
 

@@ -82,7 +82,7 @@ export interface LoadingButtonGroupProps {
 export function LoadingButtonGroup({ onClickLeftButton, onClickRightButton, buttonLabelLeft, buttonLabelRight }: LoadingButtonGroupProps): JSX.Element {
 
 	return (
-		<ButtonGroup size="small">
+		<ButtonGroup size='small'>
 			<LoadingButton onClick={onClickLeftButton} variant='outlined'>{buttonLabelLeft}</LoadingButton>
 			<LoadingButton onClick={onClickRightButton} variant='outlined'>{buttonLabelRight}</LoadingButton>
 		</ButtonGroup>
