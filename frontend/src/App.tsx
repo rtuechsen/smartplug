@@ -72,9 +72,6 @@ function App(): JSX.Element {
 
 		if (!response.ok) {
 			const responseData = await response.json();
-			if (response.status === 401) {
-				updateSessionTime(0);
-			}
 			displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 		}
 		else {
