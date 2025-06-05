@@ -1,7 +1,8 @@
 
 import * as React from 'react';
+import { Typography } from '@mui/material';
 import { JSX } from '@emotion/react/jsx-runtime';
-import Typography from '@mui/material/Typography';
+
 
 
 interface CountdownTimerProps {
@@ -11,7 +12,7 @@ interface CountdownTimerProps {
 
 // TODO: add source
 
-function CountdownTimer({ initialTime, sx }: CountdownTimerProps): JSX.Element {
+export function CountdownTimer({ initialTime, sx }: CountdownTimerProps): JSX.Element {
 
 	const [remainingTime, setRemainingTime] = React.useState<number>(initialTime);
 	const [timeString, setTimeString] = React.useState('');
@@ -66,5 +67,3 @@ function CountdownTimer({ initialTime, sx }: CountdownTimerProps): JSX.Element {
 		</Typography>
 	);
 }
-
-export default CountdownTimer;

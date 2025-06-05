@@ -1,9 +1,7 @@
 
 import * as React from 'react';
-import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
-import IconButton from '@mui/material/IconButton';
+import { Snackbar, SnackbarCloseReason, IconButton, Alert } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import Alert from '@mui/material/Alert';
 import { JSX } from '@emotion/react/jsx-runtime';
 
 /**
@@ -57,7 +55,7 @@ export interface ErrorDisplayProps {
  * 
  * @returns The react component of the error display.
  */
-function ErrorDisplay({ message, isErrorOpen, setIsErrorOpen }: ErrorDisplayProps): JSX.Element {
+export function ErrorDisplay({ message, isErrorOpen, setIsErrorOpen }: ErrorDisplayProps): JSX.Element {
 
 	const handleClose = (
 		_: React.SyntheticEvent | Event,
@@ -99,5 +97,3 @@ function ErrorDisplay({ message, isErrorOpen, setIsErrorOpen }: ErrorDisplayProp
 		</Snackbar>
 	);
 }
-
-export default ErrorDisplay;

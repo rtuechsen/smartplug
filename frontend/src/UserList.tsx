@@ -1,18 +1,8 @@
 
 import * as React from 'react';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import Paper from '@mui/material/Paper';
+import { List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, Stack, Paper } from '@mui/material';
 import { JSX } from '@emotion/react/jsx-runtime';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
-
-
-// TODO: documentation !!!
 
 
 interface UserListItemProps {
@@ -35,7 +25,7 @@ function UserListItem({ name }: UserListItemProps): JSX.Element {
 }
 
 
-function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element | undefined {
+export function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element | undefined {
 
 	// state for holding the data of the tree, triggers updates to the tree if the data changes
 	const [userListState, setUserListState] = React.useState<string[]>();
@@ -99,5 +89,3 @@ function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element | un
 			</Stack >
 	);
 }
-
-export default UserList;

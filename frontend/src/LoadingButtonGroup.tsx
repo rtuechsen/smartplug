@@ -1,10 +1,9 @@
 
 import * as React from 'react';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import Button from '@mui/material/Button';
-import { JSX } from '@emotion/react/jsx-runtime';
+import { ButtonGroup, Button } from '@mui/material';
 import type { OverridableStringUnion } from '@mui/types';
 import type { ButtonPropsVariantOverrides } from '@mui/material/Button';
+import { JSX } from '@emotion/react/jsx-runtime';
 
 
 /**
@@ -80,7 +79,7 @@ export interface LoadingButtonGroupProps {
  * 
  * @return The react component of the button group.
  */
-function LoadingButtonGroup({ onClickLeftButton, onClickRightButton, buttonLabelLeft, buttonLabelRight }: LoadingButtonGroupProps): JSX.Element {
+export function LoadingButtonGroup({ onClickLeftButton, onClickRightButton, buttonLabelLeft, buttonLabelRight }: LoadingButtonGroupProps): JSX.Element {
 
 	return (
 		<ButtonGroup size="small">
@@ -89,6 +88,3 @@ function LoadingButtonGroup({ onClickLeftButton, onClickRightButton, buttonLabel
 		</ButtonGroup>
 	);
 }
-
-
-export default LoadingButtonGroup;

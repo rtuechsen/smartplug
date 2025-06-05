@@ -4,7 +4,7 @@ import { TreeItem2, TreeItem2Props } from '@mui/x-tree-view/TreeItem2';
 import { useTreeItem2 } from '@mui/x-tree-view/useTreeItem2';
 import { JSX } from '@emotion/react/jsx-runtime';
 import { DeviceTreeItemLabel, DeviceTreeItemLabelProps } from './DeviceTreeItemLabel';
-import DeviceTreeItemData from './DeviceTreeItemData';
+import { DeviceTreeItemData } from './DeviceTreeItemData';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 /**
@@ -24,7 +24,7 @@ export interface DeviceTreeItemProps extends TreeItem2Props, DisplayErrorCallbac
  * 
  * @return The react component of the tree item.
  */
-function DeviceTreeItem(props: DeviceTreeItemProps, ref: React.Ref<HTMLLIElement>): JSX.Element {
+export function DeviceTreeItem(props: DeviceTreeItemProps, ref: React.Ref<HTMLLIElement>): JSX.Element {
 
 	// Code needed according to the documentation to get the DeviceTreeItemData we passed to the tree.
 	const { itemId } = props;
@@ -74,5 +74,3 @@ function DeviceTreeItem(props: DeviceTreeItemProps, ref: React.Ref<HTMLLIElement
 	);
 }
 
-
-export default DeviceTreeItem;

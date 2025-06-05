@@ -1,20 +1,15 @@
 
 import * as React from 'react';
-import Paper from '@mui/material/Paper';
-import { LoadingButton } from './LoadingButtonGroup';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { Paper, Stack, Typography, CssBaseline, Box, ThemeProvider, createTheme } from '@mui/material';
 import { JSX } from '@emotion/react/jsx-runtime';
-import DeviceTreeView from './DeviceTreeView';
-import ErrorDisplay from './ErrorDisplay';
-import UserList from './UserList';
-import Login from './Login';
+import { DeviceTreeView } from './DeviceTreeView';
+import { ErrorDisplay } from './ErrorDisplay';
+import { UserList } from './UserList';
+import { Login } from './Login';
 import { getCsrfToken } from './RequestTools';
-import CountdownTimer from './CountdownTimer';
+import { CountdownTimer } from './CountdownTimer';
 import { SESSION_UPDATE_INTERVAL_MS } from './AdminSettings';
+import { LoadingButton } from './LoadingButtonGroup';
 
 /**
  * The main App component.
@@ -25,7 +20,7 @@ import { SESSION_UPDATE_INTERVAL_MS } from './AdminSettings';
  * 
  * @return The react component of the main app.
  */
-function App(): JSX.Element {
+export function App(): JSX.Element {
 
 	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
@@ -230,4 +225,3 @@ function App(): JSX.Element {
 }
 
 
-export default App;

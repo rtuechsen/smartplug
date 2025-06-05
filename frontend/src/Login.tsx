@@ -1,12 +1,9 @@
 // TODO: improve imports everywhere similarly to here ??? (grouping)
-import { Paper, TextField, Box, IconButton } from "@mui/material";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import KeyRounded from '@mui/icons-material/KeyRounded';
-import PersonRounded from '@mui/icons-material/PersonRounded';
+import * as React from 'react';
+import { Paper, TextField, Box, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff, KeyRounded, PersonRounded } from '@mui/icons-material';
 import { JSX } from '@emotion/react/jsx-runtime';
-import React from "react";
-import { LoadingButton } from "./LoadingButtonGroup";
+import { LoadingButton } from './LoadingButtonGroup';
 import { getCsrfToken } from './RequestTools';
 
 
@@ -15,7 +12,7 @@ interface LoginProps {
 	displayError: (message: string) => Promise<void>;
 }
 
-function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
+export function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [password, setPassword] = React.useState('');
 	const [username, setUsername] = React.useState('');
@@ -138,5 +135,3 @@ function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 		</Paper>
 	);
 }
-
-export default Login;

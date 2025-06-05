@@ -1,8 +1,7 @@
 
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import { Stack, Typography } from '@mui/material';
 import { JSX } from '@emotion/react/jsx-runtime';
-import LoadingButtonGroup from './LoadingButtonGroup';
+import { LoadingButtonGroup } from './LoadingButtonGroup';
 import { OnIcon, AvailableIcon } from './StatusIcons';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 import { getCsrfToken } from './RequestTools';

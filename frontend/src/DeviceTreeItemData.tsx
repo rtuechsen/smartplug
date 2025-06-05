@@ -29,13 +29,10 @@ export interface DeviceTreeSingleItemData {
 
 }
 
-interface DeviceTreeItemData extends DeviceTreeSingleItemData {
+export interface DeviceTreeItemData extends DeviceTreeSingleItemData {
 
 	/**
 	 * A list of TreeItems that this group combines. If defined the item is considered a group, not a device. While it does not make a lot of sense, the array can be empty.
 	 */
 	children?: DeviceTreeItemData[];
 }
-
-
-export default DeviceTreeItemData;

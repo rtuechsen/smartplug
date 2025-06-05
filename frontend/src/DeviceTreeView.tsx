@@ -1,13 +1,12 @@
 
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
-import { TreeItem2Props } from '@mui/x-tree-view/TreeItem2';
+import { Box } from '@mui/material';
+import { RichTreeView, TreeItem2Props } from '@mui/x-tree-view';
 import { SlotComponentPropsFromProps } from '@mui/x-tree-view/internals/models';
 import { TreeViewItemId } from '@mui/x-tree-view/models';
 import { JSX } from '@emotion/react/jsx-runtime';
-import DeviceTreeItemData from './DeviceTreeItemData';
-import DeviceTreeItem from './DeviceTreeItem';
+import { DeviceTreeItemData } from './DeviceTreeItemData';
+import { DeviceTreeItem } from './DeviceTreeItem';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 /**
@@ -27,7 +26,7 @@ export interface RichTreeViewItemSlotOwnerState {
  * 
  * @return The react component of the tree view.
  */
-function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Element {
+export function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Element {
 
 	const ref = React.useRef<HTMLDivElement>(null);
 
@@ -164,6 +163,3 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 	);
 
 }
-
-
-export default DeviceTreeView;
