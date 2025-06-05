@@ -7,10 +7,18 @@ from .admin_settings import USE_MQTT
 
 
 class MQTTClient:
+    """
+    MQTTClient handles MQTT communication for device status updates and control.
+    It listens to topics, parses incoming messages, and sends control messages.
+    """
 
     def __init__(self, on_update_callback):
+        """
+        Initialize the MQTT client and set up connection and callbacks.
 
-        ## The logger instance (singleton) to log events and errors.
+        :param on_update_callback: Callback function to update device states in the main application.
+        """
+
         self._logger: Logger = Logger()
 
         self._broker_ip: str = "localhost"
@@ -67,9 +75,11 @@ class MQTTClient:
             self._on_update_callback(deviceId, "isOn", True)
 
     def _connect(self):
+        """
+        Connects to the MQTT broker and subscribes to all topics.
+        """
 
-        # TODO: type hints
-        def on_connect(client, userdata, flags, rc):
+        def on_connect(client: mqtt.Client, userdata, flags, rc: int):
             if rc == 0:
                 client.subscribe("#")
                 self._logger.info("Connected successfully to MQTT broker.")
@@ -82,7 +92,12 @@ class MQTTClient:
         )
 
     # TODO: type hints
-    def _on_message(self, client, userdata, msg):
+    def _on_message(
+        self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage
+    ):
+        """
+        Callback for processing incoming MQTT messages.
+        """
 
         topic = msg.topic
         payload = msg.payload.decode()
@@ -114,25 +129,31 @@ class MQTTClient:
             try:
                 data = json.loads(payload)
                 deviceId = data.get("src")
+                rpc_response = data.get("result")
 
-                # TODO: better name for variable - what is this ???
-                result = data.get("result")
+                if isinstance(rpc_response, dict) and "output" in rpc_response:
 
-                # TODO: what could 'result' be? what are the different cases ???
-                if isinstance(result, dict) and "output" in result:
-
-                    # TODO: better name for variable - what is this ???
-                    output = result.get("output")
+                    output = rpc_response.get("output")
 
                     self._on_update_callback(deviceId, "isOn", output)
 
-            except json.JSONDecodeError:
-                # TODO: in which cases can this happen ??? is this only to
-                # catch errors in json.loads()
-                # TODO: create propper error
-                print(f"[{topic}] Invalid JSON in RPC: {payload}")
+            except json.JSONDecodeError as e:
+                self._logger.error(
+                    f"[{topic}] Invalid JSON payload: {payload}"
+                )
+                raise BackendError(
+                    f"Invalid JSON for topic {topic}: {payload}"
+                ) from e
+            except Exception as e:
+                self._logger.error(f"Unexpeted error processing message: {e}")
+                raise BackendError(f"Error in _on_message: {str(e)}") from e
 
     def _request_status(self, device_id: str):
+        """
+        Requests the current status of a device by sending a Switch.GetStatus RPC.
+
+        :param device_id: The ID of the target device.
+        """
         payload = {
             "id": 1,
             "src": "shelly",
@@ -141,11 +162,19 @@ class MQTTClient:
         }
         self._client.publish(device_id + self._sub_topic, json.dumps(payload))
 
-    def disconnect(self):
+    def disconnect(self) -> None:
+        """
+        Disconnects from the MQTT broker.
+        """
         self._client.disconnect()
 
-    def switch(self, deviceId: str, desired_isOn: bool):
+    def switch(self, deviceId: str, desired_isOn: bool) -> None:
+        """
+        Sends a command to switch a device on or off.
 
+        :param device_id: The ID of the target device.
+        :param desired_isOn: Desired state of the switch (True for on, False for off).
+        """
         # TODO: remove, used for debugging only
         if not USE_MQTT:
             self._on_update_callback(deviceId, "isOn", desired_isOn)
@@ -159,6 +188,3 @@ class MQTTClient:
         }
 
         self._client.publish(deviceId + self._sub_topic, json.dumps(payload))
-
-        # TODO: error handling ??? or not possible ??? Might not be required,
-        # further research please.

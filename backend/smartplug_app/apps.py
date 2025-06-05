@@ -1,12 +1,10 @@
 """Contains the SmartplugApp class which stores most of the data for the
-backend and also handles background tasks the REST API does not handle.
-
-TODO: more details ???
+backend.
 """
 
 import time
-import datetime
-import threading
+from datetime import datetime, timedelta
+from threading import Lock
 from django.apps import AppConfig
 from rest_framework import status
 import django_eventstream
@@ -46,36 +44,49 @@ class SmartplugApp(AppConfig):
     ## The name of the app (required by Django).
     name: str = "smartplug_app"
 
+    ## The device tree stores the hierarchy of groups and devices as well as
+    ## their current state.
     _device_tree: DeviceTree
 
-    ## A mutex to avoid race conditions on the device tree. Needed because
-    ## async calls from the REST API are possible. ALWAYS lock this mutex
-    ## when reading or manipulating the device tree!
-    _device_tree_mutex: threading.Lock = threading.Lock()
+    ## A mutex to avoid race conditions on _device_tree.
+    _device_tree_mutex: Lock = Lock()
 
-    _last_switch_on_date_time: datetime.datetime = datetime.datetime.now()
+    ## This variable stores the last point of time when a device was switched
+    ## ON. This is used to delay turning on devices and reduce inrush current.
+    _last_switch_on_date_time: datetime = datetime.now()
 
-    _last_switch_on_date_time_mutex: threading.Lock = threading.Lock()
+    ## A mutex to avoid race conditions on _last_switch_on_date_time.
+    _last_switch_on_date_time_mutex: Lock = Lock()
 
-    ## The logger instance (singleton) to log events and errors.
+    ## The logger instance (singleton) used to log events and errors.
     _logger: Logger = Logger()
 
+    ## An instance of MQTTClient which is used to communicate with devices via
+    ## MQTT.
     _mqtt_client: MQTTClient
 
     def ready(self) -> None:
+        """This function is called from Django as soon as the django registry
+        is fully populated. It is used to initialize device tree and establish
+        a connection to the devices in the network.
+        """
 
         SmartplugApp._logger.info("Server was started.")
 
+        # Load the configuration of the device tree from file.
         with SmartplugApp._device_tree_mutex:
             SmartplugApp._device_tree = DeviceTree("./config.json")
 
+        # Establish a connection to the devices in the network using MQTT.
+        # Afterwards the MQTT broker will send information about the state of
+        # each device.
         SmartplugApp._mqtt_client = MQTTClient(
             on_update_callback=self.handle_mqtt_update
         )
 
     def get_device_tree_dicts(self) -> list[dict]:
-        """Function to answer a call to /gettree, returns the current state of
-        the tree.
+        """Function to answer a clients call to /gettree, returns the current
+        state of the device tree.
 
         @return A hierarchy of dictionaries and lists representing the current
         state of the device tree.
@@ -88,56 +99,77 @@ class SmartplugApp(AppConfig):
     def _filter_devices_not_allowed_to_switch_on(
         self,
         devices_to_switch: list[TreeItemDevice],
-    ):
+    ) -> None:
+        """Function to filter devices from a list of devices to switch ON that
+        are not allowed to switch ON.
 
-        # re-evaluating tree should not be necessary while resolving deps
-        # (because devices cannot depend on groups)
+        Devices can be configured to turn OFF if certain other devices are OFF.
+        This functions ensures that those dependencies are always satisfied.
 
-        resolved_states: dict[str, bool] = {}
+        @param devices_to_switch A list of devices which are requested to be
+        switched ON.
+        """
 
-        # only need to make sure that all the devices are allowed to switch,
-        # e.g. not switching monitor on without PC on
+        # A dictionary that stores the resolved isOn state (ON/OFF) for a
+        # deviceId i.e. the state it should have after executing the switch
+        # while still satisfying the defined dependencies between devices.
+        # Used to avoid resolving devices multiple times.
+        resolved_states_per_deviceId: dict[str, bool] = {}
 
-        # traverse deps backwards: first leaves with no own deps, then their
-        # listeners
+        # We only need to make sure that all the devices are allowed to switch,
+        # e.g. not switching monitor ON without PC ON
 
-        # returns the new state a device
-        def will_be_on(device: TreeItemDevice):
+        # The idea is to traverse the dependencies backwards: first the leaves
+        # with no own deps, then their listeners and so on.
 
-            # check if device has already been checked, return that value in
-            # that case
-            if device.deviceId in resolved_states:
-                return resolved_states[device.deviceId]
+        def will_be_on(device: TreeItemDevice) -> bool:
+            """This function returns the resolved state of a given device.
 
+            @param device The device which state should be resolved.
+
+            @return THe state of isOn that the given device should have after
+            executing the switch.
+            """
+
+            # Check if the device has already been checked, return that value
+            # in that case.
+            if device.deviceId in resolved_states_per_deviceId:
+                return resolved_states_per_deviceId[device.deviceId]
+
+            # No further actions needed if the device is alreay ON.
             if device.get_isOn() is True:
-                resolved_states[device.deviceId] = True
+                resolved_states_per_deviceId[device.deviceId] = True
                 return True
 
-            # device is OFF -> only way it might be ON afterwards if it is
-            # amoung devices_to_switch
+            # The device is OFF -> the only way it might be ON afterwards is,
+            # if it is amoung devices_to_switch.
             if device not in devices_to_switch:
-                resolved_states[device.deviceId] = False
+                resolved_states_per_deviceId[device.deviceId] = False
                 return False
 
-            # device is OFF, but is scheduled to be switched ON -> can still
-            # fail if all dependencies are off
+            # The device is OFF, but is scheduled to be switched ON -> can
+            # still fail to switch ON if all its dependencies are OFF.
 
+            # If the device has no dependencies there is no reason not to
+            # switch ON.
             if len(device.turn_off_if_all_in_list_are_off) == 0:
-                resolved_states[device.deviceId] = True
+                resolved_states_per_deviceId[device.deviceId] = True
                 return True
 
+            # At this point we need to recursively check all the device's
+            # dependencies. trigger_states are the resolved states of the
+            # device's dependencies.
             trigger_states: list[bool] = [
                 will_be_on(trigger_device)
                 for trigger_device in device.turn_off_if_all_in_list_are_off
             ]
 
             if all(state is False for state in trigger_states):
-                # do not allow to switch on if all dependencies are off
-                # will also choose this path if device has no dependencies
-                resolved_states[device.deviceId] = False
+                # Do not allow to switch ON if all dependencies are OFF.
+                resolved_states_per_deviceId[device.deviceId] = False
                 return False
 
-            resolved_states[device.deviceId] = True
+            resolved_states_per_deviceId[device.deviceId] = True
             return True
 
         devices_allowed_to_switch_on = []
@@ -148,15 +180,28 @@ class SmartplugApp(AppConfig):
 
         return devices_allowed_to_switch_on
 
-    def handle_mqtt_update(self, deviceId: str, kind: str, value: bool):
-        """TODO"""
+    def handle_mqtt_update(
+        self, deviceId: str, kind: str, value: bool
+    ) -> None:
+        """Function to handle incoming MQTT messages.
+
+        This function is used by the MQTTClient to inform the SmartplugApp
+        about changes to device states. It is also called when the SmartplugApp
+        establishes a connection to the MQTT broker.
+
+        @param deviceId The deviceId of the device which state has changed.
+
+        @param kind The kind of the state change, one of: 'isOn', 'isAvailable'.
+
+        @param value The new value of the state.
+        """
 
         device: TreeItemDevice = SmartplugApp._device_tree.get_device(deviceId)
 
         if device is None:
             SmartplugApp._logger.warn(
                 f"Received an update for deviceId {deviceId} via MQTT, but "
-                "deviceId is not known."
+                "the deviceId is unknown."
             )
             return
 
@@ -167,11 +212,15 @@ class SmartplugApp(AppConfig):
             elif kind == "isOn":
                 device.set_isOn(value)
 
+        # Notify the connected users about the state change.
         django_eventstream.send_event(
             "default",
             "device_tree_update",
             self.get_device_tree_dicts(),
         )
+
+        # After a device has changed switched OFF, other devices might need to
+        # switch OFF as well to satisfy the dependencies between them.
 
         if kind == "isAvailable":
             return
@@ -179,48 +228,59 @@ class SmartplugApp(AppConfig):
         if value is True:
             return
 
-        # a device was turned OFF -> need to check switching dependencies
+        # The device was turned OFF -> we need to check its dependencies.
 
-        # only do single dependency step! further deps will be handled once
-        # their isOn state has been confirmed
+        # We only resolve a single level of these dependencies at a time. If
+        # switching OFF devices should lead to more devices required to switch
+        # OFF, those will be handled once we receive the signal that the former
+        # have actually switched OFF.
 
         for (
             listener_device
         ) in device.other_devices_listening_for_this_device_switching_off:
 
             if listener_device.get_isOn() is False:
-                # already off, no action needed
+                # The device is already off, no action needed.
                 continue
 
-            # listener_device is ON, need to check its dependencies to see if
-            # it should be turned OFF
+            # The device is ON, we need to check its dependencies to see if it
+            # should be turned OFF.
 
-            trigger_states = [
+            trigger_states: list[bool] = [
                 trigger_device.get_isOn()
                 for trigger_device in listener_device.turn_off_if_all_in_list_are_off
             ]
 
             if all(state is False for state in trigger_states):
-                # simply choosing index 0 when selecting an id for the device
-                # is okay, as all ids of this device refer to this device
+                # All dependencies are off -> this device should be switche OFF
+                # as well.
+                if len(listener_device.ids) == 0:
+                    SmartplugApp._logger.warn(
+                        "A device is required to switch OFF, but it is not "
+                        "used in the device tree."
+                    )
+
+                # Note regarding listener_device.ids[0]: simply choosing index
+                # 0 when selecting an id for the device is okay, as all ids of
+                # the device refer to this device.
                 SmartplugApp.switch(self, listener_device.ids[0], False)
 
     def switch(self, id: str, desired_isOn: bool) -> None:
-        """Function to answer a call to /switch, turns devices and groups
-        on/off according to the request.
+        """Function to answer a clients call to /switch, it turns devices and
+        groups ON/OFF according to the request.
 
         @param id The id of the device or group to switch.
 
         @param desired_isOn A boolean indicating if the item should be turned
-        on (True) or off (False). Ignores PEP8 naming convention to match the
-        name of the variable across the project.
+        ON (True) or OFF (False).
         """
 
         tree_item: TreeItem = SmartplugApp._device_tree.get_item(id)
 
         if tree_item is None:
             raise BackendError(
-                f"Specified id {id} does not exist.",
+                f"Specified id {id} does not exist. This can also happen if a "
+                f"device exists in the config but is not used in the tree.",
                 status.HTTP_400_BAD_REQUEST,
                 "Specified id does not exist.",
             )
@@ -229,7 +289,8 @@ class SmartplugApp(AppConfig):
             self._choose_devices_to_switch(tree_item, desired_isOn)
         )
 
-        # if requests are dropped due to SWITCHING_TOGGLE_DELAY
+        # We keep track if requests are dropped in order to comply with the
+        # switching delay of that device.
         were_requests_dropped: bool = False
 
         for device in devices_to_switch:
@@ -237,7 +298,6 @@ class SmartplugApp(AppConfig):
             if self._try_switching_device(device, desired_isOn) is True:
                 were_requests_dropped = True
 
-        # TODO: add info about delay value
         if were_requests_dropped:
             raise BackendError(
                 f"Some switch requests were not executed in order to comply "
@@ -252,6 +312,23 @@ class SmartplugApp(AppConfig):
     def _try_switching_device(
         self, device: TreeItemDevice, desired_isOn: bool
     ) -> bool:
+        """Function to request a device to switch. Ensures switching delays are
+        respected.
+
+        To comply with the inrush current delay the switching of the device is
+        delayed.
+        To comply with the individual switching delay of the device the device
+        the switch request for this device will be discarded if the device
+        would switch too early.
+
+        @param device The device to switch.
+
+        @param desired_isOn A boolean indicating if the item should be turned
+        ON (True) or OFF (False).
+
+        @return A boolean indicating if the request was dropped for this device
+        (True) or not (False).
+        """
 
         # TODO: remove, development code
         if USE_SWITCHING_DELAYS is False:
@@ -261,18 +338,17 @@ class SmartplugApp(AppConfig):
         with SmartplugApp._device_tree_mutex:
 
             if device.get_isOn() is desired_isOn:
-                # isOn is already in desired state, no switching needed
+                # The device is already in the desired state, no switching is
+                # needed.
                 return
 
-            now = datetime.datetime.now()
+            now = datetime.now()
 
-            # need to save last 'switch ON time' (mutex), wait until below delay
+            # Handle the inrush current delay (only needed if switching ON).
             if desired_isOn:
-                # only delay switching when switching ON (no inrush
-                # current when switching OFF)
                 with SmartplugApp._last_switch_on_date_time_mutex:
 
-                    time_passed_since_last_switch_on: datetime.timedelta = (
+                    time_passed_since_last_switch_on: timedelta = (
                         now - SmartplugApp._last_switch_on_date_time
                     )
 
@@ -286,18 +362,16 @@ class SmartplugApp(AppConfig):
                             - time_passed_since_last_switch_on.seconds
                         )
 
-                    SmartplugApp._last_switch_on_date_time = (
-                        datetime.datetime.now()
-                    )
+                    SmartplugApp._last_switch_on_date_time = datetime.now()
 
-            now = datetime.datetime.now()
-            time_passed_since_last_switch_of_current_item: (
-                datetime.timedelta
-            ) = (now - device.time_last_switched)
+            # Handle the individual switching delay of the device.
+            now = datetime.now()
+            time_passed_since_last_switch_of_current_item: timedelta = (
+                now - device.time_last_switched
+            )
 
-            if (
-                time_passed_since_last_switch_of_current_item
-                < datetime.timedelta(seconds=SWITCHING_TOGGLE_DELAY)
+            if time_passed_since_last_switch_of_current_item < timedelta(
+                seconds=SWITCHING_TOGGLE_DELAY
             ):
                 return True
 
@@ -310,6 +384,21 @@ class SmartplugApp(AppConfig):
     def _choose_devices_to_switch(
         self, tree_item: TreeItem, desired_isOn: bool
     ) -> list[TreeItemDevice]:
+        """Function to choose devices to switch given a certain tree item an a
+        desired state.
+
+        If the tree item is a group this will colect all devices in that group.
+        If switching a device would violate the device dependencies that device
+        is skipped.
+
+        @param tree_item The tree item to switch. May be a group or a device.
+
+        @param desired_isOn A boolean indicating if the item should be turned
+        ON (True) or OFF (False).
+
+        @return The list of devices that should switch and are allowed to do
+        so.
+        """
 
         def get_devices(tree_item: TreeItem):
 

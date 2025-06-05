@@ -1,10 +1,14 @@
-"""Settings for production builds."""
+"""Settings specific for production builds, these settings extend those from
+settings_base.py.
+"""
 
 import os
+# From settings_base we import all settings shared between development and
+# production builds.
 from .settings_base import *
 from ..admin_settings import SECRET_KEY_PRODUCTION
 
-# don't run with debug turned on in production!
+# Don't run with debug turned on in production!
 DEBUG = False
 
 # keep the secret key used in production secret!

@@ -1,4 +1,6 @@
-"""TODO."""
+"""Contains variables that control the behavior of the backend and provide an easy
+way for the systems admin to change key aspects of the backend.
+"""
 
 # TODO: remove, development variable
 USE_SWITCHING_DELAYS: bool = True
@@ -34,6 +36,8 @@ SECRET_KEY_DEVELOPMENT: str = (
     "django-insecure-z5_=&6x00u($dv(x4&vhw46(4#ouj2o1ki(zrby=1+bafzvb$j"
 )
 
+## The individual secret key of this project (for production builds).\ This
+## value is the used to securing signed data.
 SECRET_KEY_PRODUCTION: str = "GyB#yNG@!hAdqV75cX3LdVyJ!ubQF4"
 
 SESSION_TIMEOUT_SECONDS: int = 120
