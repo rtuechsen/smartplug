@@ -106,8 +106,8 @@ class AuthenticationBackend(BaseBackend):
         try:
             conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
 
-            # TODO: set debugging to 0 in production as it might log user
-            # passwords
+            # TODO: set debugging to 0 as it might log user passwords, add
+            # comment to enable debugging with 255
             conn.set_option(ldap.OPT_DEBUG_LEVEL, 255)
 
             # LDAP 3 is necessary for active directory.

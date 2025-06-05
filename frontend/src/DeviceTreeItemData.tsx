@@ -1,6 +1,4 @@
 
-// TODO: de-duplicate DeviceTreeItemData, DeviceTreeItemLabelProps, OnIconProps, AvailableIconProps ???
-
 /**
  * The definition of the main (hierarchical) data structure for holding the tree data in the frontend.
  *

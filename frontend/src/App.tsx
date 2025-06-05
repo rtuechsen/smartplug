@@ -58,10 +58,6 @@ function App(): JSX.Element {
 		setIsErrorOpen(true);
 	}
 
-	// TODO: create wrapper function for requests ???
-	//		- add correct headers
-	//		- catch and display errors
-
 	async function logout(): Promise<void> {
 
 		const response = await fetch('/api/logout/', {
