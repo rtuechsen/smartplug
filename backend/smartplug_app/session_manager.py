@@ -132,9 +132,6 @@ class SessionManager:
         self.verify_request_is_allowed(request)
 
         logout(request)
-        # need to save to database, otherwise user is not guarantied to be
-        # available in following queries
-        request.session.save()
 
         self._send_list_of_active_users()
 
