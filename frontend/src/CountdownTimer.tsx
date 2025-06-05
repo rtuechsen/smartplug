@@ -4,7 +4,6 @@ import { JSX } from '@emotion/react/jsx-runtime';
 import Typography from '@mui/material/Typography';
 
 
-// TODO: remove trigger
 interface CountdownTimerProps {
 	initialTime: number;
 	sx?: object;

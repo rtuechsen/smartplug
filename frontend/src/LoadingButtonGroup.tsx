@@ -60,15 +60,16 @@ export function LoadingButton({ onClick, variant, children, sx, ref }: React.Pro
 	);
 }
 
-// TODO : onClickLeft -> onClickLeftButton
-// TODO : Button Label pass as Properties
+
 /**
  * A data structure to pass information to an LoadingButtonGroup.  
  */
 export interface LoadingButtonGroupProps {
 
-	onClickLeft: () => Promise<void>;
-	onClickRight: () => Promise<void>;
+	onClickLeftButton: () => Promise<void>;
+	onClickRightButton: () => Promise<void>;
+	buttonLabelLeft: string;
+	buttonLabelRight: string;
 }
 
 
@@ -79,12 +80,12 @@ export interface LoadingButtonGroupProps {
  * 
  * @return The react component of the button group.
  */
-function LoadingButtonGroup({ onClickLeft, onClickRight }: LoadingButtonGroupProps): JSX.Element {
+function LoadingButtonGroup({ onClickLeftButton, onClickRightButton, buttonLabelLeft, buttonLabelRight }: LoadingButtonGroupProps): JSX.Element {
 
 	return (
 		<ButtonGroup size="small">
-			<LoadingButton onClick={onClickLeft} variant='outlined'>turn on</LoadingButton>
-			<LoadingButton onClick={onClickRight} variant='outlined'>turn off</LoadingButton>
+			<LoadingButton onClick={onClickLeftButton} variant='outlined'>{buttonLabelLeft}</LoadingButton>
+			<LoadingButton onClick={onClickRightButton} variant='outlined'>{buttonLabelRight}</LoadingButton>
 		</ButtonGroup>
 	);
 }

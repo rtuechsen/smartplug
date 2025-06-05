@@ -80,7 +80,12 @@ export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, dis
 			>
 				<AvailableIcon isAvailable={isAvailable} isGroup={isGroup} />
 				<OnIcon isOn={isOn} isGroup={isGroup} />
-				<LoadingButtonGroup onClickLeft={() => sendSwitchRequest(true)} onClickRight={() => sendSwitchRequest(false)} />
+				<LoadingButtonGroup
+					onClickLeftButton={() => sendSwitchRequest(true)}
+					onClickRightButton={() => sendSwitchRequest(false)}
+					buttonLabelLeft='turn on'
+					buttonLabelRight='turn off'
+				/>
 			</Stack>
 		</Stack>
 	);
