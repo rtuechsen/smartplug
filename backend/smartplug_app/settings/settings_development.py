@@ -1,9 +1,8 @@
 """Settings for development builds."""
 
 from .settings_base import *
+from ..admin_settings import SECRET_KEY_DEVELOPMENT
 
 DEBUG = True
 
-SECRET_KEY = (
-    "django-insecure-z5_=&6x00u($dv(x4&vhw46(4#ouj2o1ki(zrby=1+bafzvb$j"
-)
+SECRET_KEY = SECRET_KEY_DEVELOPMENT

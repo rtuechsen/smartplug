@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from ..admin_settings import (
+    SESSION_TIMEOUT_SECONDS,
+    FRONTEND_ORIGINS,
+    ALLOWED_HOSTS_LIST,
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,22 +50,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ALLOW_CREDENTIALS = True
-
-# TODO: add comment: http okay because nginx forwards to https
-frontend_origin = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:80",
-    "http://127.0.0.1:80",
-    "https://localhost:443",
-    "https://127.0.0.1:443",
-]
-
-CORS_ORIGIN_WHITELIST = frontend_origin
-
-CSRF_TRUSTED_ORIGINS = frontend_origin
-
 ROOT_URLCONF = "smartplug_app.urls"
 
 TEMPLATES = [
@@ -90,8 +79,6 @@ DATABASES = {
     }
 }
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.133.195"]
-
 AUTHENTICATION_BACKENDS = [
     "smartplug_app.authentication_backend.AuthenticationBackend"
 ]
@@ -99,11 +86,9 @@ AUTHENTICATION_BACKENDS = [
 EVENTSTREAM_CHANNELMANAGER_CLASS = (
     "smartplug_app.channel_manager.ChannelManager"
 )
-
-EVENTSTREAM_ALLOW_ORIGINS = frontend_origin
+EVENTSTREAM_ALLOW_ORIGINS = FRONTEND_ORIGINS
 EVENTSTREAM_ALLOW_CREDENTIALS = True
 EVENTSTREAM_ALLOW_HEADERS = "Authorization"
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -116,15 +101,17 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Seconds until cookie expiry
-SESSION_COOKIE_AGE = 10
+# TODO: more comments what those settings do / why they are set like this
+
+# --------------------------
+
+SESSION_COOKIE_AGE = SESSION_TIMEOUT_SECONDS
 
 # transfer cookie only using https
 SESSION_COOKIE_SECURE = True
@@ -132,13 +119,24 @@ SESSION_COOKIE_SECURE = True
 # Make cookie inaccesible to javascript.
 SESSION_COOKIE_HTTPONLY = True
 
-# TODO: more details
 SESSION_COOKIE_SAMESITE = "Strict"
+
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# --------------------------
 
 CSRF_COOKIE_SECURE = True
 
 CSRF_COOKIE_SAMESITE = "Strict"
 
-# TODO: use docstrings for variables which the admin might want to adjust,
-# that way they will show up in the documentation
+CSRF_TRUSTED_ORIGINS = FRONTEND_ORIGINS
+
+# --------------------------
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_WHITELIST = FRONTEND_ORIGINS
+
+# --------------------------
+
+ALLOWED_HOSTS = ALLOWED_HOSTS_LIST
