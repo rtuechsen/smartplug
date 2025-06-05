@@ -166,8 +166,7 @@ class AuthenticationBackend(BaseBackend):
 
         except ldap.INVALID_CREDENTIALS as e:
 
-            # TODO: should we unbind as well if error happens after binding?
-            # conn.unbind_s()
+            conn.unbind_s()
 
             raise BackendError(
                 message=f"Credentials mismatch on user: {username}.",
@@ -177,8 +176,7 @@ class AuthenticationBackend(BaseBackend):
 
         except ldap.LDAPError as e:
 
-            # TODO: should we unbind as well if error happens after binding?
-            # conn.unbind_s()
+            conn.unbind_s()
 
             raise BackendError(
                 message=f"LDAP bind failed: {e}",

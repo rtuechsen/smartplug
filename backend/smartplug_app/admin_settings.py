@@ -15,10 +15,10 @@ INRUSH_CURRENT_DELAY: float = 0.5
 on devices when switching on multiple devices."""
 
 # TODO: remove, development variable
-USE_LDAP: bool = False
+USE_LDAP: bool = True
 
 # TODO: use correct host name
-LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.178.50:389"
+LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.133.42:389"
 """The address of the server running active directory.
 
 It should start with
@@ -30,4 +30,4 @@ LDAP_TIMEOUT_SECONDS: int = 5
 considered a timeout."""
 
 # TODO remove, development variable
-USE_MQTT: bool = False
+USE_MQTT: bool = True
