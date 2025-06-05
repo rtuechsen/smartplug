@@ -32,8 +32,11 @@ class AuthenticationBackend(BaseBackend):
 
         # store data about the user in the session
         request.session["USERNAME"] = username
+        # TODO: first and last name are already stored in the user: remove them
+        # from the session ???
         request.session["FIRSTNAME"] = first_name
         request.session["LASTNAME"] = last_name
+
         request.session["HTTP_USER_AGENT"] = request.META["HTTP_USER_AGENT"]
         request.session["HTTP_ACCEPT_LANGUAGE"] = request.META[
             "HTTP_ACCEPT_LANGUAGE"
@@ -71,6 +74,10 @@ class AuthenticationBackend(BaseBackend):
                 or username == "MYLAB\\mmustermann"
             ) and password == "FHKiel123!":
                 return ("Max", "Mustermann")
+            elif (
+                username == "john.doe@mylab.local" and password == "FHKiel123!"
+            ):
+                return ("John", "")
             else:
                 raise BackendError(
                     message=f"Credentials mismatch on user: {username}.",
@@ -85,7 +92,8 @@ class AuthenticationBackend(BaseBackend):
         try:
             conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
 
-            # debug level 255 is the most verbose
+            # TODO: set debugging to 0 in production as it might log user
+            # passwords
             conn.set_option(ldap.OPT_DEBUG_LEVEL, 255)
 
             # LDAP 3 is necessary for active directory
@@ -105,6 +113,7 @@ class AuthenticationBackend(BaseBackend):
 
             # The bind performs the actual request to verify the credentials
             conn.simple_bind_s(username, password)
+            print("Successful bind.")
 
             # next get first and last name of the user (if those exist)
 
@@ -135,12 +144,12 @@ class AuthenticationBackend(BaseBackend):
                 # name or the last name when creating a user
 
                 if "givenName" in entry:
-                    first_name = entry["givenName"][0].decode("utf-8")
+                    first_name = entry["givenName"][0].decode("UTF-8")
                 else:
                     first_name = ""
 
                 if "sn" in entry:
-                    last_name = entry["sn"][0].decode("utf-8")
+                    last_name = entry["sn"][0].decode("UTF-8")
                 else:
                     last_name = ""
 
@@ -157,8 +166,7 @@ class AuthenticationBackend(BaseBackend):
 
         except ldap.INVALID_CREDENTIALS as e:
 
-            # TODO: should we unbind as well if error happens after binding?
-            # conn.unbind_s()
+            conn.unbind_s()
 
             raise BackendError(
                 message=f"Credentials mismatch on user: {username}.",
@@ -168,8 +176,7 @@ class AuthenticationBackend(BaseBackend):
 
         except ldap.LDAPError as e:
 
-            # TODO: should we unbind as well if error happens after binding?
-            # conn.unbind_s()
+            conn.unbind_s()
 
             raise BackendError(
                 message=f"LDAP bind failed: {e}",

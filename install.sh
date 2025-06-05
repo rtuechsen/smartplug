@@ -34,7 +34,7 @@ sudo cp -p ./smartplug_app /etc/logrotate.d/smartplug_app
 ## LDAP
 
 # TODO: what kind of password want slapd here? what is it for?
-sudo apt install -y libsasl2-dev python3-dev libldap2-dev libssl-dev slapd ldap-utils
+sudo apt install -y libsasl2-dev python3-dev libldap2-dev libssl-dev ldap-utils
 
 ## linter
 
@@ -65,7 +65,9 @@ cd ..
 
 # ssl key
 
-sudo mkdir /etc/nginx/ssl/
+if ! [ -d /etc/nginx/ssl/ ]; then
+	sudo mkdir /etc/nginx/ssl/
+fi
 
 sudo openssl genpkey -algorithm RSA -out /etc/nginx/ssl/selfsigned.key
 

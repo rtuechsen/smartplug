@@ -105,11 +105,9 @@ class ErrorHandler:
                 "admin."
             )
 
-        # TODO: use 'detail' instead of 'message' -> adjust error handling code
-        # in frontend accordingly (because native errors use 'detail')
         return Response(
             {
-                "message": f"ERROR: {user_message} "
+                "detail": f"ERROR: {user_message} "
                 f"[{date_time.strftime("%Y-%m-%d %H:%M:%S.%f")}]"
             },
             status=status_code,

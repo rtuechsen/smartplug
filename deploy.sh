@@ -27,25 +27,26 @@ cd ..
 
 cd backend
 
-printf "\n\n\x1B[33mStarting migration. During migration runtime errors can occure that do not happen at normal runtime.\x1B[0m\n\n\n"
+printf "\n\n\x1B[33mStarting migration.\x1B[0m\n\n\n"
 
-python manage.py clearsessions
+sudo -E env PATH="$PATH" python manage.py clearsessions
 
-python3 ./manage.py makemigrations
+sudo -E env PATH="$PATH" python manage.py makemigrations
 
-python3 ./manage.py migrate
+sudo -E env PATH="$PATH" python manage.py migrate
 
-printf "\n\n\x1B[33mMigration finished. Runtime errors above can possibly be ignored if they do not show up below.\x1B[0m\n\n\n"
+printf "\n\n\x1B[33mMigration finished.\x1B[0m\n\n\n"
 
+# TODO: dont run pylint on server start
 pylint --recursive=y smartplug_app
 
 cd ..
 
 # http server
 
-sudo systemctl start nginx
-
 cd backend
+
+sudo systemctl start nginx
 
 # TODO: adjust the number of workers or mention it in the admin documentation
 sudo -E env PATH="$PATH" gunicorn --bind 127.0.0.1:8000 smartplug_app.asgi:application --worker-class uvicorn.workers.UvicornWorker --workers 1 --graceful-timeout 0

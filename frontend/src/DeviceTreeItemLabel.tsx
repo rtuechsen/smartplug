@@ -5,32 +5,14 @@ import { JSX } from '@emotion/react/jsx-runtime';
 import LoadingButtonGroup from './LoadingButtonGroup';
 import { OnIcon, AvailableIcon } from './StatusIcons';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
+import { getCsrfToken } from './RequestTools';
+import { DeviceTreeSingleItemData } from './DeviceTreeItemData';
 
 
 /**
  * A data structure to pass information to each tree item.
  */
-export interface DeviceTreeItemLabelProps extends DisplayErrorCallbackProps {
-
-	/**
-	 * The human readable label of the item. Used when displaying the item in a UI.
-	 */
-	label: string;
-
-	/**
-	 * The unique id of the item. A string of hexadecimal digits of length 64.
-	 */
-	id: string;
-
-	/**
-	 * A boolean indicating if the item should be turned on (True) or off (False). 
-	 */
-	isOn: boolean;
-
-	/**
-	 * A boolean indicating if the item is currently reachable.
-	 */
-	isAvailable: boolean;
+export interface DeviceTreeItemLabelProps extends DeviceTreeSingleItemData, DisplayErrorCallbackProps {
 
 	/**
 	 * If the item is a group or a device.
@@ -50,7 +32,33 @@ export interface DeviceTreeItemLabelProps extends DisplayErrorCallbackProps {
  */
 export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, displayError }: DeviceTreeItemLabelProps): JSX.Element {
 
-	// TODO: use rem for size units here ???
+	/**
+	 * Function to send the switch request to the API.
+	 * 
+	 * @param desired_isOn If the group or device should be turned on (true) or off (false).
+	 * 
+	 * @return A void promise indicating that the functions has returned.
+	 */
+	async function sendSwitchRequest(desired_isOn: boolean): Promise<void> {
+		const response = await fetch('/api/switch/', {
+			method: 'POST',
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
+			headers: {
+				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
+				'Content-type': 'application/json; charset=UTF-8'
+			},
+			body: JSON.stringify({
+				id: id,
+				desired_isOn: desired_isOn
+			}),
+		});
+
+		if (!response.ok) {
+			const responseData = await response.json();
+			await displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
+		}
+	}
 
 	return (
 		<Stack
@@ -72,7 +80,12 @@ export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, dis
 			>
 				<AvailableIcon isAvailable={isAvailable} isGroup={isGroup} />
 				<OnIcon isOn={isOn} isGroup={isGroup} />
-				<LoadingButtonGroup id={id} displayError={displayError} />
+				<LoadingButtonGroup
+					onClickLeftButton={() => sendSwitchRequest(true)}
+					onClickRightButton={() => sendSwitchRequest(false)}
+					buttonLabelLeft='turn on'
+					buttonLabelRight='turn off'
+				/>
 			</Stack>
 		</Stack>
 	);

@@ -3,12 +3,10 @@
 import os
 from .settings_base import *
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-
-# SECURITY WARNING: keep the secret key used in production secret!
+# keep the secret key used in production secret!
 # TODO: change secret key
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "your-production-secret-key")
 

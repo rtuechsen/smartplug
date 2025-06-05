@@ -3,17 +3,105 @@
 TODO: more details ???
 """
 
-from rest_framework import status
-from rest_framework.request import Request
+import time
+import threading
+import datetime
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.utils import timezone
 from django.contrib.auth.models import User
+from rest_framework import status
+from rest_framework.request import Request
+import django_eventstream
 from .error_handler import BackendError
+from .logger import Logger
 
 
 class SessionManager:
+
+    _instance: "SessionManager" = None
+
+    _invalidate_sessions_thread: threading.Thread
+
+    _invalidate_sessions_thread_lock: threading.Lock = threading.Lock()
+
+    _logger: Logger = Logger()
+
+    def __new__(cls):
+        """Creates an instance of the class.
+
+        Implements the singleton pattern taken from this tutorial:
+        https://python-patterns.guide/gang-of-four/singleton/
+        """
+
+        if cls._instance is None:
+            cls._instance = super(SessionManager, cls).__new__(cls)
+
+            # We need to do the initializations here because __init__() would
+            # be called every time an instance is requested.
+
+            cls._invalidate_sessions_thread = threading.Thread(
+                target=cls._invalidate_sessions, daemon=True
+            )
+
+        return cls._instance
+
+    def _invalidate_sessions(self) -> None:
+
+        while True:
+
+            # check which sessions have expired
+            session_model = apps.get_model("sessions", "Session")
+            user_model = get_user_model()
+
+            now: datetime.datetime = timezone.now()
+
+            active_sessions = session_model.objects.filter(
+                expire_date__gt=now
+            ).iterator()
+
+            expired_sessions = session_model.objects.filter(
+                expire_date__lt=now
+            ).iterator()
+
+            expired_user_ids = []
+            for session in expired_sessions:
+                session_data = session.get_decoded()
+                session.delete()
+                user_id: str = session_data.get("_auth_user_id")
+                if user_id:
+                    expired_user_ids.append(user_id)
+
+            # invalidate SSE for user
+            users = user_model.objects.filter(id__in=expired_user_ids)
+            for user in users:
+                # TODO: this will send a response to the client with some JSON
+                # data -> try to send own response to hide implementation details
+                django_eventstream.channel_permission_changed(user, "default")
+                # TODO: log IP address as well (stored in session)
+                self._logger.info(
+                    message="A user session expired.", username=user.username
+                )
+
+            # send updated user list (if there was a change)
+            self._send_list_of_active_users()
+
+            expiry_times: list[float] = [
+                (session.expire_date - now).total_seconds()
+                for session in active_sessions
+            ]
+
+            # if no open sessions: end thread
+            if len(expiry_times) == 0:
+                return
+
+            time_to_next_expiry = min(expiry_times)
+
+            # set sleep timer to the expiry time of the next open session
+            # (+ some threshold to make sure session is really expired)
+            EXPIRY_TIME_THRESHOLD: float = 0.01
+            time.sleep(time_to_next_expiry + EXPIRY_TIME_THRESHOLD)
 
     def login(self, request: Request) -> None:
 
@@ -21,21 +109,64 @@ class SessionManager:
         password = request.data.get("password")
 
         # this uses our custom AuthenticationBackend
-        user: User = authenticate(
-            request, username=username, password=password
-        )
+        user = authenticate(request, username=username, password=password)
 
         login(request, user)
+        # need to save to database, otherwise user is not guarantied to be
+        # available in following queries
+        request.session.save()
 
-        # TODO: send SSE event: list of active users
+        with SessionManager._invalidate_sessions_thread_lock:
+            if not SessionManager._invalidate_sessions_thread.is_alive():
+                SessionManager._invalidate_sessions_thread = threading.Thread(
+                    target=self._invalidate_sessions, daemon=True
+                )
+                SessionManager._invalidate_sessions_thread.start()
+
+        self._send_list_of_active_users()
 
     def logout(self, request: Request) -> None:
 
         self.verify_request_is_allowed(request)
 
         logout(request)
+        # need to save to database, otherwise user is not guarantied to be
+        # available in following queries
+        request.session.save()
 
-    # TODO: better name: authenticate_request()
+        self._send_list_of_active_users()
+
+    def _send_list_of_active_users(self):
+
+        django_eventstream.send_event(
+            "default",
+            "user_list_update",
+            self.get_active_user_names(),
+        )
+
+    def get_active_user_names(self) -> list[str]:
+
+        session_model = apps.get_model("sessions", "Session")
+        user_model = get_user_model()
+
+        active_sessions = session_model.objects.filter(
+            expire_date__gt=timezone.now()
+        ).iterator()
+
+        active_user_ids = []
+        for session in active_sessions:
+            session_data = session.get_decoded()
+            user_id: str = session_data.get("_auth_user_id")
+            if user_id:
+                active_user_ids.append(user_id)
+
+        active_users = user_model.objects.filter(id__in=active_user_ids)
+        acitve_user_names = [
+            f"{user.first_name} {user.last_name}".strip()
+            for user in active_users
+        ]
+        return acitve_user_names
+
     def verify_request_is_allowed(self, request: Request) -> None:
         # TODO: Update this comment
         # user will be None unless logged in. Per default we use a
@@ -110,3 +241,12 @@ class SessionManager:
                 message="Incomplete or missing headers in request.",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             ) from e
+
+    def get_session_expiry_date(self, request: Request) -> float:
+
+        try:
+            self.verify_request_is_allowed(request)
+        except BackendError:
+            return 0.0
+
+        return request.session.get_expiry_date()

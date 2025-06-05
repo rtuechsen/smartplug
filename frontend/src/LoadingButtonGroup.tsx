@@ -3,8 +3,6 @@ import * as React from 'react';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
 import { JSX } from '@emotion/react/jsx-runtime';
-import { getCsrfToken } from './RequestTools';
-import { DisplayErrorCallbackProps } from './ErrorDisplay';
 import type { OverridableStringUnion } from '@mui/types';
 import type { ButtonPropsVariantOverrides } from '@mui/material/Button';
 
@@ -66,12 +64,12 @@ export function LoadingButton({ onClick, variant, children, sx, ref }: React.Pro
 /**
  * A data structure to pass information to an LoadingButtonGroup.  
  */
-export interface LoadingButtonGroupProps extends DisplayErrorCallbackProps {
+export interface LoadingButtonGroupProps {
 
-	/**
-	 * The id of the tree item this button groups belongs to. Used to make API calls to switch items on or off.
-	 */
-	id: string;
+	onClickLeftButton: () => Promise<void>;
+	onClickRightButton: () => Promise<void>;
+	buttonLabelLeft: string;
+	buttonLabelRight: string;
 }
 
 
@@ -82,40 +80,12 @@ export interface LoadingButtonGroupProps extends DisplayErrorCallbackProps {
  * 
  * @return The react component of the button group.
  */
-function LoadingButtonGroup({ id, displayError }: LoadingButtonGroupProps): JSX.Element {
-
-	/**
-	 * Function to send the switch request to the API.
-	 * 
-	 * @param desired_isOn If the group or device should be turned on (true) or off (false).
-	 * 
-	 * @return A void promise indicating that the functions has returned.
-	 */
-	async function sendSwitchRequest(desired_isOn: boolean): Promise<void> {
-		const response = await fetch('/api/switch/', {
-			method: 'POST',
-			credentials: 'include',
-			mode: 'same-origin',	// prevents sending token to another website
-			headers: {
-				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
-				'Content-type': 'application/json; charset=UTF-8'
-			},
-			body: JSON.stringify({
-				id: id,
-				desired_isOn: desired_isOn
-			}),
-		});
-
-		if (!response.ok) {
-			const responseData = await response.json();
-			await displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
-		}
-	}
+function LoadingButtonGroup({ onClickLeftButton, onClickRightButton, buttonLabelLeft, buttonLabelRight }: LoadingButtonGroupProps): JSX.Element {
 
 	return (
 		<ButtonGroup size="small">
-			<LoadingButton onClick={async () => { await sendSwitchRequest(true); }} variant='outlined'>turn on</LoadingButton>
-			<LoadingButton onClick={async () => { await sendSwitchRequest(false); }} variant='outlined'>turn off</LoadingButton>
+			<LoadingButton onClick={onClickLeftButton} variant='outlined'>{buttonLabelLeft}</LoadingButton>
+			<LoadingButton onClick={onClickRightButton} variant='outlined'>{buttonLabelRight}</LoadingButton>
 		</ButtonGroup>
 	);
 }

@@ -62,8 +62,10 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		// declare an async function to fetch and process the data
 		async function getTree(): Promise<void> {
 
+			// TODO: add timeout if server cannot be reached ???
+
 			// fetch the tree data
-			const response = await fetch('/api/gettree/', {
+			const response = await fetch('/api/get-tree/', {
 				method: 'GET',
 				credentials: 'include',
 				mode: 'same-origin',	// prevents sending token to another website
@@ -72,15 +74,15 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 			const responseData = await response.json();
 
 			if (!response.ok) {
-				displayError(`${response.status} ${response.statusText}: ${responseData.message}`);
+				displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 				// abort tree view creation
 				return;
 			}
 
-			const treeData = responseData as DeviceTreeItemData[]; // convert JSON to hierarchy of interfaces
+			const treeData = responseData as DeviceTreeItemData; // convert JSON to hierarchy of interfaces
 
 			// set the state with it to trigger the tree to update
-			setDeviceTreeDataState(treeData);
+			setDeviceTreeDataState([treeData]);
 
 			const treeItemIds: string[] = [];
 			/**
@@ -96,7 +98,7 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 			}
 
 			// collect all ids and set the state to trigger the tree to update
-			treeData.forEach((treeItem) => { collectIds(treeItem); });
+			collectIds(treeData);
 			setExpandedIdsState(treeItemIds);
 
 			// set the state bool to trigger useLayoutEffect()
@@ -110,17 +112,16 @@ function DeviceTreeView({ displayError }: DisplayErrorCallbackProps): JSX.Elemen
 		const eventSource = new EventSource('/api/events/', {
 			withCredentials: true
 		});
-		// TODO: can this fail? error handling!
 
 		// register a function to run when a SSE message arrives, converts the update to the tree view
 		// from JSON to interface and updates the state to trigger the tree to update
-		eventSource.onmessage = function (event): void {
-			const treeData = JSON.parse(event.data) as DeviceTreeItemData[];
-			setDeviceTreeDataState(treeData);
-		};
+		eventSource.addEventListener("device_tree_update", (event) => {
+			const treeData = JSON.parse(event.data) as DeviceTreeItemData;
+			setDeviceTreeDataState([treeData]);
+		});
 
 		eventSource.onerror = function (): void {
-			displayError('Server Sent Events (SSE) have failed.');
+			displayError('ERROR: You either lost connection to the server or your session expired.', true);
 		};
 
 		return function (): void {

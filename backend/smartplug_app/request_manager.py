@@ -14,22 +14,6 @@ from .logger import Logger
 from .error_handler import ErrorHandler, BackendError
 from .session_manager import SessionManager
 
-# TODO: verify that having multiple instances of the session manager does not
-# lead to problems (when serving multiple users in multiple threads)
-session_manager = SessionManager()
-
-
-# rules for input validation (OWASP):
-# - use schema: https://pypi.org/project/jsonschema/
-# - verify range of numbers
-# - verify string length
-# - regex patterns in strings
-#     - allow only certain characters
-#     - avoid: https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
-#     - use: https://owasp.org/www-community/OWASP_Validation_Regex_Repository
-
-# TODO: make RequestManager a singleton like Logger
-
 
 class RequestManager:
     """This class handles the incoming requests from the REST API.
@@ -44,11 +28,13 @@ class RequestManager:
         ## The logger instance (singleton) to log events and errors.
         self._logger: Logger = Logger()
 
+        self._session_manager = SessionManager()
+
         ## An instance of ErrorHandler to simultaneously log an error and
         ## generate a response for the REST API.
         self._error_handler: ErrorHandler = ErrorHandler()
 
-        ## The instance of TODO that manages the device tree.
+        ## The instance of SmartplugApp that manages the device tree.
         self.smartplug_app: SmartplugApp = apps.get_app_config("smartplug_app")
 
         # Because openapi.yaml already contains schemas for the requests for
@@ -59,9 +45,20 @@ class RequestManager:
             Path(__file__).parent.parent.parent / openapi_rel_path
         )
 
-        with open(openapi_abs_path, "r", encoding="UTF-8") as file:
-            self._openapi: dict = yaml.safe_load(file)
-            # TODO: handle errors
+        try:
+            with open(openapi_abs_path, "r", encoding="UTF-8") as file:
+                self._openapi: dict = yaml.safe_load(file)
+        except FileNotFoundError as e:
+            raise BackendError(
+                f"Could not find the file openapi.yaml at {openapi_abs_path}."
+            ) from e
+        except IOError as e:
+            raise BackendError(
+                f"Error while reading the file openapi.yaml at "
+                f"{openapi_abs_path}."
+            ) from e
+        except yaml.YAMLError as e:
+            raise BackendError(f"Error while parsing openapi.yaml:{e}.") from e
 
         self._schema_switch: dict = self._openapi["paths"]["/api/switch"][
             "post"
@@ -135,7 +132,7 @@ class RequestManager:
             )
 
         try:
-            session_manager.login(request)
+            self._session_manager.login(request)
         except BackendError as e:
             return self._error_handler.response(
                 e.message,
@@ -181,7 +178,7 @@ class RequestManager:
             )
 
         try:
-            session_manager.logout(request)
+            self._session_manager.logout(request)
         except BackendError as e:
             return self._error_handler.response(
                 e.message,
@@ -197,7 +194,7 @@ class RequestManager:
 
         return Response(None, status=status.HTTP_200_OK)
 
-    def gettree(self, request: Request) -> Response:
+    def get_tree(self, request: Request) -> Response:
         """Function to process requests to /gettree .
 
         @param request The incoming request.
@@ -230,7 +227,7 @@ class RequestManager:
             )
 
         try:
-            session_manager.verify_request_is_allowed(request)
+            self._session_manager.verify_request_is_allowed(request)
 
             device_tree = self.smartplug_app.get_device_tree_dicts()
         except BackendError as e:
@@ -284,7 +281,7 @@ class RequestManager:
             )
 
         try:
-            session_manager.verify_request_is_allowed(request)
+            self._session_manager.verify_request_is_allowed(request)
 
             # instruct the app to perform the switch
             self.smartplug_app.switch(
@@ -304,3 +301,102 @@ class RequestManager:
             )
 
         return Response(None, status=status.HTTP_200_OK)
+
+    def get_active_users(self, request: Request) -> Response:
+        """Function to process requests to /getusers .
+
+        @param request The incoming request.
+
+        @return A response containing either the user list as a JSON or an error.
+        """
+
+        self._logger.info(
+            "A /getusers request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
+        )
+
+        if request.body != b"":
+            return self._error_handler.response(
+                "Requests to /getactiveusers are not allowed to have a body.",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
+        try:
+            self._session_manager.verify_request_is_allowed(request)
+            active_user_names = self._session_manager.get_active_user_names()
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
+        return Response(active_user_names, status=status.HTTP_200_OK)
+
+    def get_session_expiry_date(self, request: Request) -> Response:
+        """TODO"""
+
+        self._logger.info(
+            "A /getusers request has been received.",
+            request.META["REMOTE_ADDR"],
+            (
+                request.session["USERNAME"]
+                if "USERNAME" in request.session
+                else None
+            ),
+        )
+
+        if request.body != b"":
+            return self._error_handler.response(
+                "Requests to /getremainingsessiontime are not allowed to have "
+                "a body.",
+                status.HTTP_400_BAD_REQUEST,
+                "The request did not match the expected schema.",
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
+        try:
+            self._session_manager.verify_request_is_allowed(request)
+            session_expiry_date = (
+                self._session_manager.get_session_expiry_date(request)
+            )
+        except BackendError as e:
+            return self._error_handler.response(
+                e.message,
+                e.status_code,
+                e.user_message,
+                request.META["REMOTE_ADDR"],
+                (
+                    request.session["USERNAME"]
+                    if "USERNAME" in request.session
+                    else None
+                ),
+            )
+
+        return Response(
+            {"session_expiry_date": session_expiry_date},
+            status=status.HTTP_200_OK,
+        )

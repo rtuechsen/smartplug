@@ -22,10 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Application definition
 
-# TODO: remove 'admin'?
-
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -50,11 +47,14 @@ MIDDLEWARE = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+# TODO: add comment: http okay because nginx forwards to https
 frontend_origin = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://localhost:3000",
-    "https://127.0.0.1:3000",
+    "http://localhost:80",
+    "http://127.0.0.1:80",
+    "https://localhost:443",
+    "https://127.0.0.1:443",
 ]
 
 CORS_ORIGIN_WHITELIST = frontend_origin
@@ -78,8 +78,6 @@ TEMPLATES = [
     },
 ]
 
-# TODO: remove WSGI ???
-WSGI_APPLICATION = "smartplug_app.wsgi.application"
 ASGI_APPLICATION = "smartplug_app.asgi.application"
 
 # Database
@@ -92,24 +90,7 @@ DATABASES = {
     }
 }
 
-# TODO: is this needed ???
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.133.195"]
 
 AUTHENTICATION_BACKENDS = [
     "smartplug_app.authentication_backend.AuthenticationBackend"
@@ -143,7 +124,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Seconds until cookie expiry
-SESSION_COOKIE_AGE = 120
+SESSION_COOKIE_AGE = 10
 
 # transfer cookie only using https
 SESSION_COOKIE_SECURE = True
