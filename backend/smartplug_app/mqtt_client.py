@@ -20,9 +20,10 @@ class MQTTClient:
         self._client: mqtt.Client = mqtt.Client()
 
         # TLS --------------------------------------
-
-        # self._username = "mqttuser"
-        # self._password = "pass"
+        with open("../mosquitto_passwd.json") as f:
+            config = json.load(f)
+            self._username = config["mqtt_username"]
+            self._password = config["mqtt_password"]
 
         # TODO: generate / add certificates when installing / starting
         # or add them to git and copy them when installing / starting ???
@@ -34,7 +35,7 @@ class MQTTClient:
         # )
 
         # self._client.tls_insecure_set(True)
-        # self._client.username_pw_set(self._username, self._password)
+        self._client.username_pw_set(self._username, self._password)
 
         # -------------------------------------------
 

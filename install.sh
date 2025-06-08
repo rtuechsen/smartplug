@@ -46,7 +46,10 @@ sudo apt install -y mosquitto mosquitto-clients
 sudo systemctl stop mosquitto
 
 # TODO: change password
-# sudo mosquitto_passwd -c /ect/mosquitto/passwd mqttuser
+sudo mosquitto_passwd -c /ect/mosquitto/passwd mqttuser
+sudo chmod 600 /etc/mosquitto/passwd
+sudo chown mosquitto: /etc/mosquitto/passwd
+
 
 cd ..
 
