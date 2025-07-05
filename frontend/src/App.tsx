@@ -191,7 +191,7 @@ export function App(): JSX.Element {
 										sx={{ alignSelf: 'end', mr: '2rem' }}
 									>
 										<CountdownTimer
-											initialTime={remainingSessionTimeSecondsRef.current ? remainingSessionTimeSecondsRef.current : 0}
+											initialTimeSeconds={remainingSessionTimeSecondsRef.current ? remainingSessionTimeSecondsRef.current : 0}
 											sx={{ mr: '1rem' }}
 										/>
 										<LoadingButton
