@@ -15,8 +15,8 @@ from .mqtt_client import MQTTClient
 from .device_tree import DeviceTree
 from .admin_settings import (
     USE_SWITCHING_DELAYS,
-    SWITCHING_TOGGLE_DELAY,
-    INRUSH_CURRENT_DELAY,
+    SWITCHING_TOGGLE_DELAY_SECONDS,
+    INRUSH_CURRENT_DELAY_SECONDS,
 )
 
 
@@ -302,11 +302,11 @@ class SmartplugApp(AppConfig):
             raise BackendError(
                 f"Some switch requests were not executed in order to comply "
                 f"with the per device switching delay of "
-                f"{SWITCHING_TOGGLE_DELAY} seconds.",
+                f"{SWITCHING_TOGGLE_DELAY_SECONDS} seconds.",
                 status.HTTP_409_CONFLICT,
                 f"Some switch requests were not executed in order to comply "
                 f"with the per device switching delay of "
-                f"{SWITCHING_TOGGLE_DELAY} seconds.",
+                f"{SWITCHING_TOGGLE_DELAY_SECONDS} seconds.",
             )
 
     def _try_switching_device(
@@ -354,11 +354,11 @@ class SmartplugApp(AppConfig):
 
                     if (
                         time_passed_since_last_switch_on.seconds
-                        < INRUSH_CURRENT_DELAY
+                        < INRUSH_CURRENT_DELAY_SECONDS
                     ):
 
                         time.sleep(
-                            INRUSH_CURRENT_DELAY
+                            INRUSH_CURRENT_DELAY_SECONDS
                             - time_passed_since_last_switch_on.seconds
                         )
 
@@ -371,7 +371,7 @@ class SmartplugApp(AppConfig):
             )
 
             if time_passed_since_last_switch_of_current_item < timedelta(
-                seconds=SWITCHING_TOGGLE_DELAY
+                seconds=SWITCHING_TOGGLE_DELAY_SECONDS
             ):
                 return True
 

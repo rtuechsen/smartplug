@@ -3,7 +3,7 @@ groups.
 """
 
 import datetime
-from .admin_settings import SWITCHING_TOGGLE_DELAY
+from .admin_settings import SWITCHING_TOGGLE_DELAY_SECONDS
 
 
 class TreeItem:
@@ -114,7 +114,7 @@ class TreeItemDevice(TreeItem):
         self.time_last_switched: (
             datetime.datetime
         ) = datetime.datetime.now() - datetime.timedelta(
-            seconds=SWITCHING_TOGGLE_DELAY
+            seconds=SWITCHING_TOGGLE_DELAY_SECONDS
         )
 
         ## A List of devices. If all devices in that list are turned OFF, so

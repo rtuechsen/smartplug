@@ -7,11 +7,11 @@ USE_SWITCHING_DELAYS: bool = True
 
 ## A float value in seconds that determines how long to wait before switching a
 ## recently switched device again.
-SWITCHING_TOGGLE_DELAY: float = 1.0
+SWITCHING_TOGGLE_DELAY_SECONDS: float = 1.0
 
 ## A float value in seconds that determines how long to wait between switching
 ## on devices when switching on multiple devices.
-INRUSH_CURRENT_DELAY: float = 0.5
+INRUSH_CURRENT_DELAY_SECONDS: float = 0.5
 
 ## Variable used for Development: allows to disable using the Active Directory
 ## / LDAP to verify a users identity. If disabled any pair of username and
