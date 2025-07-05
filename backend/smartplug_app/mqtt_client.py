@@ -22,7 +22,7 @@ class MQTTClient:
         """
         Initialize the MQTT client and set up connection and callbacks.
 
-        @param on_update_callback: Callback function to update device states in
+        @param on_update_callback Callback function to update device states in
         the main application.
         """
 
@@ -78,10 +78,13 @@ class MQTTClient:
         )
 
     def _on_message(
-        self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage
+        self, client: mqtt.Client, _, msg: mqtt.MQTTMessage
     ) -> None:
         """
         Callback for processing incoming MQTT messages.
+
+        @param client The instance of mqtt.Client to use.
+        @param msg The received message.
         """
 
         topic = msg.topic
@@ -138,7 +141,7 @@ class MQTTClient:
         Requests the current status of a device by sending a Switch.GetStatus
         RPC.
 
-        @param device_id: The ID of the target device.
+        @param device_id The ID of the target device.
         """
         payload = {
             "id": 1,
@@ -158,8 +161,8 @@ class MQTTClient:
         """
         Sends a command to switch a device on or off.
 
-        @param device_id: The ID of the target device.
-        @param desired_isOn: Desired state of the switch (True for on, False
+        @param device_id The ID of the target device.
+        @param desired_isOn Desired state of the switch (True for on, False
         for off).
         """
         # used for debugging only
