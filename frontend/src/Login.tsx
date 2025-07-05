@@ -11,7 +11,7 @@ import { DisplayErrorCallbackProps } from './ErrorDisplay';
 /**
  * A data structure to pass information to the login component.
  */
-interface LoginProps extends DisplayErrorCallbackProps {
+export interface LoginProps extends DisplayErrorCallbackProps {
 
 	/**
 	 * A callback to call after a successful login.

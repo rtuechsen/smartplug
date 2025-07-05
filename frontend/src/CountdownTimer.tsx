@@ -7,7 +7,7 @@ import { JSX } from '@emotion/react/jsx-runtime';
 /**
  * A Data structure to pass information to the countdown timer.
  */
-interface CountdownTimerProps {
+export interface CountdownTimerProps {
 
 	/**
 	 * The initial time to start with in seconds.
