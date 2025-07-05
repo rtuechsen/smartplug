@@ -95,7 +95,7 @@ class AuthenticationBackend(BaseBackend):
         @return A tuple with (first name, last name) of the user retrieved from
         the configured Active Directory.
         """
-        # TODO: remove, development code
+        # used for debugging only
         if not USE_LDAP:
             return ("Max", "Mustermann")
 
@@ -106,9 +106,9 @@ class AuthenticationBackend(BaseBackend):
         try:
             conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
 
-            # TODO: set debugging to 0 as it might log user passwords, add
-            # comment to enable debugging with 255
-            conn.set_option(ldap.OPT_DEBUG_LEVEL, 255)
+            # set debugging to 0 as it might log user passwords, use a value of
+            # 255 for debugging
+            conn.set_option(ldap.OPT_DEBUG_LEVEL, 0)
 
             # LDAP 3 is necessary for active directory.
             conn.set_option(ldap.OPT_PROTOCOL_VERSION, ldap.VERSION3)
