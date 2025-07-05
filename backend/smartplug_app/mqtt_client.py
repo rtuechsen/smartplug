@@ -1,3 +1,7 @@
+"""Contains the MQTT client which serves as a central interface for all
+communication (with the smartplugs) via MQTT.
+"""
+
 import json
 from typing import Callable
 import paho.mqtt.client as mqtt
