@@ -107,36 +107,46 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# TODO: more comments what those settings do / why they are set like this
-
 # --------------------------
 
+# The time in seconds after which a user is signed out if no activity was
+# registered.
 SESSION_COOKIE_AGE = SESSION_TIMEOUT_SECONDS
 
-# transfer cookie only using https
+# Transfer cookie only if using HTTPS, not HTTP.
 SESSION_COOKIE_SECURE = True
 
-# Make cookie inaccesible to javascript.
+# Make cookie inaccesible from javascript.
 SESSION_COOKIE_HTTPONLY = True
 
+# Prevents the cookie from being sent by the browser to the target site in all
+# cross-site browsing context, even when following a regular link.
 SESSION_COOKIE_SAMESITE = "Strict"
 
+# Whether to expire the session when the user closes their browser.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # --------------------------
 
+# The cookie is only send over HTTPS, not HTTP.
 CSRF_COOKIE_SECURE = True
 
+# This flag prevents the cookie from being sent in cross-site requests.
 CSRF_COOKIE_SAMESITE = "Strict"
 
+# A list of trusted origins for unsafe requests (e.g. POST).
 CSRF_TRUSTED_ORIGINS = FRONTEND_ORIGINS
 
 # --------------------------
 
+# The server allows credentials to be included in cross-origin HTTP requests.
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ORIGIN_WHITELIST = FRONTEND_ORIGINS
+# A list of origins that are authorized to make cross-site HTTP requests.
+CORS_ALLOWED_ORIGINS = FRONTEND_ORIGINS
 
 # --------------------------
 
+# A list of strings representing the host/domain names that this Django site
+# can serve. This is a security measure to prevent HTTP Host header attacks.
 ALLOWED_HOSTS = ALLOWED_HOSTS_LIST
