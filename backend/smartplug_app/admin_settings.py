@@ -1,48 +1,53 @@
-"""Contains variables that control the behavior of the backend and provide an easy
-way for the systems admin to change key aspects of the backend.
+"""Contains variables that control the behavior of the backend and provide an
+easy way for the systems admin to change key aspects of the backend.
 """
 
-# TODO: remove, development variable
+## Variable used for Development: allows to disable the switching delays.
 USE_SWITCHING_DELAYS: bool = True
 
-# TODO: add unit (seconds) to time variables
+## A float value in seconds that determines how long to wait before switching a
+## recently switched device again.
 SWITCHING_TOGGLE_DELAY: float = 1.0
-"""A float value in seconds that determines how long to wait before switching a
-recently switched device again."""
 
+## A float value in seconds that determines how long to wait between switching
+## on devices when switching on multiple devices.
 INRUSH_CURRENT_DELAY: float = 0.5
-"""A float value in seconds that determines how long to wait between switching
-on devices when switching on multiple devices."""
 
-# TODO: remove, development variable
+## Variable used for Development: allows to disable using the Active Directory
+## / LDAP to verify a users identity. If disabled any pair of username and
+## password are accepted, the username in this case is always 'Max Mustermann'.
 USE_LDAP: bool = False
 
-# TODO: use correct host name
+## The address of the server running active directory. It should start with
+## 'ldap://' and end with ':389' (the port for LDAP).
 LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.133.42:389"
-"""The address of the server running active directory.
 
-It should start with
-'ldap://' and end with ':389' (the port for LDAP).
-"""
-
+## The time in seconds after which a request to the Active Directory server is
+## considered a timeout.
 LDAP_TIMEOUT_SECONDS: int = 5
-"""The time in seconds after which a request to the active directory server is
-considered a timeout."""
 
-# TODO remove, development variable
+## Variable used for Development: allows to disable sending MQTT messages. When
+## making switch requests these will be treated as successful and return a
+## matching response from the MQTTClient.
 USE_MQTT: bool = False
 
+## The secret key used for development builds. Used by Django as a seed for
+## cryptographic functions.
 SECRET_KEY_DEVELOPMENT: str = (
     "z5_=&6x00u($dv(x4&vhw46(4#ouj2o1ki(zrby=1+bafzvb$j"
 )
 
-## The individual secret key of this project (for production builds).\ This
-## value is the used to securing signed data.
+## The secret key used for production builds. Used by Django as a seed for
+## cryptographic functions.
 SECRET_KEY_PRODUCTION: str = "GyB#yNG@!hAdqV75cX3LdVyJ!ubQF4"
 
+## The time in seconds after which a user is signed out if no activity was
+## registered.
 SESSION_TIMEOUT_SECONDS: int = 120
 
-# TODO: add comment: http okay because nginx forwards to https
+## The list of addresses (including protocoll and port) the frontend can have.
+## Using http here is okay, since http requests will be forwarded to https by
+## nginx.
 FRONTEND_ORIGINS: list[str] = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -52,4 +57,6 @@ FRONTEND_ORIGINS: list[str] = [
     "https://127.0.0.1:443",
 ]
 
+## A list of strings representing the host/domain names that this Django site
+## can serve. This is a security measure to prevent HTTP Host header attacks.
 ALLOWED_HOSTS_LIST: list[str] = ["localhost", "127.0.0.1", "192.168.133.195"]
