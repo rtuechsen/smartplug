@@ -33,7 +33,7 @@ considered a timeout."""
 USE_MQTT: bool = False
 
 SECRET_KEY_DEVELOPMENT: str = (
-    "django-insecure-z5_=&6x00u($dv(x4&vhw46(4#ouj2o1ki(zrby=1+bafzvb$j"
+    "z5_=&6x00u($dv(x4&vhw46(4#ouj2o1ki(zrby=1+bafzvb$j"
 )
 
 ## The individual secret key of this project (for production builds).\ This
