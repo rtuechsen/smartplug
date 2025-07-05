@@ -330,7 +330,7 @@ class SmartplugApp(AppConfig):
         (True) or not (False).
         """
 
-        # TODO: remove, development code
+        # used for debugging only
         if USE_SWITCHING_DELAYS is False:
             SmartplugApp._mqtt_client.switch(device.deviceId, desired_isOn)
             return False
