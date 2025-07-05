@@ -12,7 +12,7 @@ class MQTTClient:
     It listens to topics, parses incoming messages, and sends control messages.
     """
 
-    def __init__(self, on_update_callback):
+    def __init__(self, on_update_callback) -> None:
         """
         Initialize the MQTT client and set up connection and callbacks.
 
@@ -51,30 +51,7 @@ class MQTTClient:
         self._client.on_message = self._on_message
         self._client.loop_start()
 
-        # TODO: remove, used for debugging only
-        if not USE_MQTT:
-            self.init_devices_randomly()
-
-    # TODO: remove, used for debugging only
-    def init_devices_randomly(self):
-
-        random.seed(42)
-
-        deviceIds = [
-            "shellyplugsg3-b08184a48764",
-            "shellyplugsg3-8cbfea90f128",
-            "shellyplugsg3-b08184a4b8e4",
-            "shellyplugsg3-b08184a654b8",
-        ]
-
-        for deviceId in deviceIds:
-            # isAvailable: bool = random.choice([True, True, True, False])
-            isOn: bool = random.choice([True, False])
-
-            self._on_update_callback(deviceId, "isAvailable", True)
-            self._on_update_callback(deviceId, "isOn", True)
-
-    def _connect(self):
+    def _connect(self) -> None:
         """
         Connects to the MQTT broker and subscribes to all topics.
         """
@@ -91,10 +68,9 @@ class MQTTClient:
             self._broker_ip, self._broker_port, self._keep_alive_seconds
         )
 
-    # TODO: type hints
     def _on_message(
         self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage
-    ):
+    ) -> None:
         """
         Callback for processing incoming MQTT messages.
         """
@@ -148,7 +124,7 @@ class MQTTClient:
                 self._logger.error(f"Unexpeted error processing message: {e}")
                 raise BackendError(f"Error in _on_message: {str(e)}") from e
 
-    def _request_status(self, device_id: str):
+    def _request_status(self, device_id: str) -> None:
         """
         Requests the current status of a device by sending a Switch.GetStatus RPC.
 
