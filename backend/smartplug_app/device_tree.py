@@ -133,7 +133,7 @@ class DeviceTree:
 
         Verifies the structure of the data and provides feedback.
 
-        @param The dictionary representing the device.
+        @param device_obj The dictionary representing the device.
 
         @return An instance of TreeItemDevice representing the device.
         """
