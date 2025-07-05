@@ -1,5 +1,5 @@
 import json
-import random
+from typing import Callable
 import paho.mqtt.client as mqtt
 from .logger import Logger
 from .error_handler import BackendError
@@ -12,11 +12,14 @@ class MQTTClient:
     It listens to topics, parses incoming messages, and sends control messages.
     """
 
-    def __init__(self, on_update_callback) -> None:
+    def __init__(
+        self, on_update_callback: Callable[[str, str, bool], None]
+    ) -> None:
         """
         Initialize the MQTT client and set up connection and callbacks.
 
-        :param on_update_callback: Callback function to update device states in the main application.
+        @param on_update_callback: Callback function to update device states in
+        the main application.
         """
 
         self._logger: Logger = Logger()
@@ -47,7 +50,9 @@ class MQTTClient:
         # -------------------------------------------
 
         self._connect()
-        self._on_update_callback = on_update_callback
+        self._on_update_callback: Callable[[str, str, bool], None] = (
+            on_update_callback
+        )
         self._client.on_message = self._on_message
         self._client.loop_start()
 
@@ -126,9 +131,10 @@ class MQTTClient:
 
     def _request_status(self, device_id: str) -> None:
         """
-        Requests the current status of a device by sending a Switch.GetStatus RPC.
+        Requests the current status of a device by sending a Switch.GetStatus
+        RPC.
 
-        :param device_id: The ID of the target device.
+        @param device_id: The ID of the target device.
         """
         payload = {
             "id": 1,
@@ -148,10 +154,11 @@ class MQTTClient:
         """
         Sends a command to switch a device on or off.
 
-        :param device_id: The ID of the target device.
-        :param desired_isOn: Desired state of the switch (True for on, False for off).
+        @param device_id: The ID of the target device.
+        @param desired_isOn: Desired state of the switch (True for on, False
+        for off).
         """
-        # TODO: remove, used for debugging only
+        # used for debugging only
         if not USE_MQTT:
             self._on_update_callback(deviceId, "isOn", desired_isOn)
             return
