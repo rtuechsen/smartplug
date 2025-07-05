@@ -4,28 +4,45 @@ import { Typography } from '@mui/material';
 import { JSX } from '@emotion/react/jsx-runtime';
 
 
-
+/**
+ * A Data structure to pass information to the countdown timer.
+ */
 interface CountdownTimerProps {
-	initialTime: number;
+
+	/**
+	 * The initial time to start with in seconds.
+	 */
+	initialTimeSeconds: number;
+
+	/**
+	 * An object of optional css stylings options to pass to the text component of the countdown timer.
+	 */
 	sx?: object;
 }
 
-// TODO: add source
+/**
+ * A countdown timer that displays the minutes and seconds and counts down to zero.
+ * 
+ * Implementationed based roughly on: https://www.freecodecamp.org/news/build-a-countdown-timer-with-react-step-by-step/
+ * 
+ * @param props Holds the data needed to construct the countdown timer.
+ * 
+ * @returns The react component of the countdown timer.
+ */
+export function CountdownTimer({ initialTimeSeconds, sx }: CountdownTimerProps): JSX.Element {
 
-export function CountdownTimer({ initialTime, sx }: CountdownTimerProps): JSX.Element {
-
-	const [remainingTime, setRemainingTime] = React.useState<number>(initialTime);
+	const [remainingTimeSeconds, setRemainingTimeSeconds] = React.useState<number>(initialTimeSeconds);
 	const [timeString, setTimeString] = React.useState('');
 	const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
 	React.useEffect(() => {
-		setRemainingTime(initialTime);
-		setTimeString(secondsToString(initialTime));
+		setRemainingTimeSeconds(initialTimeSeconds);
+		setTimeString(secondsToString(initialTimeSeconds));
 
 		if (intervalRef.current) {
 			clearInterval(intervalRef.current);
 		}
-	}, [initialTime]);
+	}, [initialTimeSeconds]);
 
 	function secondsToString(remainingSeconds: number): string {
 		const minutes = Math.floor(remainingSeconds / 60);
@@ -34,14 +51,14 @@ export function CountdownTimer({ initialTime, sx }: CountdownTimerProps): JSX.El
 	}
 
 	function updateTimer(): void {
-		let newRemainingTime = remainingTime - 1;
+		let newRemainingTime = remainingTimeSeconds - 1;
 		if (newRemainingTime < 0) {
 			newRemainingTime = 0;
 			if (intervalRef.current) {
 				clearInterval(intervalRef.current);
 			}
 		}
-		setRemainingTime(newRemainingTime);
+		setRemainingTimeSeconds(newRemainingTime);
 		setTimeString(secondsToString(newRemainingTime));
 	}
 
@@ -50,7 +67,7 @@ export function CountdownTimer({ initialTime, sx }: CountdownTimerProps): JSX.El
 			clearInterval(intervalRef.current);
 		}
 		// TODO 1000 Magic Number explain 
-		if (remainingTime > 0) {
+		if (remainingTimeSeconds > 0) {
 			intervalRef.current = setInterval(updateTimer, 1000);
 		}
 
@@ -59,7 +76,7 @@ export function CountdownTimer({ initialTime, sx }: CountdownTimerProps): JSX.El
 				clearInterval(intervalRef.current);
 			}
 		};
-	}, [remainingTime]);
+	}, [remainingTimeSeconds]);
 
 	return (
 		<Typography sx={{ display: 'flex', alignItems: 'center', lineHeight: 1, whiteSpace: 'nowrap', ...sx }}>
