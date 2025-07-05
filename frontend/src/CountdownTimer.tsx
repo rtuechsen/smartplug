@@ -66,9 +66,9 @@ export function CountdownTimer({ initialTimeSeconds, sx }: CountdownTimerProps):
 		if (intervalRef.current) {
 			clearInterval(intervalRef.current);
 		}
-		// TODO 1000 Magic Number explain 
+		const oneSecondInMilliseconds: number = 1000;
 		if (remainingTimeSeconds > 0) {
-			intervalRef.current = setInterval(updateTimer, 1000);
+			intervalRef.current = setInterval(updateTimer, oneSecondInMilliseconds);
 		}
 
 		return function (): void {
