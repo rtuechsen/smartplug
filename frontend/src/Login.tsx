@@ -1,17 +1,35 @@
-// TODO: improve imports everywhere similarly to here ??? (grouping)
+
 import * as React from 'react';
 import { Paper, TextField, Box, IconButton } from '@mui/material';
 import { Visibility, VisibilityOff, KeyRounded, PersonRounded } from '@mui/icons-material';
 import { JSX } from '@emotion/react/jsx-runtime';
 import { LoadingButton } from './LoadingButtonGroup';
 import { getCsrfToken } from './RequestTools';
+import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
 
-interface LoginProps {
+/**
+ * A data structure to pass information to the login component.
+ */
+interface LoginProps extends DisplayErrorCallbackProps {
+
+	/**
+	 * A callback to call after a successful login.
+	 * 
+	 * Used to retreive the remaining session time from the server.
+	 */
 	onLoginSuccess: () => void;
-	displayError: (message: string) => Promise<void>;
 }
 
+/**
+ * A login mask for username and password.
+ * 
+ * The password is shown as dots, but can be made visible using a button.
+ * 
+ * @param props Holds the data needed to construct the login mask.
+ * 
+ * @returns The react component of the login mask.
+ */
 export function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [password, setPassword] = React.useState('');
