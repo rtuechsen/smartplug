@@ -1,5 +1,13 @@
 
-// https://docs.djangoproject.com/en/5.2/howto/csrf/#acquiring-the-token-if-csrf-use-sessions-and-csrf-cookie-httponly-are-false
+/**
+ * A function to retrieve a cookie from the current document.
+ * 
+ * This implementation is recommended by Django: https://docs.djangoproject.com/en/5.2/howto/csrf/#acquiring-the-token-if-csrf-use-sessions-and-csrf-cookie-httponly-are-false
+ * 
+ * @param name The name of the cookie to retrieve.
+ * 
+ * @returns The value of the cookie.
+ */
 function getCookie(name: string): string {
 	let cookieValue = '';
 	if (document.cookie && document.cookie !== '') {
