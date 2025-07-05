@@ -7,7 +7,7 @@ import { JSX } from '@emotion/react/jsx-runtime';
 /**
  * A data structure to hold the callback for the displaying error messages.
  * 
- * Wrapping this in a callback instead of passing only the callback allows to extend other interfaces. 
+ * Wrapping this in a callback instead of passing only the callback allows to extend other interfaces.
  * It also is more consistent how we pass properties in other places.
  */
 export interface DisplayErrorCallbackProps {

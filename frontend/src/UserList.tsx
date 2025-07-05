@@ -4,12 +4,24 @@ import { List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, Stack
 import { JSX } from '@emotion/react/jsx-runtime';
 import { DisplayErrorCallbackProps } from './ErrorDisplay';
 
-
+/**
+ * A data structure to hold the username for the user list item.
+ */
 interface UserListItemProps {
+
+	/**
+	 * The username to display.
+	 */
 	name: string;
 }
 
-
+/**
+ * A list item that displays a username which can be added to a List (Material UI) component.
+ * 
+ * @param props Holds the data needed to construct the error display.
+ * 
+ * @returns The react component of the user list item.
+ */
 function UserListItem({ name }: UserListItemProps): JSX.Element {
 
 	return (
@@ -24,7 +36,13 @@ function UserListItem({ name }: UserListItemProps): JSX.Element {
 	);
 }
 
-
+/**
+ * A list which displays the usernames of the currently loggin in users.
+ * 
+ * @param props Holds the data needed to construct the user list.
+ * 
+ * @returns The react component of the user list.
+ */
 export function UserList({ displayError }: DisplayErrorCallbackProps): JSX.Element | undefined {
 
 	// state for holding the data of the tree, triggers updates to the tree if the data changes
