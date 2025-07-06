@@ -1,6 +1,8 @@
 
 export DJANGO_PIPELINE=production
 
+source backend/django-env/bin/activate
+
 sudo systemctl stop smartplug
 
 sudo rm -r /etc/nginx/nginx.conf
