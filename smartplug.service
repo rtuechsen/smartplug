@@ -5,9 +5,9 @@ After=network.target
 [Service]
 User=www-data
 Group=www-data
-Environment="PATH=/home/ubuntu/venv/bin:/usr/bin:/bin"
-WorkingDirectory=/home/ubuntu/smartplug_app
-ExecStart=/home/ubuntu/venv/bin/gunicorn \
+Environment="PATH=/home/user1/smartplug-dirigent/backend/django-env/bin:/usr/bin:/bin"
+WorkingDirectory=/home/user1/smartplug-dirigent
+ExecStart=/home/user1/smartplug-dirigent/backend/django-env/bin/gunicorn \
   --bind 127.0.0.1:8000 \
   smartplug_app.asgi:application \
   --worker-class uvicorn.workers.UvicornWorker \
