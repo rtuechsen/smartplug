@@ -69,8 +69,9 @@ class MQTTClient:
 
     def _connect(self):
 
-        # TODO: type hints
-        def on_connect(client, userdata, flags, rc):
+        def on_connect(
+            client: mqtt.Client, userdata: any, flags: dict, rc: int
+        ):
             if rc == 0:
                 client.subscribe("#")
                 self._logger.info("Connected successfully to MQTT broker.")
@@ -82,8 +83,9 @@ class MQTTClient:
             self._broker_ip, self._broker_port, self._keep_alive_seconds
         )
 
-    # TODO: type hints
-    def _on_message(self, client, userdata, msg):
+    def _on_message(
+        self, client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage
+    ):
 
         topic = msg.topic
         payload = msg.payload.decode()
@@ -100,9 +102,9 @@ class MQTTClient:
             deviceId = topic.split("/")[0]
             try:
                 data = json.loads(payload)
-                output = data.get("output")
+                rpcSwitchOutput = data.get("output")
 
-                self._on_update_callback(deviceId, "isOn", output)
+                self._on_update_callback(deviceId, "isOn", rpcSwitchOutput)
 
             except json.JSONDecodeError as e:
                 raise BackendError(
@@ -116,21 +118,17 @@ class MQTTClient:
                 data = json.loads(payload)
                 deviceId = data.get("src")
 
-                # TODO: better name for variable - what is this ???
-                result = data.get("result")
+                rpcData = data.get("result")
 
-                # TODO: what could 'result' be? what are the different cases ???
-                if isinstance(result, dict) and "output" in result:
+                if isinstance(rpcData, dict) and "output" in rpcData:
 
-                    # TODO: better name for variable - what is this ???
-                    output = result.get("output")
+                    rpcSwitchOutput = rpcData.get("output")
 
-                    self._on_update_callback(deviceId, "isOn", output)
+                    self._on_update_callback(deviceId, "isOn", rpcSwitchOutput)
 
             except json.JSONDecodeError:
-                # TODO: in which cases can this happen ??? is this only to
-                # catch errors in json.loads()
                 # TODO: create propper error
+                # This Happens if the JSON that was send from the smartplug were defekt.
                 print(f"[{topic}] Invalid JSON in RPC: {payload}")
 
     def _request_status(self, device_id: str):
