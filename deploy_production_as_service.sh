@@ -1,8 +1,6 @@
 
 export DJANGO_PIPELINE=production
 
-source backend/django-env/bin/activate
-
 sudo systemctl stop smartplug
 
 sudo rm -r /etc/nginx/nginx.conf
@@ -27,6 +25,8 @@ cd ..
 # backend
 
 cd backend
+
+source django-env/bin/activate
 
 printf "\n\n\x1B[33mStarting migration.\x1B[0m\n\n\n"
 
