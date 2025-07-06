@@ -1,0 +1,19 @@
+[Unit]
+Description=SmartPlug ASGI Gunicorn service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+Environment="PATH=/home/ubuntu/venv/bin:/usr/bin:/bin"
+WorkingDirectory=/home/ubuntu/smartplug_app
+ExecStart=/home/ubuntu/venv/bin/gunicorn \
+  --bind 127.0.0.1:8000 \
+  smartplug_app.asgi:application \
+  --worker-class uvicorn.workers.UvicornWorker \
+  --workers 1 \
+  --graceful-timeout 0
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
