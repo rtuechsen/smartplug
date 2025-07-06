@@ -12,28 +12,29 @@ class TreeItem:
     def __init__(self):
         """Constructor for the class."""
 
-        ## The human readable label of the item. Used when displaying the item
+        ## The human readable label of the item.\ Used when displaying the item
         ## in a UI.
         self.label: str = None
+        """Some string."""
 
-        ## The unique id of the item. A string of hexadecimal digits of length
-        ## 64. Ignores the similarity to pythons build-in 'id' to match the
-        ## name of the variable across the project. The first id in this list
+        ## The unique id of the item.\ A string of hexadecimal digits of length
+        ## 64.\ Ignores the similarity to pythons build-in 'id' to match the
+        ## name of the variable across the project.\ The first id in this list
         ## corresponds to the first group in self.parents and so on.
         self.ids: list[str] = []
 
         ## A boolean indicating if the item should be turned ON (True) or OFF
-        ## (False). Ignores PEP8 naming convention to match the name of the
+        ## (False).\ Ignores PEP8 naming convention to match the name of the
         ## variable across the project.
         self._isOn: bool = False
 
-        ## A boolean indicating if the item is currently reachable. Ignores
+        ## A boolean indicating if the item is currently reachable.\ Ignores
         ## PEP8 naming convention to match the name of the variable across the
         ## project.
         self._isAvailable: bool = False
 
-        ## The list of groups that have this item as a child. The first group
-        ## in this list corresponds to the first id in self.ids and so on.
+        ## The list of groups that have this item as a child.\ The first group
+        ## in this list corresponds to the first id in self.\ids and so on.
         self.parents: list[TreeItemGroup | None] = []
 
     def get_isOn(self) -> bool:
@@ -139,8 +140,8 @@ class TreeItemDevice(TreeItem):
         if parent is None:
             id = self.ids[0]
         else:
-            # Because the first id in self.ids corresponds to the first group in
-            # parents we can use index here.
+            # Because the first id in self.ids corresponds to the first group
+            # in parents we can use index here.
             id = self.ids[self.parents.index(parent)]
         return {
             "label": self.label,

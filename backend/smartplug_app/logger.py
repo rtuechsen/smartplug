@@ -19,7 +19,7 @@ class Log:
         self.date: str
 
         ## The time of day when the log was created. Should be in format
-        ## HH:MM:SS.mmmmmm. 'm' stands for the fractional part the seconds.
+        ## HH:MM:SS.mmmmmm.\ 'm' stands for the fractional part the seconds.
         self.time: str
 
 
@@ -38,7 +38,7 @@ class Logger:
     ## The (only) instance of this class.
     _instance: "Logger" = None
 
-    ## A thread safe queue that stores the logs. The size of the queue is set
+    ## A thread safe queue that stores the logs.\ The size of the queue is set
     ## arbitrarily to 100.
     _log_queue: Queue = Queue(maxsize=100)
 

@@ -11,5 +11,8 @@
 		"rewrittenLink": true,
 		"notDocumented": true,
 		"unusedMergeModuleWith": true
-	}
+	},
+	"projectDocuments": [
+		"./high level documentation.md"
+	]
 }

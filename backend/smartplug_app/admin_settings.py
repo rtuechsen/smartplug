@@ -14,11 +14,11 @@ SWITCHING_TOGGLE_DELAY_SECONDS: float = 1.0
 INRUSH_CURRENT_DELAY_SECONDS: float = 0.5
 
 ## Variable used for Development: allows to disable using the Active Directory
-## / LDAP to verify a users identity. If disabled any pair of username and
+## / LDAP to verify a users identity.\ If disabled any pair of username and
 ## password are accepted, the username in this case is always 'Max Mustermann'.
 USE_LDAP: bool = False
 
-## The address of the server running active directory. It should start with
+## The address of the server running active directory.\ It should start with
 ## 'ldap://' and end with ':389' (the port for LDAP).
 LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.133.42:389"
 
@@ -26,7 +26,7 @@ LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.133.42:389"
 ## considered a timeout.
 LDAP_TIMEOUT_SECONDS: int = 5
 
-## Variable used for Development: allows to disable sending MQTT messages. When
+## Variable used for Development: allows to disable sending MQTT messages.\ When
 ## making switch requests these will be treated as successful and return a
 ## matching response from the MQTTClient.
 USE_MQTT: bool = False
@@ -45,7 +45,7 @@ SECRET_KEY_PRODUCTION: str = "GyB#yNG@!hAdqV75cX3LdVyJ!ubQF4"
 ## registered.
 SESSION_TIMEOUT_SECONDS: int = 120
 
-## The list of addresses (including protocoll and port) the frontend can have.
+## The list of addresses (including protocoll and port) the frontend can have.\
 ## Using http here is okay, since http requests will be forwarded to https by
 ## nginx.
 FRONTEND_ORIGINS: list[str] = [
@@ -58,5 +58,5 @@ FRONTEND_ORIGINS: list[str] = [
 ]
 
 ## A list of strings representing the host/domain names that this Django site
-## can serve. This is a security measure to prevent HTTP Host header attacks.
+## can serve.\ This is a security measure to prevent HTTP Host header attacks.
 ALLOWED_HOSTS_LIST: list[str] = ["localhost", "127.0.0.1", "192.168.133.195"]

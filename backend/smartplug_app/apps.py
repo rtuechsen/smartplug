@@ -52,7 +52,7 @@ class SmartplugApp(AppConfig):
     _device_tree_mutex: Lock = Lock()
 
     ## This variable stores the last point of time when a device was switched
-    ## ON. This is used to delay turning on devices and reduce inrush current.
+    ## ON.\ This is used to delay turning on devices and reduce inrush current.
     _last_switch_on_date_time: datetime = datetime.now()
 
     ## A mutex to avoid race conditions on _last_switch_on_date_time.

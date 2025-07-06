@@ -70,7 +70,7 @@ class AuthenticationBackend(BaseBackend):
         This function is inherited from BaseBackend and required to be
         implemented.
 
-        @param The id of the user.
+        @param user_id The id of the user.
 
         @return The user object corresponding to the given id or None.
         """

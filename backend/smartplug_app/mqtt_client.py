@@ -26,6 +26,9 @@ class MQTTClient:
         the main application.
         """
 
+        # TODO: add docstrings for class members (see other files), use \ when
+        # using multiple sentences
+
         self._logger: Logger = Logger()
 
         self._broker_ip: str = "localhost"
@@ -78,12 +81,13 @@ class MQTTClient:
         )
 
     def _on_message(
-        self, client: mqtt.Client, _, msg: mqtt.MQTTMessage
+        self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage
     ) -> None:
         """
         Callback for processing incoming MQTT messages.
 
         @param client The instance of mqtt.Client to use.
+        @param userdata Additional user data, not used here.
         @param msg The received message.
         """
 
@@ -161,7 +165,7 @@ class MQTTClient:
         """
         Sends a command to switch a device on or off.
 
-        @param device_id The ID of the target device.
+        @param deviceId The ID of the target device.
         @param desired_isOn Desired state of the switch (True for on, False
         for off).
         """

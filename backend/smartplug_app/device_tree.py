@@ -434,7 +434,7 @@ class DeviceTree:
     def get_device(self, deviceId: str) -> TreeItemDevice:
         """Function to get a device for a given deviceId.
 
-        @param id The deviceId of the device to retrieve.
+        @param deviceId The deviceId of the device to retrieve.
 
         @return The device corresponding to the given deviceId.
         """
