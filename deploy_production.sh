@@ -9,8 +9,7 @@ sudo cp ./nginx.conf /etc/nginx/nginx.conf
 sudo rm -r /etc/mosquitto/mosquitto.conf
 sudo cp ./mosquitto.conf /etc/mosquitto/mosquitto.conf
 
-sudo systemctl stop mosquitto
-sudo systemctl start mosquitto
+sudo systemctl restart mosquitto
 
 # frontend
 
