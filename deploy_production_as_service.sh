@@ -1,7 +1,7 @@
 
 export DJANGO_PIPELINE=production
 
-sudo systemctl stop nginx
+sudo systemctl stop smartplug
 
 sudo rm -r /etc/nginx/nginx.conf
 sudo cp ./nginx.conf /etc/nginx/nginx.conf
@@ -9,8 +9,7 @@ sudo cp ./nginx.conf /etc/nginx/nginx.conf
 sudo rm -r /etc/mosquitto/mosquitto.conf
 sudo cp ./mosquitto.conf /etc/mosquitto/mosquitto.conf
 
-sudo systemctl stop mosquitto
-sudo systemctl start mosquitto
+sudo systemctl restart mosquitto
 
 # frontend
 
@@ -39,17 +38,22 @@ printf "\n\n\x1B[33mMigration finished.\x1B[0m\n\n\n"
 
 cd ..
 
+sudo rm -r /etc/systemd/system/smartplug.service
+sudo cp ./smartplug.service /etc/systemd/system/smartplug.service
+
+sudo systemctl daemon-reload
+
 # http server
 
-cd backend
+# cd backend
 
-sudo systemctl start nginx
+# sudo systemctl start nginx
 
 # TODO: adjust the number of workers or mention it in the admin documentation
-sudo -E env PATH="$PATH" gunicorn --bind 127.0.0.1:8000 smartplug_app.asgi:application --worker-class uvicorn.workers.UvicornWorker --workers 1 --graceful-timeout 0
+# sudo -E env PATH="$PATH" gunicorn --bind 127.0.0.1:8000 smartplug_app.asgi:application --worker-class uvicorn.workers.UvicornWorker --workers 1 --graceful-timeout 0
 
-sudo systemctl restart gunicorn
+# sudo systemctl restart gunicorn
 
-sudo systemctl reload nginx
+# sudo systemctl reload nginx
 
-cd ..
+# cd ..
