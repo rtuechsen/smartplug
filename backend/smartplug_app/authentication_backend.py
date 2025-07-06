@@ -99,10 +99,6 @@ class AuthenticationBackend(BaseBackend):
         if not USE_LDAP:
             return ("Max", "Mustermann")
 
-        # TODO: need to get either logon name or UPN from ldap, use the same
-        # kind no matter what kind of login was used to ensure it gets mapped
-        # to the same user
-
         try:
             conn = ldap.initialize(LDAP_SERVER_ADDRESS_AND_PORT)
 
@@ -130,48 +126,39 @@ class AuthenticationBackend(BaseBackend):
 
             # next get first and last name of the user (if those exist)
 
-            if "@" in username:
-                # UPN = User Principle Name
-                # For searching, the UPN equals the full email address of the
-                # user.
-                search_filter: str = f"(userPrincipalName={username})"
+            # UPN = User Principle Name
+            # For searching, the UPN equals the full email address of the user.
+            search_filter: str = f"(userPrincipalName={username})"
 
-                domain_name: str = username.split("@")[1]
-                base_dn: str = ",".join(
-                    [f"dc={dc}" for dc in domain_name.split(".")]
-                )
+            domain_name: str = username.split("@")[1]
+            base_dn: str = ",".join(
+                [f"dc={dc}" for dc in domain_name.split(".")]
+            )
 
-                # sn = surname
-                search_attributes: list[str] = ["givenName", "sn"]
+            # sn = surname
+            search_attributes: list[str] = ["givenName", "sn"]
 
-                result = conn.search_s(
-                    base_dn,
-                    ldap.SCOPE_SUBTREE,
-                    search_filter,
-                    search_attributes,
-                )
+            result = conn.search_s(
+                base_dn,
+                ldap.SCOPE_SUBTREE,
+                search_filter,
+                search_attributes,
+            )
 
-                _, entry = result[0]
+            _, entry = result[0]
 
-                # Note: Active Directory apparently requires either the first
-                # name or the last name when creating a user. So either of them
-                # will be set.
+            # Note: Active Directory apparently requires either the first
+            # name or the last name when creating a user. So either of them
+            # will be set.
 
-                if "givenName" in entry:
-                    first_name = entry["givenName"][0].decode("UTF-8")
-                else:
-                    first_name = ""
-
-                if "sn" in entry:
-                    last_name = entry["sn"][0].decode("UTF-8")
-                else:
-                    last_name = ""
-
+            if "givenName" in entry:
+                first_name = entry["givenName"][0].decode("UTF-8")
             else:
-                # Note: When using NetBIOS, the base dn that the credentials
-                # belong to cannot be deduced -> simply display the username in
-                # the frontend.
-                first_name = username.split("\\")[1]
+                first_name = ""
+
+            if "sn" in entry:
+                last_name = entry["sn"][0].decode("UTF-8")
+            else:
                 last_name = ""
 
             conn.unbind_s()
