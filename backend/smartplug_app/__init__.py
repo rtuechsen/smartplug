@@ -55,6 +55,8 @@
 ## It can receive updates from the MQTTClient if the state of devices change and can itself call MQTTClient to switch smartplugs on or off.
 ## For authentication Djangos build-in mechanisms are used. This requires defining a AuthenticationBackend to validate given credentials. The SessionManager can then use this fincionality.
 ##
+## In development the django development server is used, for production a combination of nginx with gunicorn is used.
+##
 ## ### Files and places
 ##
 ## The backend folder contains the the folder smartplug_app, which holds most of the source code. It also contains a `Doxyfile` used as configuration for the doxygen generator, a `manage.py` required by Django and `requirements.txt` which holds the python dependencies for the backend used by pip.
@@ -63,8 +65,6 @@
 ## The file `admin_settings.py` is intended for settings an admin might want to tweak without touching the overall implementation.
 ##
 ## When running the script `deploy_production.sh` various files of this project are copied to the required places, e.g. to folders known to nginx or to locations used by the ubuntu system.
-##
-## The ASGI server configured in `asgi.py` is only used in development, it is replaced with nginx in production.
 ##
 ## ### Additional notes
 ##
