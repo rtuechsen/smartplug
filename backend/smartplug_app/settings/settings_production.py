@@ -3,6 +3,7 @@ settings_base.py.
 """
 
 import os
+
 # From settings_base we import all settings shared between development and
 # production builds.
 from .settings_base import *
