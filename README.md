@@ -2,7 +2,7 @@
 # Instructions
 
 Install Ubuntu 24.04 as virtual machine or WSL.  
-Set a user name and a password.  
+Set the username of your Ubunutu device to `default` and set a password for this user.  
 
 Configure git:  
 Install git using `sudo apt -y install git`.  
@@ -23,7 +23,7 @@ When using breakpoints in VSCode for the __frontend__, instead of simply opening
 When using breakpoints in VSCode for the __backend__, instead of running `develop_backend.sh`, go to the debug tab in VSCode (on the left) and launch `Backend Debug (Django ASGI Uvicorn)`.  
 For Debugging React Components in a browser the [React Developer Tools](https://react.dev/learn/react-developer-tools) might be helpful.  
 Run `bash deploy_production.sh` to deploy using nginx. Currently one has to open [](https://localhost:80).  
-
+In production the webserver is run as systemctl under the name `gunicorn`. If any conflicts occur during debugging, you can check the status using `sudo systemctl status gunicorn` and stop the service using `sudo systemctl stop gunicorn`. 
 
 ## WSL
 
