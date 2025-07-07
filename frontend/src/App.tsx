@@ -1,39 +1,31 @@
-import * as React from "react";
-import {
-	Paper,
-	Stack,
-	Typography,
-	CssBaseline,
-	Box,
-	ThemeProvider,
-	createTheme,
-} from "@mui/material";
-import { JSX } from "@emotion/react/jsx-runtime";
-import { DeviceTreeView } from "./DeviceTreeView";
-import { ErrorDisplay } from "./ErrorDisplay";
-import { UserList } from "./UserList";
-import { Login } from "./Login";
-import { getCsrfToken } from "./RequestTools";
-import { CountdownTimer } from "./CountdownTimer";
-import { SESSION_UPDATE_INTERVAL_MS } from "./AdminSettings";
-import { LoadingButton } from "./LoadingButtonGroup";
+
+import * as React from 'react';
+import { Paper, Stack, Typography, CssBaseline, Box, ThemeProvider, createTheme } from '@mui/material';
+import { JSX } from '@emotion/react/jsx-runtime';
+import { DeviceTreeView } from './DeviceTreeView';
+import { ErrorDisplay } from './ErrorDisplay';
+import { UserList } from './UserList';
+import { Login } from './Login';
+import { getCsrfToken } from './RequestTools';
+import { CountdownTimer } from './CountdownTimer';
+import { SESSION_UPDATE_INTERVAL_MS } from './AdminSettings';
+import { LoadingButton } from './LoadingButtonGroup';
 
 /**
  * The main App component.
  *
- * The function component for this website that includes all other components.
- * It Contains the header area and the device tree.
- * Also contains the color mode / theme.
- *
+ * The function component for this website that includes all other components.  
+ * It Contains the header area and the device tree.  
+ * Also contains the color mode / theme.  
+ * 
  * @return The react component of the main app.
  */
 export function App(): JSX.Element {
-	const [currentErrorMessage, setCurrentErrorMessage] =
-		React.useState<string>("");
+
+	const [currentErrorMessage, setCurrentErrorMessage] = React.useState<string>('');
 	const [isErrorOpen, setIsErrorOpen] = React.useState<boolean>(false);
 
-	const [remainingSessionTimeSeconds, setRemainingSessionTimeSeconds] =
-		React.useState<number | undefined>(undefined);
+	const [remainingSessionTimeSeconds, setRemainingSessionTimeSeconds] = React.useState<number | undefined>(undefined);
 
 	const lastPingRef = React.useRef<Date>(new Date());
 	const lastUserInputRef = React.useRef<Date>(new Date());
@@ -49,10 +41,7 @@ export function App(): JSX.Element {
 		remainingSessionTimeSecondsRef.current = remainingTimeSeconds;
 	}
 
-	async function displayError(
-		message: string,
-		returnToLoginPage: boolean = false,
-	): Promise<void> {
+	async function displayError(message: string, returnToLoginPage: boolean = false): Promise<void> {
 		if (isErrorOpen) {
 			// close previous error if still open
 			setIsErrorOpen(false);
@@ -65,31 +54,32 @@ export function App(): JSX.Element {
 	}
 
 	async function logout(): Promise<void> {
-		const response = await fetch("/api/logout/", {
-			method: "POST",
-			credentials: "include",
-			mode: "same-origin", // prevents sending token to another website
+
+		const response = await fetch('/api/logout/', {
+			method: 'POST',
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
 			headers: {
-				"X-CSRFToken": await getCsrfToken(), // need the CSRF token for POST requests
-				"Content-type": "application/json; charset=UTF-8",
+				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
+				'Content-type': 'application/json; charset=UTF-8'
 			},
 		});
 
 		if (!response.ok) {
 			const responseData = await response.json();
-			displayError(
-				`${response.status} ${response.statusText}: ${responseData.detail}`,
-			);
-		} else {
+			displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
+		}
+		else {
 			updateSessionTime(0);
 		}
 	}
 
 	async function getRemainingSessionTime(): Promise<void> {
-		const response = await fetch("/api/get-session-expiry-date/", {
-			method: "GET",
-			credentials: "include",
-			mode: "same-origin", // prevents sending token to another website
+
+		const response = await fetch('/api/get-session-expiry-date/', {
+			method: 'GET',
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
 		});
 
 		const responseData = await response.json();
@@ -98,22 +88,19 @@ export function App(): JSX.Element {
 			if (response.status === 401) {
 				updateSessionTime(0);
 			} else {
-				displayError(
-					`${response.status} ${response.statusText}: ${responseData.detail}`,
-				);
+				displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 			}
 			return;
-		} else {
-			const sessionExpiryDate: Date = new Date(
-				responseData.session_expiry_date,
-			);
-			const remainingTimeSeconds =
-				(sessionExpiryDate.getTime() - Date.now()) / 1000;
+		}
+		else {
+			const sessionExpiryDate: Date = new Date(responseData.session_expiry_date);
+			const remainingTimeSeconds = (sessionExpiryDate.getTime() - Date.now()) / 1000;
 			updateSessionTime(remainingTimeSeconds);
 		}
 	}
 
 	async function pingServer(): Promise<void> {
+
 		if (remainingSessionTimeSecondsRef.current === 0) {
 			return;
 		}
@@ -131,20 +118,18 @@ export function App(): JSX.Element {
 	}
 
 	React.useEffect(() => {
+
 		getRemainingSessionTime();
 
-		addEventListener("mousemove", onUserInput);
-		addEventListener("mousedown", onUserInput);
-		addEventListener("mouseup", onUserInput);
-		addEventListener("keydown", onUserInput);
-		addEventListener("keyup", onUserInput);
-		addEventListener("scroll", onUserInput);
-		addEventListener("resize", onUserInput);
+		addEventListener('mousemove', onUserInput);
+		addEventListener('mousedown', onUserInput);
+		addEventListener('mouseup', onUserInput);
+		addEventListener('keydown', onUserInput);
+		addEventListener('keyup', onUserInput);
+		addEventListener('scroll', onUserInput);
+		addEventListener('resize', onUserInput);
 
-		intervalRef.current = setInterval(
-			pingServer,
-			SESSION_UPDATE_INTERVAL_MS,
-		);
+		intervalRef.current = setInterval(pingServer, SESSION_UPDATE_INTERVAL_MS);
 
 		return function (): void {
 			if (intervalRef.current) {
@@ -178,57 +163,56 @@ export function App(): JSX.Element {
 		// Then a paper area is added to the top of the page to hold the title.
 		// Below that a Box contains all items of the pages body, e.g. the DeviceTreeView.
 		<ThemeProvider theme={theme}>
-			<CssBaseline /> {/* used to remove default padding of html body */}
-			<Paper elevation={1} sx={{ padding: "2rem", width: "100%" }}>
-				<Typography variant="h2" sx={{ whiteSpace: "nowrap" }}>
+			<CssBaseline />	 {/* used to remove default padding of html body */}
+			<Paper elevation={1} sx={{ padding: '2rem', width: '100%' }}>
+				<Typography variant='h2' sx={{ whiteSpace: 'nowrap' }}>
 					Smartplug Dirigent
 				</Typography>
 			</Paper>
-			<Box sx={{ padding: "1.5rem" }}>
-				{remainingSessionTimeSeconds ===
-					undefined ? undefined : remainingSessionTimeSeconds > 0 ? (
-						<Stack
-							direction="row"
-							justifyContent="space-between"
-							spacing={"1rem"}
-						>
-							<DeviceTreeView displayError={displayError} />
 
+			<Box sx={{ padding: '1.5rem' }}>
+				{remainingSessionTimeSeconds === undefined ? undefined :
+					(
+						remainingSessionTimeSeconds > 0 ?
 							<Stack
-								direction="column"
-								justifyContent="top"
-								spacing={"2rem"}
+								direction='row'
+								justifyContent='space-between'
+								spacing={'1rem'}
 							>
+								<DeviceTreeView displayError={displayError} />
+
 								<Stack
-									direction="row"
-									sx={{ alignSelf: "end", mr: "2rem" }}
+									direction='column'
+									justifyContent='top'
+									spacing={'2rem'}
 								>
-									<CountdownTimer
-										initialTimeSeconds={
-											remainingSessionTimeSecondsRef.current
-												? remainingSessionTimeSecondsRef.current
-												: 0
-										}
-										sx={{ mr: "1rem" }}
-									/>
-									<LoadingButton
-										onClick={logout}
-										variant="contained"
-										sx={{ minWidth: "fit-content" }}
+									<Stack
+										direction='row'
+										sx={{ alignSelf: 'end', mr: '2rem' }}
 									>
-										sign out
-									</LoadingButton>
+										<CountdownTimer
+											initialTimeSeconds={remainingSessionTimeSecondsRef.current ? remainingSessionTimeSecondsRef.current : 0}
+											sx={{ mr: '1rem' }}
+										/>
+										<LoadingButton
+											onClick={logout}
+											variant='contained'
+											sx={{ minWidth: 'fit-content' }}
+										>
+											sign out
+										</LoadingButton>
+
+									</Stack>
+
+									<UserList displayError={displayError} />
+
 								</Stack>
 
-								<UserList displayError={displayError} />
 							</Stack>
-						</Stack>
-					) : (
-					<Login
-						onLoginSuccess={onLoginSuccess}
-						displayError={displayError}
-					/>
-				)}
+							:
+							<Login onLoginSuccess={onLoginSuccess} displayError={displayError} />
+					)
+				}
 				{/* ErrorDisplay is placed here but will only be shown if isErrorOpen is set */}
 				<ErrorDisplay
 					message={currentErrorMessage}
@@ -236,6 +220,8 @@ export function App(): JSX.Element {
 					setIsErrorOpen={setIsErrorOpen}
 				/>
 			</Box>
-		</ThemeProvider>
+		</ThemeProvider >
 	);
 }
+
+

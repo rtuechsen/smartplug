@@ -1,11 +1,14 @@
-import * as React from "react";
-import { Typography } from "@mui/material";
-import { JSX } from "@emotion/react/jsx-runtime";
+
+import * as React from 'react';
+import { Typography } from '@mui/material';
+import { JSX } from '@emotion/react/jsx-runtime';
+
 
 /**
  * A Data structure to pass information to the countdown timer.
  */
 export interface CountdownTimerProps {
+
 	/**
 	 * The initial time to start with in seconds.
 	 */
@@ -19,20 +22,17 @@ export interface CountdownTimerProps {
 
 /**
  * A countdown timer that displays the minutes and seconds and counts down to zero.
- *
+ * 
  * Implementationed based roughly on: https://www.freecodecamp.org/news/build-a-countdown-timer-with-react-step-by-step/
- *
+ * 
  * @param props Holds the data needed to construct the countdown timer.
- *
+ * 
  * @returns The react component of the countdown timer.
  */
-export function CountdownTimer({
-	initialTimeSeconds,
-	sx,
-}: CountdownTimerProps): JSX.Element {
-	const [remainingTimeSeconds, setRemainingTimeSeconds] =
-		React.useState<number>(initialTimeSeconds);
-	const [timeString, setTimeString] = React.useState("");
+export function CountdownTimer({ initialTimeSeconds, sx }: CountdownTimerProps): JSX.Element {
+
+	const [remainingTimeSeconds, setRemainingTimeSeconds] = React.useState<number>(initialTimeSeconds);
+	const [timeString, setTimeString] = React.useState('');
 	const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
 	React.useEffect(() => {
@@ -47,7 +47,7 @@ export function CountdownTimer({
 	function secondsToString(remainingSeconds: number): string {
 		const minutes = Math.floor(remainingSeconds / 60);
 		const seconds = Math.floor(remainingSeconds % 60);
-		return `${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+		return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 	}
 
 	function updateTimer(): void {
@@ -68,10 +68,7 @@ export function CountdownTimer({
 		}
 		const oneSecondInMilliseconds: number = 1000;
 		if (remainingTimeSeconds > 0) {
-			intervalRef.current = setInterval(
-				updateTimer,
-				oneSecondInMilliseconds,
-			);
+			intervalRef.current = setInterval(updateTimer, oneSecondInMilliseconds);
 		}
 
 		return function (): void {
@@ -82,15 +79,7 @@ export function CountdownTimer({
 	}, [remainingTimeSeconds]);
 
 	return (
-		<Typography
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				lineHeight: 1,
-				whiteSpace: "nowrap",
-				...sx,
-			}}
-		>
+		<Typography sx={{ display: 'flex', alignItems: 'center', lineHeight: 1, whiteSpace: 'nowrap', ...sx }}>
 			{timeString}
 		</Typography>
 	);

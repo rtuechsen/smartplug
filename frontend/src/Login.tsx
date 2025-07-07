@@ -1,23 +1,21 @@
-import * as React from "react";
-import { Paper, TextField, Box, IconButton } from "@mui/material";
-import {
-	Visibility,
-	VisibilityOff,
-	KeyRounded,
-	PersonRounded,
-} from "@mui/icons-material";
-import { JSX } from "@emotion/react/jsx-runtime";
-import { LoadingButton } from "./LoadingButtonGroup";
-import { getCsrfToken } from "./RequestTools";
-import { DisplayErrorCallbackProps } from "./ErrorDisplay";
+
+import * as React from 'react';
+import { Paper, TextField, Box, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff, KeyRounded, PersonRounded } from '@mui/icons-material';
+import { JSX } from '@emotion/react/jsx-runtime';
+import { LoadingButton } from './LoadingButtonGroup';
+import { getCsrfToken } from './RequestTools';
+import { DisplayErrorCallbackProps } from './ErrorDisplay';
+
 
 /**
  * A data structure to pass information to the login component.
  */
 export interface LoginProps extends DisplayErrorCallbackProps {
+
 	/**
 	 * A callback to call after a successful login.
-	 *
+	 * 
 	 * Used to retreive the remaining session time from the server.
 	 */
 	onLoginSuccess: () => void;
@@ -25,20 +23,17 @@ export interface LoginProps extends DisplayErrorCallbackProps {
 
 /**
  * A login mask for username and password.
- *
+ * 
  * The password is shown as dots, but can be made visible using a button.
- *
+ * 
  * @param props Holds the data needed to construct the login mask.
- *
+ * 
  * @returns The react component of the login mask.
  */
-export function Login({
-	onLoginSuccess,
-	displayError,
-}: LoginProps): JSX.Element {
+export function Login({ onLoginSuccess, displayError }: LoginProps): JSX.Element {
 	const [showPassword, setShowPassword] = React.useState(false);
-	const [password, setPassword] = React.useState("");
-	const [username, setUsername] = React.useState("");
+	const [password, setPassword] = React.useState('');
+	const [username, setUsername] = React.useState('');
 
 	// Create an empty ref for the sign-in-button.
 	// This ref will be passed to the button, afterwards the button is accessible here using that ref.
@@ -51,21 +46,19 @@ export function Login({
 	}
 
 	// Prevents the browser from deselecting the input field when clicking a button
-	function preventFieldDeselect(
-		event: React.MouseEvent<HTMLButtonElement>,
-	): void {
+	function preventFieldDeselect(event: React.MouseEvent<HTMLButtonElement>): void {
 		event.preventDefault();
-	}
+	};
 
 	// Is executed when trying to sign in using the 'Sign In'-button
 	async function signIn(username: string, password: string): Promise<void> {
-		const response: Response = await fetch("/api/login/", {
-			method: "POST",
-			credentials: "include",
-			mode: "same-origin", // prevents sending token to another website
+		const response: Response = await fetch('/api/login/', {
+			method: 'POST',
+			credentials: 'include',
+			mode: 'same-origin',	// prevents sending token to another website
 			headers: {
-				"X-CSRFToken": await getCsrfToken(), // need the CSRF token for POST requests
-				"Content-Type": "application/json",
+				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
+				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
 				username: username,
@@ -77,29 +70,28 @@ export function Login({
 			onLoginSuccess();
 		} else {
 			const responseData = await response.json();
-			displayError(
-				`${response.status} ${response.statusText}: ${responseData.detail}`,
-			);
+			displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
 		}
-	}
+
+	};
 
 	// credit: https://stackoverflow.com/a/59147255
 	// Click the sign-in-button using the enter key.
 	React.useEffect(() => {
 		// Add an event listener for (both) enter key(s).
 		function listener(event: KeyboardEvent): void {
-			if (event.code === "Enter" || event.code === "NumpadEnter") {
+			if (event.code === 'Enter' || event.code === 'NumpadEnter') {
 				event.preventDefault();
 				// Check if the ref is already populated and then click the button.
 				if (signInButtonRef.current) {
 					signInButtonRef.current.click();
 				}
 			}
-		}
-		document.addEventListener("keydown", listener);
+		};
+		document.addEventListener('keydown', listener);
 		// Remove the listener afterwards.
 		return function (): void {
-			document.removeEventListener("keydown", listener);
+			document.removeEventListener('keydown', listener);
 		};
 	}, [username, password]);
 
@@ -107,49 +99,49 @@ export function Login({
 		<Paper
 			elevation={2}
 			sx={{
-				display: "grid",
-				gridTemplateColumns: "auto auto auto",
-				gridTemplateRows: "auto auto auto",
-				gap: "1rem",
-				padding: "1.5rem",
-				alignItems: "center",
-				justifyItems: "start",
-				width: "fit-content",
+				display: 'grid',
+				gridTemplateColumns: 'auto auto auto',
+				gridTemplateRows: 'auto auto auto',
+				gap: '1rem',
+				padding: '1.5rem',
+				alignItems: 'center',
+				justifyItems: 'start',
+				width: 'fit-content',
 			}}
 		>
-			<PersonRounded sx={{ alignSelf: "end", mb: "0.5rem" }} />
+			<PersonRounded sx={{ alignSelf: 'end', mb: '0.5rem' }} />
 			<TextField
-				id="input-username"
-				label="Username"
-				variant="standard"
+				id='input-username'
+				label='Username'
+				variant='standard'
 				onChange={(e) => setUsername(e.target.value)}
 				autoFocus
-				sx={{ width: "20rem" }}
+				sx={{ width: '20rem' }}
 			/>
 			<Box />
 
-			<KeyRounded sx={{ alignSelf: "end", mb: "0.5rem" }} />
+			<KeyRounded sx={{ alignSelf: 'end', mb: '0.5rem' }} />
 			<TextField
-				id="input-password"
-				label="Password"
-				variant="standard"
-				type={showPassword ? "text" : "password"}
+				id='input-password'
+				label='Password'
+				variant='standard'
+				type={showPassword ? 'text' : 'password'}
 				onChange={(e) => setPassword(e.target.value)}
-				sx={{ width: "20rem" }}
+				sx={{ width: '20rem' }}
 			/>
 			<IconButton
 				onClick={handleClickShowPassword}
 				onMouseDown={preventFieldDeselect}
 				onMouseUp={preventFieldDeselect}
-				sx={{ alignSelf: "end" }}
+				sx={{ alignSelf: 'end' }}
 			>
 				{showPassword ? <VisibilityOff /> : <Visibility />}
 			</IconButton>
 
 			<Box />
-			<Box sx={{ justifySelf: "end" }}>
+			<Box sx={{ justifySelf: 'end' }}>
 				<LoadingButton
-					variant="contained"
+					variant='contained'
 					onClick={() => signIn(username, password)}
 					sx={{}}
 					ref={signInButtonRef}

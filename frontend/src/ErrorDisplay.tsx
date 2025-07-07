@@ -1,39 +1,34 @@
-import * as React from "react";
-import {
-	Snackbar,
-	SnackbarCloseReason,
-	IconButton,
-	Alert,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { JSX } from "@emotion/react/jsx-runtime";
+
+import * as React from 'react';
+import { Snackbar, SnackbarCloseReason, IconButton, Alert } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { JSX } from '@emotion/react/jsx-runtime';
 
 /**
  * A data structure to hold the callback for the displaying error messages.
- *
+ * 
  * Wrapping this in a callback instead of passing only the callback allows to extend other interfaces.
  * It also is more consistent how we pass properties in other places.
  */
 export interface DisplayErrorCallbackProps {
+
 	/**
 	 * The callback to use from various components if they want to trigger an error message.
-	 *
+	 * 
 	 * @param message The error message to be displayed to the user.
-	 *
+	 * 
 	 * @param returnToLoginPage Whether the app should return to the login page. This argument is optional, the default value is `false`.
-	 *
+	 * 
 	 * @returns A void Promise that can be waited on if one wants to wait for the function to complete.
 	 */
-	displayError: (
-		message: string,
-		returnToLoginPage?: boolean,
-	) => Promise<void>;
+	displayError: (message: string, returnToLoginPage?: boolean) => Promise<void>;
 }
 
 /**
  * A Data structure to pass information to the error display.
  */
 export interface ErrorDisplayProps {
+
 	/**
 	 * The error message to display.
 	 */
@@ -53,23 +48,20 @@ export interface ErrorDisplayProps {
 /**
  * A component that uses a Snackbar to display error messages to the user.
  * This is meant to be used throughout the frontend to report problems to the user.
- *
+ * 
  * reference: https://mui.com/material-ui/react-snackbar/#introduction
- *
+ * 
  * @param props Holds the data needed to construct the error display.
- *
+ * 
  * @returns The react component of the error display.
  */
-export function ErrorDisplay({
-	message,
-	isErrorOpen,
-	setIsErrorOpen,
-}: ErrorDisplayProps): JSX.Element {
+export function ErrorDisplay({ message, isErrorOpen, setIsErrorOpen }: ErrorDisplayProps): JSX.Element {
+
 	const handleClose = (
 		_: React.SyntheticEvent | Event,
 		reason?: SnackbarCloseReason,
 	): void => {
-		if (reason === "clickaway") {
+		if (reason === 'clickaway') {
 			return;
 		}
 		setIsErrorOpen(false);
@@ -78,24 +70,28 @@ export function ErrorDisplay({
 	const action = (
 		<React.Fragment>
 			<IconButton
-				size="small"
-				aria-label="close"
-				color="inherit"
+				size='small'
+				aria-label='close'
+				color='inherit'
 				onClick={handleClose}
 			>
-				<CloseIcon fontSize="small" />
+				<CloseIcon fontSize='small' />
 			</IconButton>
 		</React.Fragment>
 	);
 
 	return (
 		<Snackbar
-			anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+			anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
 			open={isErrorOpen}
 			onClose={handleClose}
 			action={action}
 		>
-			<Alert onClose={handleClose} severity="error" variant="filled">
+			<Alert
+				onClose={handleClose}
+				severity='error'
+				variant='filled'
+			>
 				{message}
 			</Alert>
 		</Snackbar>
