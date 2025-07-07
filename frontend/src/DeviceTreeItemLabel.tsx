@@ -1,93 +1,104 @@
-
-import { Stack, Typography } from '@mui/material';
-import { JSX } from '@emotion/react/jsx-runtime';
-import { LoadingButtonGroup } from './LoadingButtonGroup';
-import { OnIcon, AvailableIcon } from './StatusIcons';
-import { DisplayErrorCallbackProps } from './ErrorDisplay';
-import { getCsrfToken } from './RequestTools';
-import { DeviceTreeSingleItemData } from './DeviceTreeItemData';
-
+import { Stack, Typography } from "@mui/material";
+import { JSX } from "@emotion/react/jsx-runtime";
+import { LoadingButtonGroup } from "./LoadingButtonGroup";
+import { OnIcon, AvailableIcon } from "./StatusIcons";
+import { DisplayErrorCallbackProps } from "./ErrorDisplay";
+import { getCsrfToken } from "./RequestTools";
+import { DeviceTreeSingleItemData } from "./DeviceTreeItemData";
 
 /**
  * A data structure to pass information to each tree item.
  */
-export interface DeviceTreeItemLabelProps extends DeviceTreeSingleItemData, DisplayErrorCallbackProps {
-
+export interface DeviceTreeItemLabelProps
+	extends DeviceTreeSingleItemData,
+		DisplayErrorCallbackProps {
 	/**
 	 * If the item is a group or a device.
 	 */
 	isGroup: boolean;
 }
 
-
 /**
  * A custom label for the tree view containing status icons and buttons
  *
  * Used for the label slot of the TreeItem2 component (DeviceTreeItem.tsx).
- * 
+ *
  * @param props Holds the data needed to construct the label.
- * 
+ *
  * @return The react component of the label.
  */
-export function DeviceTreeItemLabel({ label, id, isOn, isAvailable, isGroup, displayError }: DeviceTreeItemLabelProps): JSX.Element {
-
+export function DeviceTreeItemLabel({
+	label,
+	id,
+	isOn,
+	isAvailable,
+	isGroup,
+	displayError,
+}: DeviceTreeItemLabelProps): JSX.Element {
 	/**
 	 * Function to send the switch request to the API.
-	 * 
+	 *
 	 * @param desired_isOn If the group or device should be turned on (true) or off (false).
-	 * 
+	 *
 	 * @return A void promise indicating that the functions has returned.
 	 */
 	async function sendSwitchRequest(desired_isOn: boolean): Promise<void> {
-		const response = await fetch('/api/switch/', {
-			method: 'POST',
-			credentials: 'include',
-			mode: 'same-origin',	// prevents sending token to another website
+		const response = await fetch("/api/switch/", {
+			method: "POST",
+			credentials: "include",
+			mode: "same-origin", // prevents sending token to another website
 			headers: {
-				'X-CSRFToken': await getCsrfToken(),	// need the CSRF token for POST requests
-				'Content-type': 'application/json; charset=UTF-8'
+				"X-CSRFToken": await getCsrfToken(), // need the CSRF token for POST requests
+				"Content-type": "application/json; charset=UTF-8",
 			},
 			body: JSON.stringify({
 				id: id,
-				desired_isOn: desired_isOn
+				desired_isOn: desired_isOn,
 			}),
 		});
 
 		if (!response.ok) {
 			const responseData = await response.json();
-			await displayError(`${response.status} ${response.statusText}: ${responseData.detail}`);
+			await displayError(
+				`${response.status} ${response.statusText}: ${responseData.detail}`,
+			);
 		}
 	}
 
 	return (
 		<Stack
-			direction='row'
-			justifyContent='space-between'
-			spacing={'3rem'}
+			direction="row"
+			justifyContent="space-between"
+			spacing={"3rem"}
 			flexGrow={1}
 		>
-			<Typography sx={{ display: 'flex', alignItems: 'center', lineHeight: 1, whiteSpace: 'nowrap' }}>
+			<Typography
+				sx={{
+					display: "flex",
+					alignItems: "center",
+					lineHeight: 1,
+					whiteSpace: "nowrap",
+				}}
+			>
 				{label}
 			</Typography>
 
 			<Stack
-				direction='row'
-				justifyContent='right'
-				spacing={'1.5rem'}
+				direction="row"
+				justifyContent="right"
+				spacing={"1.5rem"}
 				flexGrow={1}
-				alignItems='center'
+				alignItems="center"
 			>
 				<AvailableIcon isAvailable={isAvailable} isGroup={isGroup} />
 				<OnIcon isOn={isOn} isGroup={isGroup} />
 				<LoadingButtonGroup
 					onClickLeftButton={() => sendSwitchRequest(true)}
 					onClickRightButton={() => sendSwitchRequest(false)}
-					buttonLabelLeft='turn on'
-					buttonLabelRight='turn off'
+					buttonLabelLeft="turn on"
+					buttonLabelRight="turn off"
 				/>
 			</Stack>
 		</Stack>
 	);
 }
-
-
