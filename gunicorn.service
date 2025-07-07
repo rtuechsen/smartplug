@@ -1,0 +1,24 @@
+[Unit]
+Description=Smartplug Dirigent webserver service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=/home/default/smartplug-dirigent/backend/
+Environment="PATH=/home/default/venv/bin"
+ExecStart=/home/default/smartplug-dirigent/backend/django-env/bin/gunicorn \
+    --bind 127.0.0.1:8000 \
+    smartplug_app.asgi:application \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --workers 1 \
+    --graceful-timeout 0
+
+User=default
+Group=default
+
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target
