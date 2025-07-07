@@ -354,7 +354,9 @@ class RequestManager:
 
         try:
             self._session_manager.verify_request_is_allowed(request)
-            active_user_names = self._session_manager.get_active_user_names()
+            active_user_names = (
+                self._session_manager.get_active_users_full_names()
+            )
         except BackendError as e:
             return self._error_handler.response(
                 e.message,

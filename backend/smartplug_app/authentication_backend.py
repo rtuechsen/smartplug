@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.request import Request
 from .error_handler import BackendError
+from .session_manager import SessionManager
 from .admin_settings import (
     USE_LDAP,
     LDAP_SERVER_ADDRESS_AND_PORT,
@@ -37,6 +38,20 @@ class AuthenticationBackend(BaseBackend):
 
         @return The user object corresponding to the username and password.
         """
+
+        session_manager: SessionManager = SessionManager()
+        active_user_names: list[str] = session_manager.get_active_usernames()
+
+        print("active_user_names", active_user_names)
+        print("username", username)
+
+        if username in active_user_names:
+            raise BackendError(
+                message=f"User tried to start a second session: {username}.",
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                user_message="A session is already active, you can only have"
+                "one session at a time.",
+            )
 
         first_name, last_name = self._authenticate_ldap(username, password)
 
