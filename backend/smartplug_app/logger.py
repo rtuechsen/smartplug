@@ -26,13 +26,14 @@ class Log:
 class Logger:
     """A class for logging events and errors both to file and to the console.
 
-    This class is implemented as a singleton as it is possibly used by multiple
-    threads. Logging using this class should be thread safe.
-    Because the class is a singleton its attributes are all class attributes.
+    This class is implemented as a singleton as it is possibly used by
+    multiple threads. Logging using this class should be thread safe.
+    Because the class is a singleton its attributes are all class
+    attributes.
 
-    Log files are stored in '/var/log/smartplug_app/' with a file per day.
-    The linux tool 'logroate' is used in this project to switch the log file
-    and remove old log files regularly.
+    Log files are stored in '/var/log/smartplug_app/' with a file per
+    day. The linux tool 'logroate' is used in this project to switch the
+    log file and remove old log files regularly.
     """
 
     ## The (only) instance of this class.
@@ -181,7 +182,8 @@ class Logger:
     def _write_queue_to_file(self) -> None:
         """Function for the worker thread to write logs to file.
 
-        Takes incoming logs from the log_queue and writes them to the log file.
+        Takes incoming logs from the log_queue and writes them to the
+        log file.
         """
 
         try:

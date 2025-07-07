@@ -1,6 +1,5 @@
 """Contains the SmartplugApp class which stores most of the data for the
-backend.
-"""
+backend."""
 
 import time
 from datetime import datetime, timedelta
@@ -67,8 +66,10 @@ class SmartplugApp(AppConfig):
 
     def ready(self) -> None:
         """This function is called from Django as soon as the django registry
-        is fully populated. It is used to initialize device tree and establish
-        a connection to the devices in the network.
+        is fully populated.
+
+        It is used to initialize device tree and establish a connection
+        to the devices in the network.
         """
 
         SmartplugApp._logger.info("Server was started.")

@@ -18,8 +18,7 @@ from .admin_settings import (
 
 class AuthenticationBackend(BaseBackend):
     """A backend class to integrate custom authentication using LDAP into
-    Django.
-    """
+    Django."""
 
     def authenticate(
         self, request: Request, username: str = None, password: str = None

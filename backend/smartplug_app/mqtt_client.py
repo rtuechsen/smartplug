@@ -1,6 +1,5 @@
 """Contains the MQTT client which serves as a central interface for all
-communication (with the smartplugs) via MQTT.
-"""
+communication (with the smartplugs) via MQTT."""
 
 import json
 from typing import Callable
@@ -11,16 +10,17 @@ from .admin_settings import USE_MQTT
 
 
 class MQTTClient:
-    """
-    MQTTClient handles MQTT communication for device status updates and control.
-    It listens to topics, parses incoming messages, and sends control messages.
+    """MQTTClient handles MQTT communication for device status updates and
+    control.
+
+    It listens to topics, parses incoming messages, and sends control
+    messages.
     """
 
     def __init__(
         self, on_update_callback: Callable[[str, str, bool], None]
     ) -> None:
-        """
-        Initialize the MQTT client and set up connection and callbacks.
+        """Initialize the MQTT client and set up connection and callbacks.
 
         @param on_update_callback Callback function to update device states in
         the main application.
@@ -64,9 +64,7 @@ class MQTTClient:
         self._client.loop_start()
 
     def _connect(self) -> None:
-        """
-        Connects to the MQTT broker and subscribes to all topics.
-        """
+        """Connects to the MQTT broker and subscribes to all topics."""
 
         def on_connect(client: mqtt.Client, userdata, flags, rc: int):
             if rc == 0:
@@ -83,8 +81,7 @@ class MQTTClient:
     def _on_message(
         self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage
     ) -> None:
-        """
-        Callback for processing incoming MQTT messages.
+        """Callback for processing incoming MQTT messages.
 
         @param client The instance of mqtt.Client to use.
         @param userdata Additional user data, not used here.
@@ -141,9 +138,8 @@ class MQTTClient:
                 raise BackendError(f"Error in _on_message: {str(e)}") from e
 
     def _request_status(self, device_id: str) -> None:
-        """
-        Requests the current status of a device by sending a Switch.GetStatus
-        RPC.
+        """Requests the current status of a device by sending a
+        Switch.GetStatus RPC.
 
         @param device_id The ID of the target device.
         """
@@ -156,14 +152,11 @@ class MQTTClient:
         self._client.publish(device_id + self._sub_topic, json.dumps(payload))
 
     def disconnect(self) -> None:
-        """
-        Disconnects from the MQTT broker.
-        """
+        """Disconnects from the MQTT broker."""
         self._client.disconnect()
 
     def switch(self, deviceId: str, desired_isOn: bool) -> None:
-        """
-        Sends a command to switch a device on or off.
+        """Sends a command to switch a device on or off.
 
         @param deviceId The ID of the target device.
         @param desired_isOn Desired state of the switch (True for on, False

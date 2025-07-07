@@ -1,6 +1,5 @@
 """Contains variables that control the behavior of the backend and provide an
-easy way for the systems admin to change key aspects of the backend.
-"""
+easy way for the systems admin to change key aspects of the backend."""
 
 ## Variable used for Development: allows to disable the switching delays.
 USE_SWITCHING_DELAYS: bool = True

@@ -9,15 +9,14 @@ from .session_manager import SessionManager
 class ChannelManager(DefaultChannelManager):
     """A channel manager used to authenticate SSE requests.
 
-    Because SSE requests do not trigger a certain request handler as normal
-    requests do, we need to define this additional layer for SSE and register
-    it in the settings.
+    Because SSE requests do not trigger a certain request handler as
+    normal requests do, we need to define this additional layer for SSE
+    and register it in the settings.
     """
 
     def __init__(self):
         """Contructor of the class, creates an instance of the SessionManager
-        used to authenticate users.
-        """
+        used to authenticate users."""
 
         ## The SessionManager instance (singleton) used to authenticate
         ## requests.

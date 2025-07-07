@@ -62,7 +62,7 @@ export function OnIcon({ isOn, isGroup }: OnIconProps): JSX.Element {
 		case false:
 			tooltip += 'OFF';
 			icon = <SvgIcon>
-				{/* credit: modified bolt icon from https://fonts.google.com/icons*/}
+				{/* credit: modified bolt icon from https://fonts.google.com/icons */}
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
 					viewBox='0 0 24 24'

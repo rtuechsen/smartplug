@@ -2,7 +2,7 @@
 ##
 ## # High level documentation
 ##
-## This document contains the high level documentation for the overall project as well as the backend.
+## This document contains the high level documentation for the general project as well as the backend.
 ## The frontend has a separate high level documenation under [./frontend/docs/documents/high_level_documentation.html](../../../frontend/docs/documents/high_level_documentation.html).
 ## For instructions on how to setup the project for development take a look at [README.md](../../../README.md).
 ##
@@ -53,7 +53,7 @@
 ## Or this can be the SmartplugApp (used nearly all other tasks).
 ## The SmartplugApp holds the device tree, which is a representation of the structure and the state of the smartplugs.
 ## It can receive updates from the MQTTClient if the state of devices change and can itself call MQTTClient to switch smartplugs on or off.
-## For authentication Djangos build-in mechanisms are used. This requires defining a AuthenticationBackend to validate given credentials. The SessionManager can then use this fincionality.
+## For authentication Djangos build-in mechanisms are used. This requires defining a AuthenticationBackend to validate given credentials. The SessionManager can then use this funcionality.
 ##
 ## In development the django development server is used, for production a combination of nginx with gunicorn is used.
 ##

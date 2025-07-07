@@ -54,8 +54,8 @@ class ErrorHandler:
     """A class that logs errors and generates an error response for the REST
     API.
 
-    It allows to specify a different error message to be send to the user to
-    hide implementation details of the backend and prevent XSS.
+    It allows to specify a different error message to be send to the
+    user to hide implementation details of the backend and prevent XSS.
     """
 
     def __init__(self):

@@ -18,7 +18,8 @@ from .session_manager import SessionManager
 class RequestManager:
     """This class handles the incoming requests from the REST API.
 
-    It delegates work to the backend and construct responses for the requests.
+    It delegates work to the backend and construct responses for the
+    requests.
     """
 
     def __init__(self):
@@ -373,7 +374,7 @@ class RequestManager:
         return Response(active_user_names, status=status.HTTP_200_OK)
 
     def get_session_expiry_date(self, request: Request) -> Response:
-        """TODO"""
+        """TODO."""
 
         self._logger.info(
             "A /getusers request has been received.",

@@ -1,6 +1,5 @@
 """Contains classes for storing and manipulating the hierarchy of devices and
-groups.
-"""
+groups."""
 
 import datetime
 from .admin_settings import SWITCHING_TOGGLE_DELAY_SECONDS
@@ -98,8 +97,8 @@ class TreeItemDevice(TreeItem):
     def __init__(self):
         """Constructor for the class.
 
-        This function also initializes time_last_switched to a reasonable
-        value.
+        This function also initializes time_last_switched to a
+        reasonable value.
         """
 
         super().__init__()
@@ -238,16 +237,14 @@ class TreeItemGroup(TreeItem):
 
     def update_isOn_from_children(self) -> None:
         """Function to re-evaluate the state of _isOn based on this groups
-        children.
-        """
+        children."""
 
         new_isOn = self._compute_isOn_from_children()
         self.set_isOn(new_isOn)
 
     def update_isAvailable_from_children(self) -> None:
         """Function to re-evaluate the state of _isAvailable based on this
-        groups children.
-        """
+        groups children."""
 
         new_isAvailable = self._compute_isAvailable_from_children()
         self.set_isAvailable(new_isAvailable)
