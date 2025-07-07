@@ -102,8 +102,8 @@ class SessionManager:
             # Note: sleep() is not needed for the program to work correctly, it
             # is only used reduce CPU utilization. If removed the program will
             # do 'busy waiting'.
-            EXPIRY_TIME_THRESHOLD: float = 0.01
-            time.sleep(time_to_next_expiry + EXPIRY_TIME_THRESHOLD)
+            expiry_time_threshold: float = 0.01
+            time.sleep(time_to_next_expiry + expiry_time_threshold)
 
     def login(self, request: Request) -> None:
 
