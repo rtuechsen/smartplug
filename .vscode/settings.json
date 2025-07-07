@@ -4,19 +4,18 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "explicit",
 	},
-	// disabled currently, as they do not match exactly with 'prettier' formatter in format.sh
-	// "[typescriptreact]": {
-	// 	"editor.defaultFormatter": "vscode.typescript-language-features",
-	// 	"editor.detectIndentation": false,
-	// 	"editor.insertSpaces": false,
-	// 	"editor.tabSize": 4
-	// },
-	// "[typescript]": {
-	// 	"editor.defaultFormatter": "vscode.typescript-language-features",
-	// 	"editor.detectIndentation": false,
-	// 	"editor.insertSpaces": false,
-	// 	"editor.tabSize": 4
-	// },
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features",
+		"editor.detectIndentation": false,
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features",
+		"editor.detectIndentation": false,
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4
+	},
 	"[json]": {
 		"editor.defaultFormatter": "vscode.json-language-features"
 	},

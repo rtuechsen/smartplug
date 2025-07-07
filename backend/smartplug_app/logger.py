@@ -32,8 +32,8 @@ class Logger:
     attributes.
 
     Log files are stored in '/var/log/smartplug_app/' with a file per
-    day. The linux tool 'logrotate' is used in this project to switch
-    the log file and remove old log files regularly.
+    day. The linux tool 'logrotate' is used in this project to switch the
+    log file and remove old log files regularly.
     """
 
     ## The (only) instance of this class.
