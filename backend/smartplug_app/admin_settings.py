@@ -1,6 +1,5 @@
 """Contains variables that control the behavior of the backend and provide an
-easy way for the systems admin to change key aspects of the backend.
-"""
+easy way for the systems admin to change key aspects of the backend."""
 
 ## Variable used for Development: allows to disable the switching delays.
 USE_SWITCHING_DELAYS: bool = True
@@ -15,7 +14,8 @@ INRUSH_CURRENT_DELAY_SECONDS: float = 0.5
 
 ## Variable used for Development: allows to disable using the Active Directory
 ## / LDAP to verify a users identity.\ If disabled any pair of username and
-## password are accepted, the username in this case is always 'Max Mustermann'.
+## password matching the pattern configured in openapi.\yaml is accepted, the
+## display name of the user in this case is always 'Max Mustermann'.
 USE_LDAP: bool = False
 
 ## The address of the server running active directory.\ It should start with

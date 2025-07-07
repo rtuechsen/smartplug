@@ -1,6 +1,5 @@
 """Contains the device tree which represents the hierarchy of devices and their
-current state in the backend.
-"""
+current state in the backend."""
 
 import json
 import hashlib
@@ -15,14 +14,13 @@ class DeviceTree:
     """A class to hold the hierarchy of devices and groups with their current
     state.
 
-    It is responsable for its construction and offers functions to retreive
-    certain items.
+    It is responsable for its construction and offers functions to
+    retreive certain items.
     """
 
     def __init__(self, file_path_rel: Path):
         """Constructor of the class, constructs the device tree from a
-        configuration file.
-        """
+        configuration file."""
 
         ## The logger instance (singleton) used to log events and errors.
         self._logger: Logger = Logger()

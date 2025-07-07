@@ -1,6 +1,5 @@
 """Contains the SmartplugApp class which stores most of the data for the
-backend.
-"""
+backend."""
 
 import time
 from datetime import datetime, timedelta
@@ -67,8 +66,10 @@ class SmartplugApp(AppConfig):
 
     def ready(self) -> None:
         """This function is called from Django as soon as the django registry
-        is fully populated. It is used to initialize device tree and establish
-        a connection to the devices in the network.
+        is fully populated.
+
+        It is used to initialize device tree and establish a connection
+        to the devices in the network.
         """
 
         SmartplugApp._logger.info("Server was started.")
@@ -125,9 +126,9 @@ class SmartplugApp(AppConfig):
         def will_be_on(device: TreeItemDevice) -> bool:
             """This function returns the resolved state of a given device.
 
-            @param device The device which state should be resolved.
+            @param device The device whose state should be resolved.
 
-            @return THe state of isOn that the given device should have after
+            @return The state of isOn that the given device should have after
             executing the switch.
             """
 
@@ -189,7 +190,7 @@ class SmartplugApp(AppConfig):
         about changes to device states. It is also called when the SmartplugApp
         establishes a connection to the MQTT broker.
 
-        @param deviceId The deviceId of the device which state has changed.
+        @param deviceId The deviceId of the device whose state has changed.
 
         @param kind The kind of the state change, one of: 'isOn', 'isAvailable'.
 
@@ -252,8 +253,8 @@ class SmartplugApp(AppConfig):
             ]
 
             if all(state is False for state in trigger_states):
-                # All dependencies are off -> this device should be switche OFF
-                # as well.
+                # All dependencies are off -> this device should be switched
+                # OFF as well.
                 if len(listener_device.ids) == 0:
                     SmartplugApp._logger.warn(
                         "A device is required to switch OFF, but it is not "
@@ -384,7 +385,7 @@ class SmartplugApp(AppConfig):
     def _choose_devices_to_switch(
         self, tree_item: TreeItem, desired_isOn: bool
     ) -> list[TreeItemDevice]:
-        """Function to choose devices to switch given a certain tree item an a
+        """Function to choose devices to switch given a certain tree item and a
         desired state.
 
         If the tree item is a group this will colect all devices in that group.
