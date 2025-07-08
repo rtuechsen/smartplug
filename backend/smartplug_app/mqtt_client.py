@@ -134,7 +134,7 @@ class MQTTClient:
                 deviceId = data.get("src")
                 rpc_response = data.get("result")
 
-                # Check if RPC result contains "output" indicating switch status
+                # Check if RPC result contains the Information of the switch status.
                 if isinstance(rpc_response, dict) and "output" in rpc_response:
                     output = rpc_response.get("output")
 
