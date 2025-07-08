@@ -1,4 +1,4 @@
-"""Contains the callbacks for the endpoints of the backend.
+"""Contains the callbacks for the REST API endpoints of the backend.
 
 Django requires the endpoints to be defined in this file on file level.
 In order to combine the handling of the endpoints in a class we forward
@@ -15,6 +15,7 @@ from .request_manager import RequestManager
 # file at file level.
 # So to combine the handling of requests in a class we have to forward each of
 # them.
+
 ## The instance of the RequestManager. All requests are forwared to it.
 request_manager = RequestManager()
 
@@ -55,7 +56,7 @@ def logout(request: Request) -> Response:
 
 @api_view(["GET"])
 def get_tree(request: Request) -> Response:
-    """Callback for the /gettree endpoint.
+    """Callback for the /get-tree endpoint.
 
     @param request The request from the REST API.
 
@@ -77,7 +78,7 @@ def switch(request: Request) -> Response:
 
 @api_view(["GET"])
 def get_active_users(request: Request) -> Response:
-    """Callback for the /getusers endpoint.
+    """Callback for the /get-active-users endpoint.
 
     @param request The request from the REST API.
 

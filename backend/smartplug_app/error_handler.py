@@ -1,9 +1,6 @@
-"""Contains classes for handling errors.
+"""Contains classes for handling errors."""
 
-TODO: more details ???
-"""
-
-import datetime
+from datetime import datetime
 from rest_framework.response import Response
 from rest_framework import status
 from .logger import Logger
@@ -19,7 +16,7 @@ class BackendError(Exception):
     def __init__(
         self, message: str, status_code: int = None, user_message: str = None
     ):
-        """Constructor for the class.
+        """Constructor of the class.
 
         @param message The main message. Usually includes technical details
         aimed at admins.
@@ -37,30 +34,35 @@ class BackendError(Exception):
         # Calling the base class constructor with the arguments it needs.
         super().__init__(message)
 
-        ## The main message. Usually includes technical details aimed at admins.
-        self.message = message
+        ## The main message.\ Usually includes technical details aimed at
+        ## admins.
+        self.message: str = message
 
-        ## An optional HTTP error code that matches the error best. Should be
+        ## An optional HTTP error code that matches the error best.\ Should be
         ## used if the error occured while processing a REST API request.
-        self.status_code = status_code
+        self.status_code: int = status_code
 
-        ## An optional user facing message. Should be used if the error occured
-        ## while processing a REST API request and the main message might
-        ## contain either information about the backends implementation or
-        ## contains user input. Sending repsonses with user input might open
-        ## the door for injection attacks.
-        self.user_message = user_message
+        ## An optional user facing message.\ Should be used if the error
+        ## occured while processing a REST API request and the main message
+        ## might contain either information about the backends implementation
+        ## or contains user input.\ Sending responses with user input might
+        ## open the door for injection attacks.
+        self.user_message: str = user_message
 
 
 class ErrorHandler:
     """A class that logs errors and generates an error response for the REST
-    API."""
+    API.
+
+    It allows to specify a different error message to be send to the
+    user to hide implementation details of the backend and prevent XSS.
+    """
 
     def __init__(self):
         """Constructor for the class."""
 
-        ## The logger instance (singleton) to log events and errors.
-        self._logger = Logger()
+        ## The logger instance (singleton) used to log events and errors.
+        self._logger: Logger = Logger()
 
     def response(
         self,
@@ -69,9 +71,12 @@ class ErrorHandler:
         user_message: str = None,
         client_ip_address: str = None,
         username: str = None,
-        date_time: datetime.datetime = None,
+        date_time: datetime = None,
     ) -> Response:
         """Generates an error response and logs the error.
+
+        The error message logged can be different from the one that is returned
+        to the user.
 
         @param message The message that will be logged. If 'user_message' is
         not set, 'message' will also be used for the response. Please formulate
@@ -86,12 +91,18 @@ class ErrorHandler:
         will be used for the response. Please formulate a complete sentence
         starting with a capital letter and ending with a period.
 
-        @return Repsonse (from Django Rest Framework) containing the error
-        message.
+        @param client_ip_address The IP address of the client making the
+        request.
+
+        @param username The username of the user making the request.
+
+        @param date_time The date and time when the error occured.
+
+        @return Response containing the error message.
         """
 
         if date_time is None:
-            date_time = datetime.datetime.now()
+            date_time = datetime.now()
 
         # in any case log the error
         self._logger.error(message, client_ip_address, username, date_time)

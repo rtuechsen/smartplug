@@ -1,6 +1,3 @@
-
-// TODO: de-duplicate DeviceTreeItemData, DeviceTreeItemLabelProps, OnIconProps, AvailableIconProps ???
-
 /**
  * The definition of the main (hierarchical) data structure for holding the tree data in the frontend.
  *
@@ -8,7 +5,6 @@
  */
 
 export interface DeviceTreeSingleItemData {
-
 	/**
 	 * The human readable label of the item. Used when displaying the item in a UI.
 	 */
@@ -20,7 +16,7 @@ export interface DeviceTreeSingleItemData {
 	id: string;
 
 	/**
-	 * A boolean indicating if the item should be turned on (True) or off (False). 
+	 * A boolean indicating if the item should be turned on (True) or off (False).
 	 */
 	isOn: boolean;
 
@@ -28,16 +24,11 @@ export interface DeviceTreeSingleItemData {
 	 * A boolean indicating if the item is currently reachable.
 	 */
 	isAvailable: boolean;
-
 }
 
-interface DeviceTreeItemData extends DeviceTreeSingleItemData {
-
+export interface DeviceTreeItemData extends DeviceTreeSingleItemData {
 	/**
 	 * A list of TreeItems that this group combines. If defined the item is considered a group, not a device. While it does not make a lot of sense, the array can be empty.
 	 */
 	children?: DeviceTreeItemData[];
 }
-
-
-export default DeviceTreeItemData;

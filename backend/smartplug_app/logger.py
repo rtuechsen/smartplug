@@ -19,32 +19,35 @@ class Log:
         self.date: str
 
         ## The time of day when the log was created. Should be in format
-        ## HH:MM:SS.mmmmmm. 'm' stands for the fractional part the seconds.
+        ## HH:MM:SS.mmmmmm.\ 'm' stands for the fractional part the seconds.
         self.time: str
 
 
 class Logger:
     """A class for logging events and errors both to file and to the console.
 
-    This class is implemented as a singleton as it is possibly used by multiple
-    threads. Logging using this class should be thread safe.
-    Because the class is a singleton its attributes are all class attributes.
+    This class is implemented as a singleton as it is possibly used by
+    multiple threads. Logging using this class should be thread safe.
+    Because the class is a singleton its attributes are all class
+    attributes.
 
-    Log files are stored in '/var/log/smartplug_app/' with a file per day.
-    TODO: add note about linux removing files from /var/log/ regularly.
+    Log files are stored in '/var/log/smartplug_app/' with a file per
+    day. The linux tool 'logroate' is used in this project to switch the
+    log file and remove old log files regularly.
     """
 
-    # Note: type hint needs to be in quotes as the class is not defined yet.
     ## The (only) instance of this class.
     _instance: "Logger" = None
 
-    ## A thread safe queue that stores the logs.
-    _log_queue: Queue
+    ## A thread safe queue that stores the logs.\ The size of the queue is set
+    ## arbitrarily to 100.
+    _log_queue: Queue = Queue(maxsize=100)
 
     ## The output folder of log files. Set fixed to
     ## '/var/log/smartplug_app/'.
     _output_folder: Path = Path("/var/log/smartplug_app/")
 
+    ## The path of the active log file.
     _log_file_path: Path = _output_folder / "smartplug_app.log"
 
     def __new__(cls):
@@ -59,9 +62,6 @@ class Logger:
 
             # We need to do the initializations here because __init__() would
             # be called every time an instance is requested.
-
-            # The size of the queue is set arbitrarily to 100.
-            cls._instance._log_queue = Queue(maxsize=100)
 
             # check if outfolder exists and create it otherwise
             if not cls._instance._output_folder.is_dir():
@@ -86,6 +86,13 @@ class Logger:
         from the message.
 
         @param message The message to be logged.
+
+        @param client_ip_address The IP address of the client making the
+        request.
+
+        @param username The username of the user making the request.
+
+        @param date_time The date and time when the error occured.
         """
 
         self._log("INFO: " + message, client_ip_address, username, date_time)
@@ -101,6 +108,13 @@ class Logger:
         newlines from the message.
 
         @param message The message to be logged.
+
+        @param client_ip_address The IP address of the client making the
+        request.
+
+        @param username The username of the user making the request.
+
+        @param date_time The date and time when the error occured.
         """
 
         self._log(
@@ -118,6 +132,13 @@ class Logger:
         from the message.
 
         @param message The message to be logged.
+
+        @param client_ip_address The IP address of the client making the
+        request.
+
+        @param username The username of the user making the request.
+
+        @param date_time The date and time when the error occured.
         """
 
         self._log("ERROR: " + message, client_ip_address, username, date_time)
@@ -133,6 +154,13 @@ class Logger:
         Log to the log_queue.
 
         @param message The message to be logged.
+
+        @param client_ip_address The IP address of the client making the
+        request.
+
+        @param username The username of the user making the request.
+
+        @param date_time The date and time when the error occured.
         """
 
         if date_time is None:
@@ -149,22 +177,23 @@ class Logger:
         log.date = now.strftime("%Y-%m-%d")
         log.time = now.strftime("%H:%M:%S.%f")
 
-        self._log_queue.put(log)
+        Logger._log_queue.put(log)
 
     def _write_queue_to_file(self) -> None:
-        """Function for the worker thread.
+        """Function for the worker thread to write logs to file.
 
-        Takes incoming logs from the log_queue and writes them to a log file.
+        Takes incoming logs from the log_queue and writes them to the
+        log file.
         """
 
         try:
             with open(
-                self._log_file_path, mode="a", encoding="UTF-8"
+                Logger._log_file_path, mode="a", encoding="UTF-8"
             ) as log_file:
 
                 while True:
 
-                    log: Log = self._log_queue.get()
+                    log: Log = Logger._log_queue.get()
                     log_str: str = f"{log.date} {log.time} {log.message}\n"
 
                     # log to console
@@ -176,13 +205,13 @@ class Logger:
                     # lost if something happens
                     log_file.flush()
 
-                    self._log_queue.task_done()
+                    Logger._log_queue.task_done()
 
         except FileNotFoundError:
             # these errors are printed to console directly as logging obviously
             # does not work properly
             print(
-                f"ERROR: Could not find the log file {self._log_file_path}. "
+                f"ERROR: Could not find the log file {Logger._log_file_path}. "
                 "Logging will not work until this issue is fixed and the "
                 "server is restarted."
             )
@@ -193,7 +222,7 @@ class Logger:
             # these errors are printed to console directly as logging obviously
             # does not work properly
             print(
-                f"ERROR: While reading the log file {self._log_file_path}. "
+                f"ERROR: While reading the log file {Logger._log_file_path}. "
                 "Logging will not work until this issue is fixed and the "
                 "server is restarted."
             )

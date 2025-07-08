@@ -4,14 +4,7 @@
 Install Ubuntu 24.04 as virtual machine or WSL.  
 Set a user name and a password.  
 
-Configure git:  
 Install git using `sudo apt -y install git`.  
-`git config --global user.name "YOUR_NAME"`  
-`git config --global user.email "YOUR_EMAIL"`  
-To store your git password (AS PLAINTEXT - DO NOT USE A PASSWORD YOU ARE USING SOMEWHERE ELSE !!!):  
-`git config --global credential.helper store`  
-`git config --global user.password YOUR_PASSWORD`  
-Note that there are no Quotes around the password in contrast to user name or email.  
 
 Clone this repo using: `git clone https://gitlab.com/proi3/smartplug-dirigent.git`  
 
@@ -22,7 +15,8 @@ Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate termin
 When using breakpoints in VSCode for the __frontend__, instead of simply opening the browser, go to the debug tab in VSCode (on the left) and launch `Frontend Debug (Chrome)`.  
 When using breakpoints in VSCode for the __backend__, instead of running `develop_backend.sh`, go to the debug tab in VSCode (on the left) and launch `Backend Debug (Django ASGI Uvicorn)`.  
 For Debugging React Components in a browser the [React Developer Tools](https://react.dev/learn/react-developer-tools) might be helpful.  
-Run `bash deploy.sh` to deploy using nginx. Currently one has to open [](https://localhost:80).  
+Run `bash deploy_production.sh` to deploy using nginx. Currently one has to open [](https://localhost:80).  
+The scripts for starting the server in development or production mode can be stopped using `Ctrl+C`. If clients are still connected (i.e. SSE is connected), aborting might not happen immediately.  
 
 
 ## WSL
@@ -54,7 +48,7 @@ Requires the extension `ESLint` for in-code-linting in VSCode.
 After building the documentation using `bash generate_documentation.sh` the docs can be found at:
 
 - backend: [./backend/docs/html/index.html](./backend/docs/html/index.html)
-- frontend: [./frontend/docs/index.html](./frontend/docs/index.html)
+- frontend: [./frontend/docs/documents/high_level_documentation.html](./frontend/docs/documents/high_level_documentation.html)
 
 The API is not documented using html but as an OpenAPI document in YAML format:
 - API: [./openapi.yaml](./openapi.yaml)

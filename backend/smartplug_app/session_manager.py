@@ -79,7 +79,6 @@ class SessionManager:
                 # TODO: this will send a response to the client with some JSON
                 # data -> try to send own response to hide implementation details
                 django_eventstream.channel_permission_changed(user, "default")
-                # TODO: log IP address as well (stored in session)
                 self._logger.info(
                     message="A user session expired.", username=user.username
                 )
@@ -100,8 +99,11 @@ class SessionManager:
 
             # set sleep timer to the expiry time of the next open session
             # (+ some threshold to make sure session is really expired)
-            EXPIRY_TIME_THRESHOLD: float = 0.01
-            time.sleep(time_to_next_expiry + EXPIRY_TIME_THRESHOLD)
+            # Note: sleep() is not needed for the program to work correctly, it
+            # is only used reduce CPU utilization. If removed the program will
+            # do 'busy waiting'.
+            expiry_time_threshold: float = 0.01
+            time.sleep(time_to_next_expiry + expiry_time_threshold)
 
     def login(self, request: Request) -> None:
 
@@ -130,9 +132,6 @@ class SessionManager:
         self.verify_request_is_allowed(request)
 
         logout(request)
-        # need to save to database, otherwise user is not guarantied to be
-        # available in following queries
-        request.session.save()
 
         self._send_list_of_active_users()
 
@@ -141,10 +140,10 @@ class SessionManager:
         django_eventstream.send_event(
             "default",
             "user_list_update",
-            self.get_active_user_names(),
+            self.get_active_users_full_names(),
         )
 
-    def get_active_user_names(self) -> list[str]:
+    def get_active_users_full_names(self) -> list[str]:
 
         session_model = apps.get_model("sessions", "Session")
         user_model = get_user_model()
@@ -161,11 +160,31 @@ class SessionManager:
                 active_user_ids.append(user_id)
 
         active_users = user_model.objects.filter(id__in=active_user_ids)
-        acitve_user_names = [
+        active_users_full_names = [
             f"{user.first_name} {user.last_name}".strip()
             for user in active_users
         ]
-        return acitve_user_names
+        return active_users_full_names
+
+    def get_active_usernames(self) -> list[str]:
+
+        session_model = apps.get_model("sessions", "Session")
+        user_model = get_user_model()
+
+        active_sessions = session_model.objects.filter(
+            expire_date__gt=timezone.now()
+        ).iterator()
+
+        active_user_ids = []
+        for session in active_sessions:
+            session_data = session.get_decoded()
+            user_id: str = session_data.get("_auth_user_id")
+            if user_id:
+                active_user_ids.append(user_id)
+
+        active_users = user_model.objects.filter(id__in=active_user_ids)
+        active_usernames = [user.username for user in active_users]
+        return active_usernames
 
     def verify_request_is_allowed(self, request: Request) -> None:
         # TODO: Update this comment
@@ -242,7 +261,7 @@ class SessionManager:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             ) from e
 
-    def get_session_expiry_date(self, request: Request) -> float:
+    def get_session_expiry_date(self, request: Request) -> datetime.datetime:
 
         try:
             self.verify_request_is_allowed(request)

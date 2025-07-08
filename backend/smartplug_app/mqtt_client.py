@@ -1,5 +1,8 @@
+"""Contains the MQTT client which serves as a central interface for all
+communication (with the smartplugs) via MQTT."""
+
 import json
-import random
+from typing import Callable
 import paho.mqtt.client as mqtt
 from .logger import Logger
 from .error_handler import BackendError
@@ -7,10 +10,25 @@ from .admin_settings import USE_MQTT
 
 
 class MQTTClient:
+    """MQTTClient handles MQTT communication for device status updates and
+    control.
 
-    def __init__(self, on_update_callback):
+    It listens to topics, parses incoming messages, and sends control
+    messages.
+    """
 
-        ## The logger instance (singleton) to log events and errors.
+    def __init__(
+        self, on_update_callback: Callable[[str, str, bool], None]
+    ) -> None:
+        """Initialize the MQTT client and set up connection and callbacks.
+
+        @param on_update_callback Callback function to update device states in
+        the main application.
+        """
+
+        # TODO: add docstrings for class members (see other files), use \ when
+        # using multiple sentences
+
         self._logger: Logger = Logger()
 
         self._broker_ip: str = "localhost"
@@ -40,38 +58,16 @@ class MQTTClient:
         # -------------------------------------------
 
         self._connect()
-        self._on_update_callback = on_update_callback
+        self._on_update_callback: Callable[[str, str, bool], None] = (
+            on_update_callback
+        )
         self._client.on_message = self._on_message
         self._client.loop_start()
 
-        # TODO: remove, used for debugging only
-        if not USE_MQTT:
-            self.init_devices_randomly()
+    def _connect(self) -> None:
+        """Connects to the MQTT broker and subscribes to all topics."""
 
-    # TODO: remove, used for debugging only
-    def init_devices_randomly(self):
-
-        random.seed(42)
-
-        deviceIds = [
-            "shellyplugsg3-b08184a48764",
-            "shellyplugsg3-8cbfea90f128",
-            "shellyplugsg3-b08184a4b8e4",
-            "shellyplugsg3-b08184a654b8",
-        ]
-
-        for deviceId in deviceIds:
-            # isAvailable: bool = random.choice([True, True, True, False])
-            isOn: bool = random.choice([True, False])
-
-            self._on_update_callback(deviceId, "isAvailable", True)
-            self._on_update_callback(deviceId, "isOn", True)
-
-    def _connect(self):
-
-        def on_connect(
-            client: mqtt.Client, userdata: any, flags: dict, rc: int
-        ):
+        def on_connect(client: mqtt.Client, userdata, flags, rc: int):
             if rc == 0:
                 client.subscribe("#")
                 self._logger.info("Connected successfully to MQTT broker.")
@@ -84,8 +80,14 @@ class MQTTClient:
         )
 
     def _on_message(
-        self, client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage
-    ):
+        self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage
+    ) -> None:
+        """Callback for processing incoming MQTT messages.
+
+        @param client The instance of mqtt.Client to use.
+        @param userdata Additional user data, not used here.
+        @param msg The received message.
+        """
 
         topic = msg.topic
         payload = msg.payload.decode()
@@ -117,21 +119,31 @@ class MQTTClient:
             try:
                 data = json.loads(payload)
                 deviceId = data.get("src")
+                rpc_response = data.get("result")
 
-                rpcData = data.get("result")
+                if isinstance(rpc_response, dict) and "output" in rpc_response:
 
-                if isinstance(rpcData, dict) and "output" in rpcData:
-
-                    rpcSwitchOutput = rpcData.get("output")
+                    output = rpc_response.get("output")
 
                     self._on_update_callback(deviceId, "isOn", rpcSwitchOutput)
 
-            except json.JSONDecodeError:
-                # TODO: create propper error
-                # This Happens if the JSON that was send from the smartplug were defekt.
-                print(f"[{topic}] Invalid JSON in RPC: {payload}")
+            except json.JSONDecodeError as e:
+                self._logger.error(
+                    f"[{topic}] Invalid JSON payload: {payload}"
+                )
+                raise BackendError(
+                    f"Invalid JSON for topic {topic}: {payload}"
+                ) from e
+            except Exception as e:
+                self._logger.error(f"Unexpeted error processing message: {e}")
+                raise BackendError(f"Error in _on_message: {str(e)}") from e
 
-    def _request_status(self, device_id: str):
+    def _request_status(self, device_id: str) -> None:
+        """Requests the current status of a device by sending a
+        Switch.GetStatus RPC.
+
+        @param device_id The ID of the target device.
+        """
         payload = {
             "id": 1,
             "src": "shelly",
@@ -140,12 +152,18 @@ class MQTTClient:
         }
         self._client.publish(device_id + self._sub_topic, json.dumps(payload))
 
-    def disconnect(self):
+    def disconnect(self) -> None:
+        """Disconnects from the MQTT broker."""
         self._client.disconnect()
 
-    def switch(self, deviceId: str, desired_isOn: bool):
+    def switch(self, deviceId: str, desired_isOn: bool) -> None:
+        """Sends a command to switch a device on or off.
 
-        # TODO: remove, used for debugging only
+        @param deviceId The ID of the target device.
+        @param desired_isOn Desired state of the switch (True for on, False
+        for off).
+        """
+        # used for debugging only
         if not USE_MQTT:
             self._on_update_callback(deviceId, "isOn", desired_isOn)
             return
@@ -158,6 +176,3 @@ class MQTTClient:
         }
 
         self._client.publish(deviceId + self._sub_topic, json.dumps(payload))
-
-        # TODO: error handling ??? or not possible ??? Might not be required,
-        # further research please.

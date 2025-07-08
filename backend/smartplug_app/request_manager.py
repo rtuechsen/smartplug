@@ -25,9 +25,11 @@ class RequestManager:
     def __init__(self):
         """Constructor for the class."""
 
-        ## The logger instance (singleton) to log events and errors.
+        ## The logger instance (singleton) used to log events and errors.
         self._logger: Logger = Logger()
 
+        ## The SessionManager instance (singleton) used to authenticate
+        ## requests.
         self._session_manager = SessionManager()
 
         ## An instance of ErrorHandler to simultaneously log an error and
@@ -39,7 +41,7 @@ class RequestManager:
 
         # Because openapi.yaml already contains schemas for the requests for
         # documentation purposes, we extract those schemas and use them for
-        # validation
+        # validation.
         openapi_rel_path: str = "./openapi.yaml"
         openapi_abs_path: Path = (
             Path(__file__).parent.parent.parent / openapi_rel_path
@@ -60,10 +62,14 @@ class RequestManager:
         except yaml.YAMLError as e:
             raise BackendError(f"Error while parsing openapi.yaml:{e}.") from e
 
+        ## The OpenAPI schema for switch requests. Used to vaidate incoming
+        ## requests.
         self._schema_switch: dict = self._openapi["paths"]["/api/switch"][
             "post"
         ]["requestBody"]["content"]["application/json"]["schema"]
 
+        ## The OpenAPI schema for login requests. Used to vaidate incoming
+        ## requests.
         self._schema_login: dict = self._openapi["paths"]["/api/login"][
             "post"
         ]["requestBody"]["content"]["application/json"]["schema"]
@@ -86,6 +92,7 @@ class RequestManager:
             ),
         )
 
+        # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
                 "Requests to /csrf are not allowed to have a body.",
@@ -102,7 +109,12 @@ class RequestManager:
         return Response(status=status.HTTP_200_OK)
 
     def login(self, request: Request) -> Response:
-        """TODO."""
+        """Function to process requests to /login .
+
+        @param request The incoming request.
+
+        @return A response indication the success of the request.
+        """
 
         self._logger.info(
             "A /login request has been received.",
@@ -149,10 +161,15 @@ class RequestManager:
         return Response(None, status=status.HTTP_200_OK)
 
     def logout(self, request: Request) -> Response:
-        """TODO."""
+        """Function to process requests to /logout .
 
-        # TODO: note, username would not be available by the time the event is
-        # logged
+        @param request The incoming request.
+
+        @return A response indication the success of the request.
+        """
+
+        # Note: the username would not be available by the time the event is
+        # logged, as the session is invalidated. So we create a copy here.
         username = copy.copy(
             request.session["USERNAME"]
             if "USERNAME" in request.session
@@ -164,6 +181,7 @@ class RequestManager:
             username,
         )
 
+        # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
                 "Requests to /logout are not allowed to have a body.",
@@ -195,7 +213,7 @@ class RequestManager:
         return Response(None, status=status.HTTP_200_OK)
 
     def get_tree(self, request: Request) -> Response:
-        """Function to process requests to /gettree .
+        """Function to process requests to /get-tree .
 
         @param request The incoming request.
 
@@ -213,9 +231,10 @@ class RequestManager:
             ),
         )
 
+        # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
-                "Requests to /gettree are not allowed to have a body.",
+                "Requests to /get-tree are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
                 request.META["REMOTE_ADDR"],
@@ -303,11 +322,12 @@ class RequestManager:
         return Response(None, status=status.HTTP_200_OK)
 
     def get_active_users(self, request: Request) -> Response:
-        """Function to process requests to /getusers .
+        """Function to process requests to /get-active-users .
 
         @param request The incoming request.
 
-        @return A response containing either the user list as a JSON or an error.
+        @return A response containing either the user list as a JSON or an
+        error.
         """
 
         self._logger.info(
@@ -320,9 +340,10 @@ class RequestManager:
             ),
         )
 
+        # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
-                "Requests to /getactiveusers are not allowed to have a body.",
+                "Requests to /get-active-users are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
                 request.META["REMOTE_ADDR"],
@@ -335,7 +356,9 @@ class RequestManager:
 
         try:
             self._session_manager.verify_request_is_allowed(request)
-            active_user_names = self._session_manager.get_active_user_names()
+            active_user_names = (
+                self._session_manager.get_active_users_full_names()
+            )
         except BackendError as e:
             return self._error_handler.response(
                 e.message,
@@ -352,7 +375,13 @@ class RequestManager:
         return Response(active_user_names, status=status.HTTP_200_OK)
 
     def get_session_expiry_date(self, request: Request) -> Response:
-        """TODO"""
+        """Function to process requests to /get-session-expiry-date .
+
+        @param request The incoming request.
+
+        @return A response containing either the session expiry date as a
+        string or an error.
+        """
 
         self._logger.info(
             "A /getusers request has been received.",
@@ -364,9 +393,10 @@ class RequestManager:
             ),
         )
 
+        # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
-                "Requests to /getremainingsessiontime are not allowed to have "
+                "Requests to /get-session-expiry-date are not allowed to have "
                 "a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",

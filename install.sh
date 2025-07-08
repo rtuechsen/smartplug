@@ -33,7 +33,6 @@ sudo cp -p ./smartplug_app /etc/logrotate.d/smartplug_app
 
 ## LDAP
 
-# TODO: what kind of password want slapd here? what is it for?
 sudo apt install -y libsasl2-dev python3-dev libldap2-dev libssl-dev ldap-utils
 
 ## linter

@@ -38,7 +38,7 @@ sudo -E env PATH="$PATH" python manage.py migrate
 printf "\n\n\x1B[33mMigration finished.\x1B[0m\n\n\n"
 
 # TODO: dont run pylint on server start
-pylint --recursive=y smartplug_app
+# pylint --recursive=y smartplug_app
 
 cd ..
 
