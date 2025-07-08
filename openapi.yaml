@@ -51,6 +51,34 @@ components:
             - children
           additionalProperties: false
 
+  responses:
+
+    400BadRequest:
+      description: Bad Request, returned e.g. if the schema of the response is invalid.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+            required:
+            - detail
+          additionalProperties: false
+
+    401Unauthorized:
+      description: Unauthorized, the user is not logged in.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+            required:
+            - detail
+          additionalProperties: false
+
 paths:
 
   /:
@@ -84,17 +112,7 @@ paths:
                 - csrfToken
               additionalProperties: false
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
 
   /api/login:
     post:
@@ -130,17 +148,7 @@ paths:
                 type: string
                 format: html
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
 
   /api/logout:
     post:
@@ -155,17 +163,7 @@ paths:
                 type: string
                 format: html
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
 
   /api/get-tree:
     get:
@@ -178,17 +176,7 @@ paths:
             application/json:
               $ref: "#/components/schemas/ItemList"
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
         '401':
           description: Unauthorized
           content:
@@ -228,29 +216,9 @@ paths:
         '200':
           description: OK
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/401Unauthorized'
 
   /api/get-active-users:
     get:
@@ -266,29 +234,9 @@ paths:
                 items:
                   type: string
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/401Unauthorized'
 
   /api/get-session-expiry-date:
     get:
@@ -308,26 +256,6 @@ paths:
                 - session_expiry_date
               additionalProperties: false
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/401Unauthorized'
