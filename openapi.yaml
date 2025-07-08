@@ -16,7 +16,7 @@ components:
         label:
           type: string
         id:
-          $ref: "#/components/schemas/ItemId"
+          $ref: '#/components/schemas/ItemId'
         isOn:
           type: boolean
         isAvailable:
@@ -30,26 +30,35 @@ components:
 
     TreeItemDevice:
       allOf:
-        - $ref: "#/components/schemas/TreeItem"
+        - $ref: '#/components/schemas/TreeItem'
         - type: object
 
     ItemList:
       type: array
       items:
         oneOf:
-          - $ref: "#/components/schemas/TreeItemGroup"
-          - $ref: "#/components/schemas/TreeItemDevice"
+          - $ref: '#/components/schemas/TreeItemGroup'
+          - $ref: '#/components/schemas/TreeItemDevice'
 
     TreeItemGroup:
       allOf:
-        - $ref: "#/components/schemas/TreeItem"
+        - $ref: '#/components/schemas/TreeItem'
         - type: object
           properties:
             children:
-              $ref: "#/components/schemas/ItemList"
+              $ref: '#/components/schemas/ItemList'
           required:
             - children
           additionalProperties: false
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+      additionalProperties: false
 
   responses:
 
@@ -57,27 +66,19 @@ components:
       description: Bad Request, returned e.g. if the schema of the response is invalid.
       content:
         application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
-            required:
-            - detail
-          additionalProperties: false
+          $ref: '#/components/schemas/ErrorResponse'
 
     401Unauthorized:
       description: Unauthorized, the user is not logged in.
       content:
         application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
-            required:
-            - detail
-          additionalProperties: false
+          $ref: '#/components/schemas/ErrorResponse'
+
+    500InternalServerError:
+      description: Internal Server Error.
+      content:
+        application/json:
+          $ref: '#/components/schemas/ErrorResponse'
 
 paths:
 
@@ -93,6 +94,8 @@ paths:
               schema:
                 type: string
                 format: html
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
 
   /api/csrf:
     get:
@@ -110,9 +113,11 @@ paths:
                     type: string
                 required:
                 - csrfToken
-              additionalProperties: false
+                additionalProperties: false
         '400':
           $ref: '#/components/responses/400BadRequest'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
 
   /api/login:
     post:
@@ -149,6 +154,8 @@ paths:
                 format: html
         '400':
           $ref: '#/components/responses/400BadRequest'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
 
   /api/logout:
     post:
@@ -164,6 +171,8 @@ paths:
                 format: html
         '400':
           $ref: '#/components/responses/400BadRequest'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
 
   /api/get-tree:
     get:
@@ -174,7 +183,7 @@ paths:
           description: OK
           content:
             application/json:
-              $ref: "#/components/schemas/ItemList"
+              $ref: '#/components/schemas/ItemList'
         '400':
           $ref: '#/components/responses/400BadRequest'
         '401':
@@ -188,7 +197,9 @@ paths:
                     type: string
                 required:
                 - detail
-              additionalProperties: false
+                additionalProperties: false
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
 
   /api/switch:
     post:
@@ -219,6 +230,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         '401':
           $ref: '#/components/responses/401Unauthorized'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
 
   /api/get-active-users:
     get:
@@ -237,6 +250,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         '401':
           $ref: '#/components/responses/401Unauthorized'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
 
   /api/get-session-expiry-date:
     get:
@@ -254,8 +269,10 @@ paths:
                     type: string
                 required:
                 - session_expiry_date
-              additionalProperties: false
+                additionalProperties: false
         '400':
           $ref: '#/components/responses/400BadRequest'
         '401':
           $ref: '#/components/responses/401Unauthorized'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
