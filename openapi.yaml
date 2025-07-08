@@ -3,10 +3,13 @@ info:
   title: Smartplug Dirigent
   description: This API allows to view and control smartplugs.
   version: 0.1.0
+
 components:
   schemas:
+
     ItemId:
       type: string
+
     TreeItem: 
       type: object
       properties:
@@ -24,16 +27,19 @@ components:
         - isOn
         - isAvailable
       additionalProperties: false
+
     TreeItemDevice:
       allOf:
         - $ref: "#/components/schemas/TreeItem"
         - type: object
+
     ItemList:
       type: array
       items:
         oneOf:
           - $ref: "#/components/schemas/TreeItemGroup"
           - $ref: "#/components/schemas/TreeItemDevice"
+
     TreeItemGroup:
       allOf:
         - $ref: "#/components/schemas/TreeItem"
@@ -44,7 +50,9 @@ components:
           required:
             - children
           additionalProperties: false
+
 paths:
+
   /:
     get:
       summary: The endpoint of the frontend (HTML and JavaScript).
@@ -57,6 +65,7 @@ paths:
               schema:
                 type: string
                 format: html
+
   /api/csrf:
     get:
       summary: The endpoint to get a CSRF token from the server.
@@ -86,6 +95,7 @@ paths:
                 required:
                 - detail
               additionalProperties: false
+
   /api/login:
     post:
       summary: The endpoint to provice user credentials for login.
@@ -131,6 +141,7 @@ paths:
                 required:
                 - detail
               additionalProperties: false
+
   /api/logout:
     post:
       summary: The endpoint to log out from an active session.
@@ -155,6 +166,7 @@ paths:
                 required:
                 - detail
               additionalProperties: false
+
   /api/get-tree:
     get:
       summary: The endpoint to get the device tree.
@@ -189,6 +201,7 @@ paths:
                 required:
                 - detail
               additionalProperties: false
+
   /api/switch:
     post:
       summary: The endpoint to turn smartplugs ON or OFF.
@@ -214,6 +227,86 @@ paths:
       responses:
         '200':
           description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                required:
+                - detail
+              additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                required:
+                - detail
+              additionalProperties: false
+
+  /api/get-active-users:
+    get:
+      summary: The endpoint a list of the active users.
+      description: The endpoint a list of the active users. I.e. the users that are logged in and have an active session.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                required:
+                - detail
+              additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                required:
+                - detail
+              additionalProperties: false
+
+  /api/get-session-expiry-date:
+    get:
+      summary: The endpoint to get the date when the session of the requesting user expires.
+      description: The endpoint to get the date when the session of the requesting user expires. The date also inlcudes the exact time.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session_expiry_date:
+                    type: string
+                required:
+                - session_expiry_date
+              additionalProperties: false
         '400':
           description: Bad Request
           content:
