@@ -47,8 +47,8 @@ components:
 paths:
   /:
     get:
-      summary: Get the frontend (html and javascript)
-      description: TODO # TODO
+      summary: The endpoint of the frontend (HTML and JavaScript).
+      description: The endpoint of the frontend (HTML and JavaScript).
       responses:
         '200':
           description: OK
@@ -59,9 +59,9 @@ paths:
                 format: html
   /api/csrf:
     get:
-      summary: TODO # TODO
-      description: TODO # TODO
-      responses: # TODO
+      summary: The endpoint to get a CSRF token from the server.
+      description: The endpoint to get a CSRF token from the server. The CSRF token is required to make other request types than GET.
+      responses:
         '200':
           description: OK
           content:
@@ -88,10 +88,9 @@ paths:
               additionalProperties: false
   /api/login:
     post:
-      summary: TODO # TODO
-      description: TODO # TODO
+      summary: The endpoint to provice user credentials for login.
+      description: The endpoint to provice user credentials for login. If valid credentials are provided the user will be logged in.
       requestBody:
-        description: TODO # TODO
         required: true
         content:
           application/json:
@@ -103,13 +102,11 @@ paths:
                   pattern: ^([a-zA-Z0-9_.]{1,40}@mylab\.local)|(MYLAB\\[a-zA-Z0-9]{1,20})$
                   # TODO: switch to correct pattern
                   # pattern: ^([a-zA-Z0-9_.]{1,40}@(anschuetz\.com)|(anschuetz\.uk)|(extern\.anschuetz\.com)|(raykiel\.com))|(NT_RMKIEL\\[a-zA-Z0-9_.]{1,20})$
-                  description: TODO # TODO
                 password:
                   type: string
                   pattern: ^[a-zA-Z0-9^!$%&()\[\]{}=?+*~#'-_.,;:\|<>"°]{1,100}$
                   # TODO: switch to correct pattern
                   # pattern: ^[a-zA-Z0-9^!$%&()\[\]{}=?+*~#'-_.,;:\|<>"°]{12,100}$
-                  description: TODO # TODO
               required:
                 - username
                 - password
@@ -136,8 +133,8 @@ paths:
               additionalProperties: false
   /api/logout:
     post:
-      summary: TODO # TODO
-      description: TODO # TODO
+      summary: The endpoint to log out from an active session.
+      description: The endpoint to log out from an active session.
       responses:
         '200':
           description: OK
@@ -158,9 +155,9 @@ paths:
                 required:
                 - detail
               additionalProperties: false
-  /api/gettree:
+  /api/get-tree:
     get:
-      summary: TODO # TODO
+      summary: The endpoint to get a 
       description: TODO # TODO
       responses: # TODO
         '200':
