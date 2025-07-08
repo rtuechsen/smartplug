@@ -56,7 +56,7 @@ def logout(request: Request) -> Response:
 
 @api_view(["GET"])
 def get_tree(request: Request) -> Response:
-    """Callback for the /gettree endpoint.
+    """Callback for the /get-tree endpoint.
 
     @param request The request from the REST API.
 
@@ -78,7 +78,7 @@ def switch(request: Request) -> Response:
 
 @api_view(["GET"])
 def get_active_users(request: Request) -> Response:
-    """Callback for the /getusers endpoint.
+    """Callback for the /get-active-users endpoint.
 
     @param request The request from the REST API.
 

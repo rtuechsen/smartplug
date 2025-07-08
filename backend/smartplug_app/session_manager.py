@@ -261,7 +261,7 @@ class SessionManager:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             ) from e
 
-    def get_session_expiry_date(self, request: Request) -> float:
+    def get_session_expiry_date(self, request: Request) -> datetime.datetime:
 
         try:
             self.verify_request_is_allowed(request)

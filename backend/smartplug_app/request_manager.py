@@ -213,7 +213,7 @@ class RequestManager:
         return Response(None, status=status.HTTP_200_OK)
 
     def get_tree(self, request: Request) -> Response:
-        """Function to process requests to /gettree .
+        """Function to process requests to /get-tree .
 
         @param request The incoming request.
 
@@ -234,7 +234,7 @@ class RequestManager:
         # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
-                "Requests to /gettree are not allowed to have a body.",
+                "Requests to /get-tree are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
                 request.META["REMOTE_ADDR"],
@@ -322,11 +322,12 @@ class RequestManager:
         return Response(None, status=status.HTTP_200_OK)
 
     def get_active_users(self, request: Request) -> Response:
-        """Function to process requests to /getusers .
+        """Function to process requests to /get-active-users .
 
         @param request The incoming request.
 
-        @return A response containing either the user list as a JSON or an error.
+        @return A response containing either the user list as a JSON or an
+        error.
         """
 
         self._logger.info(
@@ -342,7 +343,7 @@ class RequestManager:
         # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
-                "Requests to /getactiveusers are not allowed to have a body.",
+                "Requests to /get-active-users are not allowed to have a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
                 request.META["REMOTE_ADDR"],
@@ -374,7 +375,13 @@ class RequestManager:
         return Response(active_user_names, status=status.HTTP_200_OK)
 
     def get_session_expiry_date(self, request: Request) -> Response:
-        """TODO."""
+        """Function to process requests to /get-session-expiry-date .
+
+        @param request The incoming request.
+
+        @return A response containing either the session expiry date as a
+        string or an error.
+        """
 
         self._logger.info(
             "A /getusers request has been received.",
@@ -389,7 +396,7 @@ class RequestManager:
         # The body of this request should be empty.
         if request.body != b"":
             return self._error_handler.response(
-                "Requests to /getremainingsessiontime are not allowed to have "
+                "Requests to /get-session-expiry-date are not allowed to have "
                 "a body.",
                 status.HTTP_400_BAD_REQUEST,
                 "The request did not match the expected schema.",
