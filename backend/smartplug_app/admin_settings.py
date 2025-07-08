@@ -33,13 +33,11 @@ USE_MQTT: bool = False
 
 ## The secret key used for development builds. Used by Django as a seed for
 ## cryptographic functions.
-SECRET_KEY_DEVELOPMENT: str = (
-    "z5_=&6x00u($dv(x4&vhw46(4#ouj2o1ki(zrby=1+bafzvb$j"
-)
+SECRET_KEY_DEVELOPMENT: str = "gzo3N4aSjR39V$Tbxf*!#q%4du53MfU2"
 
 ## The secret key used for production builds. Used by Django as a seed for
 ## cryptographic functions.
-SECRET_KEY_PRODUCTION: str = "GyB#yNG@!hAdqV75cX3LdVyJ!ubQF4"
+SECRET_KEY_PRODUCTION: str = "G5pT23&5hDpS6ArMK2*ohC4B9&B!Ts$R"
 
 ## The time in seconds after which a user is signed out if no activity was
 ## registered.
