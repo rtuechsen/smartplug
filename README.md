@@ -2,7 +2,7 @@
 # Instructions
 
 Install Ubuntu 24.04 as virtual machine or WSL.  
-Set a user name and a password.  
+Set the username of your Ubunutu device to `default` and set a password for this user.  
 
 Install git using `sudo apt -y install git`.  
 
