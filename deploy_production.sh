@@ -9,8 +9,12 @@ sudo cp ./nginx.conf /etc/nginx/nginx.conf
 sudo rm -r /etc/mosquitto/mosquitto.conf
 sudo cp ./mosquitto.conf /etc/mosquitto/mosquitto.conf
 
-sudo systemctl stop mosquitto
-sudo systemctl start mosquitto
+sudo systemctl restart mosquitto
+
+sudo rm -r /etc/systemd/system/gunicorn.service
+sudo cp ./gunicorn.service /etc/systemd/system/gunicorn.service
+
+sudo systemctl enable gunicorn
 
 # frontend
 
@@ -46,13 +50,13 @@ cd ..
 
 cd backend
 
-sudo systemctl start nginx
+sudo systemctl daemon-reload
 
-# TODO: adjust the number of workers or mention it in the admin documentation
-sudo -E env PATH="$PATH" gunicorn --bind 127.0.0.1:8000 smartplug_app.asgi:application --worker-class uvicorn.workers.UvicornWorker --workers 1 --graceful-timeout 0
+sudo systemctl restart nginx
 
 sudo systemctl restart gunicorn
 
 sudo systemctl reload nginx
 
 cd ..
+
