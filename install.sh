@@ -47,6 +47,8 @@ sudo systemctl stop mosquitto
 # TODO: change password
 # sudo mosquitto_passwd -c /ect/mosquitto/passwd mqttuser
 
+# TODO: call generate_secrets.py to generate secrets for django for development and production
+
 cd ..
 
 # frontend

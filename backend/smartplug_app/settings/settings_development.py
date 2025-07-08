@@ -5,8 +5,12 @@ settings_base.py.
 # From settings_base we import all settings shared between development and
 # production builds.
 from .settings_base import *
-from ..admin_settings import SECRET_KEY_DEVELOPMENT
 
 DEBUG = True
 
-SECRET_KEY = SECRET_KEY_DEVELOPMENT
+SECRET_KEY = "aadfj<nfefghöafffq"
+
+# with open(
+#     "/etc/django_secret_key_development.txt", "r", encoding="UTF-8"
+# ) as f:
+#     SECRET_KEY = f.read().strip()
