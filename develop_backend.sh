@@ -10,8 +10,6 @@ sudo systemctl stop gunicorn
 
 cd backend
 
-source django-env/bin/activate
-
 sudo systemctl stop nginx
 
 printf "\n\n\x1B[33mStarting migration.\x1B[0m\n\n\n"
