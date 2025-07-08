@@ -1,6 +1,5 @@
-"""Contains ... TODO.
-
-TODO: more details ???
+"""Contains the logic for the SessionManager class. Authentication and
+permission checks are done inside this class.
 """
 
 import time
@@ -19,6 +18,13 @@ from .logger import Logger
 
 
 class SessionManager:
+    """
+    The SessionManager class is responsible for Authenticating users,
+    checking permissions, extending session lifetime and signing out users
+    manually. Automatic sign-outs are handled by Djangos internal session
+    expiry and is configured in admin_settings.py.
+    The SessionManager is a singleton.
+    """
 
     _instance: "SessionManager" = None
 
@@ -48,7 +54,9 @@ class SessionManager:
         return cls._instance
 
     def _invalidate_sessions(self) -> None:
-
+        """Function used to clean up expired or invalidated sessions. Meant to
+        be run as a background task in a separate thread.
+        """
         while True:
 
             # check which sessions have expired
@@ -106,6 +114,11 @@ class SessionManager:
             time.sleep(time_to_next_expiry + expiry_time_threshold)
 
     def login(self, request: Request) -> None:
+        """Checks user credentials and signs the user in on matching
+        credentials.
+
+        @param request The user's request containing credentials.
+        """
 
         username = request.data.get("username")
         password = request.data.get("password")
@@ -128,14 +141,23 @@ class SessionManager:
         self._send_list_of_active_users()
 
     def logout(self, request: Request) -> None:
+        """Logs out the user on request.
 
+        @param request The user's request.
+        """
+
+        # Verify origin of the request to avoid false signouts or unintended
+        # behaviour.
         self.verify_request_is_allowed(request)
 
+        # This logout function implemented by django. This is not recursive.
         logout(request)
 
+        # Update the active user list in the web page.
         self._send_list_of_active_users()
 
-    def _send_list_of_active_users(self):
+    def _send_list_of_active_users(self) -> None:
+        """Broadcasts a list of signed in users using SSE."""
 
         django_eventstream.send_event(
             "default",
@@ -144,6 +166,12 @@ class SessionManager:
         )
 
     def get_active_users_full_names(self) -> list[str]:
+        """Constructs a list of containing the full name of each user.
+        Only users that are signed in will be included. Full names consist of
+        first and last name.
+
+        @return The list containing the names of all active users as string.
+        """
 
         session_model = apps.get_model("sessions", "Session")
         user_model = get_user_model()
@@ -167,6 +195,12 @@ class SessionManager:
         return active_users_full_names
 
     def get_active_usernames(self) -> list[str]:
+        """Constructs a list of containing the username of each user.
+        Only users that are signed in will be included. The username is the
+        identificator used on sign in.
+
+        @return The list containing the usernames of all active users as string.
+        """
 
         session_model = apps.get_model("sessions", "Session")
         user_model = get_user_model()
@@ -187,11 +221,12 @@ class SessionManager:
         return active_usernames
 
     def verify_request_is_allowed(self, request: Request) -> None:
-        # TODO: Update this comment
-        # user will be None unless logged in. Per default we use a
-        # database-backed session management. The session data is
-        # stored server-side and referenced by the session-id.
-        # https://docs.djangoproject.com/en/5.2/topics/http/sessions/
+        """Checks the incoming request for access permission. Also validates
+        origin of request to prevent session theft. If the request is valid,
+        the session timeout will be reset.
+
+        @param request The request to be validated.
+        """
 
         if not request.user.is_authenticated:
             raise BackendError(
@@ -207,12 +242,15 @@ class SessionManager:
         # extend the session
         request.session.set_expiry(settings.SESSION_COOKIE_AGE)
 
-    def verify_user_is_logged_in(self, user: User) -> None:
+    def verify_user_is_logged_in(self, user: User) -> bool:
+        """Used to check if a session has expired.
+        Unlike verify_request_is_allowed() it will not extend the session
+        lifetime and only verifies this user currently exists.
 
-        # TODO: this is not possible as we do not have the request object
-        # might be possible with custom middleware ???
-        # not high priority as header data can be faked as well
-        # self._validate_request_origin(request)
+        @param user The user object to be checked.
+
+        @return True if the user exists and is logged in, otherwise False.
+        """
 
         if user is None:
             return False
@@ -229,11 +267,14 @@ class SessionManager:
 
         return False
 
-        # TODO: comment: only extend the session on non-SSE request
-
     def _validate_request_origin(self, request: Request) -> None:
-        # Check that the values from the start of the session match
-        # with the values of this request.
+        """This function prevents session theft by comparing USER_AGENT,
+        ACCEPT_LANGUAGE and REMOTE_ADDR from the first request made in a
+        session to current values.
+
+        @param request The request to be verified.
+        """
+
         try:
             # This data has been set on login and will be checked when verifying
             # the request origin.
@@ -252,7 +293,6 @@ class SessionManager:
                         user_message="Authentication failed. Are you signed in?",
                     )
 
-        # TODO: the comment does not match the error message ?!
         # KeyError occurs when the request is missing necessary data for
         # verification.
         except KeyError as e:
@@ -262,6 +302,10 @@ class SessionManager:
             ) from e
 
     def get_session_expiry_date(self, request: Request) -> datetime.datetime:
+        """Simple function to obtain the date of expiry from a session.
+
+        @param request The request which the session is identified by
+        """
 
         try:
             self.verify_request_is_allowed(request)

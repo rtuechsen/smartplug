@@ -379,8 +379,8 @@ class RequestManager:
 
         @param request The incoming request.
 
-        @return A response containing either the session expiry date as a
-        string or an error.
+        @return A response containing either JSON object containing the session
+        expiry date as a string or an error.
         """
 
         self._logger.info(

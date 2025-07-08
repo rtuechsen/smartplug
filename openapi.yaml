@@ -3,17 +3,20 @@ info:
   title: Smartplug Dirigent
   description: This API allows to view and control smartplugs.
   version: 0.1.0
+
 components:
   schemas:
+
     ItemId:
       type: string
+
     TreeItem: 
       type: object
       properties:
         label:
           type: string
         id:
-          $ref: "#/components/schemas/ItemId"
+          $ref: '#/components/schemas/ItemId'
         isOn:
           type: boolean
         isAvailable:
@@ -24,27 +27,66 @@ components:
         - isOn
         - isAvailable
       additionalProperties: false
+
     TreeItemDevice:
       allOf:
-        - $ref: "#/components/schemas/TreeItem"
+        - $ref: '#/components/schemas/TreeItem'
         - type: object
+
     ItemList:
       type: array
       items:
         oneOf:
-          - $ref: "#/components/schemas/TreeItemGroup"
-          - $ref: "#/components/schemas/TreeItemDevice"
+          - $ref: '#/components/schemas/TreeItemGroup'
+          - $ref: '#/components/schemas/TreeItemDevice'
+
     TreeItemGroup:
       allOf:
-        - $ref: "#/components/schemas/TreeItem"
+        - $ref: '#/components/schemas/TreeItem'
         - type: object
           properties:
             children:
-              $ref: "#/components/schemas/ItemList"
+              $ref: '#/components/schemas/ItemList'
           required:
             - children
           additionalProperties: false
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+      additionalProperties: false
+      example:
+        detail: 'ERROR: The request did not match the expected schema. [2025-07-08 13:50:18.131863]'
+
+  responses:
+
+    400BadRequest:
+      description: Bad Request, returned e.g. if the schema of the response is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    401Unauthorized:
+      description: Unauthorized, the user is not logged in.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    500InternalServerError:
+      description: Internal Server Error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
 paths:
+
   /:
     get:
       summary: The endpoint of the frontend (HTML and JavaScript).
@@ -57,6 +99,7 @@ paths:
               schema:
                 type: string
                 format: html
+
   /api/csrf:
     get:
       summary: The endpoint to get a CSRF token from the server.
@@ -73,19 +116,14 @@ paths:
                     type: string
                 required:
                 - csrfToken
-              additionalProperties: false
+                additionalProperties: false
+                example:
+                  csrfToken: f397hpqw3h87dq2q2rh
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
   /api/login:
     post:
       summary: The endpoint to provice user credentials for login.
@@ -99,9 +137,9 @@ paths:
               properties:
                 username:
                   type: string
-                  pattern: ^([a-zA-Z0-9_.]{1,40}@mylab\.local)|(MYLAB\\[a-zA-Z0-9]{1,20})$
+                  pattern: ^[a-zA-Z0-9_.]{1,40}@mylab\.local$
                   # TODO: switch to correct pattern
-                  # pattern: ^([a-zA-Z0-9_.]{1,40}@(anschuetz\.com)|(anschuetz\.uk)|(extern\.anschuetz\.com)|(raykiel\.com))|(NT_RMKIEL\\[a-zA-Z0-9_.]{1,20})$
+                  # pattern: ^[a-zA-Z0-9_.]{1,40}@(anschuetz\.com)|(anschuetz\.uk)|(extern\.anschuetz\.com)|(raykiel\.com)$
                 password:
                   type: string
                   pattern: ^[a-zA-Z0-9^!$%&()\[\]{}=?+*~#'-_.,;:\|<>"°]{1,100}$
@@ -111,6 +149,9 @@ paths:
                 - username
                 - password
               additionalProperties: false
+              example:
+                username: max.mustermann@anschuetz.com
+                password: U5p2A%8!9hXz$r3#
       responses:
         '200':
           description: OK
@@ -120,17 +161,10 @@ paths:
                 type: string
                 format: html
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
   /api/logout:
     post:
       summary: The endpoint to log out from an active session.
@@ -144,57 +178,33 @@ paths:
                 type: string
                 format: html
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
   /api/get-tree:
     get:
-      summary: The endpoint to get a 
-      description: TODO # TODO
-      responses: # TODO
+      summary: The endpoint to get the device tree.
+      description: The endpoint to get the device tree. The device tree is a representation of the structure and the current state of the smartplug devices configured in the system.
+      responses:
         '200':
           description: OK
           content:
             application/json:
-              $ref: "#/components/schemas/ItemList"
+              schema:
+                $ref: '#/components/schemas/ItemList'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/401Unauthorized'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
   /api/switch:
     post:
-      summary: Control the state of an item
-      description: TODO # TODO
+      summary: The endpoint to turn smartplugs ON or OFF.
+      description: The endpoint to turn smartplugs ON or OFF.
       requestBody:
-        description: TODO # TODO
         required: true
         content:
           application/json:
@@ -212,30 +222,62 @@ paths:
                 - id
                 - desired_isOn
               additionalProperties: false
+              example:
+                id: Smartplug-35197149258152
+                desired_isOn: true
       responses:
         '200':
           description: OK
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                - detail
-              additionalProperties: false
+          $ref: '#/components/responses/400BadRequest'
         '401':
-          description: Unauthorized
+          $ref: '#/components/responses/401Unauthorized'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /api/get-active-users:
+    get:
+      summary: The endpoint a list of the active users.
+      description: The endpoint a list of the active users. I.e. the users that are logged in and have an active session.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example: ['Max Mustermann', 'John Doe']
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /api/get-session-expiry-date:
+    get:
+      summary: The endpoint to get the date when the session of the requesting user expires.
+      description: The endpoint to get the date when the session of the requesting user expires. The date also inlcudes the exact time.
+      responses:
+        '200':
+          description: OK
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  detail:
+                  session_expiry_date:
                     type: string
                 required:
-                - detail
-              additionalProperties: false
+                - session_expiry_date
+                additionalProperties: false
+                example:
+                  session_expiry_date: 2011-11-04T00:05:23+04:00
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
