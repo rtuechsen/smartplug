@@ -46,7 +46,7 @@ sudo systemctl stop mosquitto
 
 ##set mosquitto Password
 
-sudo mosquitto_passwd -c /ect/mosquitto/passwd mqttuser
+sudo mosquitto_passwd -c /etc/mosquitto/passwd mqttuser
 sudo chmod 600 /etc/mosquitto/passwd
 sudo chown mosquitto: /etc/mosquitto/passwd
 
