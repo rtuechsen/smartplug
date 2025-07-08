@@ -5,8 +5,9 @@ sudo cp ./mosquitto.conf /etc/mosquitto/mosquitto.conf
 
 sudo rm /var/lib/mosquitto/mosquitto.db
 
-sudo systemctl stop mosquitto
-sudo systemctl start mosquitto
+sudo systemctl restart mosquitto
+
+sudo systemctl stop gunicorn
 
 cd backend
 
