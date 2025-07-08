@@ -4,14 +4,7 @@
 Install Ubuntu 24.04 as virtual machine or WSL.  
 Set a user name and a password.  
 
-Configure git:  
 Install git using `sudo apt -y install git`.  
-`git config --global user.name "YOUR_NAME"`  
-`git config --global user.email "YOUR_EMAIL"`  
-To store your git password (AS PLAINTEXT - DO NOT USE A PASSWORD YOU ARE USING SOMEWHERE ELSE !!!):  
-`git config --global credential.helper store`  
-`git config --global user.password YOUR_PASSWORD`  
-Note that there are no Quotes around the password in contrast to user name or email.  
 
 Clone this repo using: `git clone https://gitlab.com/proi3/smartplug-dirigent.git`  
 
