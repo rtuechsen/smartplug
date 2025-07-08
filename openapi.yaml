@@ -157,9 +157,9 @@ paths:
               additionalProperties: false
   /api/get-tree:
     get:
-      summary: The endpoint to get a 
-      description: TODO # TODO
-      responses: # TODO
+      summary: The endpoint to get the device tree.
+      description: The endpoint to get the device tree. The device three is a representation of the structure and the current state of the smartplug devices configured in the system.
+      responses:
         '200':
           description: OK
           content:
@@ -191,10 +191,9 @@ paths:
               additionalProperties: false
   /api/switch:
     post:
-      summary: Control the state of an item
-      description: TODO # TODO
+      summary: The endpoint to turn smartplugs ON or OFF.
+      description: The endpoint to turn smartplugs ON or OFF.
       requestBody:
-        description: TODO # TODO
         required: true
         content:
           application/json:
