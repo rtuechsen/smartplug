@@ -23,6 +23,7 @@ When using breakpoints in VSCode for the __frontend__, instead of simply opening
 When using breakpoints in VSCode for the __backend__, instead of running `develop_backend.sh`, go to the debug tab in VSCode (on the left) and launch `Backend Debug (Django ASGI Uvicorn)`.  
 For Debugging React Components in a browser the [React Developer Tools](https://react.dev/learn/react-developer-tools) might be helpful.  
 Run `bash deploy_production.sh` to deploy using nginx. Currently one has to open [](https://localhost:80).  
+The scripts for starting the server in development or production mode can be stopped using `Ctrl+C`. If clients are still connected (i.e. SSE is connected), aborting might not happen immediately.  
 
 
 ## WSL
