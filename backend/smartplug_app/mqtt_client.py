@@ -65,7 +65,9 @@ class MQTTClient:
         self._client.loop_start()
 
     def _connect(self) -> None:
-        """Connects to the MQTT broker and subscribes to all topics."""
+        """Connects to the MQTT broker and subscribes to all topics.
+        Raises BackendError if connection fails.
+        """
 
         def on_connect(client: mqtt.Client, userdata, flags, rc: int):
             if rc == 0:
@@ -82,30 +84,40 @@ class MQTTClient:
     def _on_message(
         self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage
     ) -> None:
-        """Callback for processing incoming MQTT messages.
+        """Processes incomming MQTT messages and triggers the update callback.
+
+        Extracts device ID and state information from the topic and payload.
 
         @param client The instance of mqtt.Client to use.
         @param userdata Additional user data, not used here.
         @param msg The received message.
+
+        @raises BackendError if the payload contains invalid JSON or other errors occur.
         """
 
         topic = msg.topic
         payload = msg.payload.decode()
 
+        # Handles a message when the topic end swith "/online" indicating the availability
         if topic.endswith("/online"):
             deviceId = topic.split("/")[0]
             state = payload.strip().lower() == "true"
 
+            # Notify the application about device availibilty
             self._on_update_callback(deviceId, "isAvailable", state)
             if state:
+                # If device is online, request its current status
                 self._request_status(deviceId)
 
+        # Handle messages when topic ends with "/status/switch:0" indicating switch status update
         elif topic.endswith("/status/switch:0"):
             deviceId = topic.split("/")[0]
             try:
                 data = json.loads(payload)
+                # Get the switch output state (True or False)
                 rpcSwitchOutput = data.get("output")
 
+                # Notify the application about the switch status
                 self._on_update_callback(deviceId, "isOn", rpcSwitchOutput)
 
             except json.JSONDecodeError as e:
@@ -114,6 +126,7 @@ class MQTTClient:
                     f"{topic}: {payload}"
                 ) from e
 
+        # Handle messages when the topic ends with "/rpc" indicating an RPC response
         elif topic.endswith("/rpc"):
             deviceId = topic.split("/")[0]
             try:
@@ -121,10 +134,11 @@ class MQTTClient:
                 deviceId = data.get("src")
                 rpc_response = data.get("result")
 
+                # Check if RPC result contains "output" indicating switch status
                 if isinstance(rpc_response, dict) and "output" in rpc_response:
-
                     output = rpc_response.get("output")
 
+                    # Notify the application about the switch status
                     self._on_update_callback(deviceId, "isOn", rpcSwitchOutput)
 
             except json.JSONDecodeError as e:
@@ -139,8 +153,9 @@ class MQTTClient:
                 raise BackendError(f"Error in _on_message: {str(e)}") from e
 
     def _request_status(self, device_id: str) -> None:
-        """Requests the current status of a device by sending a
-        Switch.GetStatus RPC.
+        """Sends a Switch.GetStatus RPC request to a specific device.
+
+        This requests the current switch status (on/off) from the device.
 
         @param device_id The ID of the target device.
         """
@@ -150,6 +165,7 @@ class MQTTClient:
             "method": "Switch.GetStatus",
             "params": {"id": 0},
         }
+        # Publish the request to the device's RPC topic
         self._client.publish(device_id + self._sub_topic, json.dumps(payload))
 
     def disconnect(self) -> None:
@@ -158,6 +174,9 @@ class MQTTClient:
 
     def switch(self, deviceId: str, desired_isOn: bool) -> None:
         """Sends a command to switch a device on or off.
+
+        Publishes a Switch.Set RPC command to the device with the desired state.
+
 
         @param deviceId The ID of the target device.
         @param desired_isOn Desired state of the switch (True for on, False
@@ -174,5 +193,5 @@ class MQTTClient:
             "method": "Switch.Set",
             "params": {"id": 0, "on": desired_isOn},
         }
-
+        # Publish the switch command
         self._client.publish(deviceId + self._sub_topic, json.dumps(payload))
