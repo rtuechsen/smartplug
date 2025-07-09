@@ -20,7 +20,7 @@ sudo apt -y install nginx
 cd backend
 
 sudo apt -y install python3-venv
-python3 -m venv django-env
+sudo python3 -m venv django-env
 source django-env/bin/activate
 
 sudo apt -y install python3-pip
@@ -30,6 +30,7 @@ python -m pip install -r ./requirements.txt
 ## logrotate
 
 sudo cp -p ./smartplug_app /etc/logrotate.d/smartplug_app
+sudo touch 
 
 ## LDAP
 

@@ -6,7 +6,7 @@ Set the username of your Ubunutu device to `default` and set a password for this
 
 Install git using `sudo apt -y install git`.  
 
-Clone this repo using: `git clone https://gitlab.com/proi3/smartplug-dirigent.git /opt`  
+Clone this repo using: `sudo git clone https://gitlab.com/proi3/smartplug-dirigent.git /opt/smartplug-dirigent`  
 
 Enter project folder with `cd /opt/smartplug-dirigent`.  
 Run `bash install.sh` to install the project.  
