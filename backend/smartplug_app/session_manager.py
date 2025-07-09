@@ -84,8 +84,7 @@ class SessionManager:
             # invalidate SSE for user
             users = user_model.objects.filter(id__in=expired_user_ids)
             for user in users:
-                # TODO: this will send a response to the client with some JSON
-                # data -> try to send own response to hide implementation details
+
                 django_eventstream.channel_permission_changed(user, "default")
                 self._logger.info(
                     message="A user session expired.", username=user.username

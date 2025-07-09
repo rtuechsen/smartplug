@@ -1,8 +1,9 @@
 
 export DJANGO_PIPELINE=development
-
 sudo rm -r /etc/mosquitto/mosquitto.conf
 sudo cp ./mosquitto.conf /etc/mosquitto/mosquitto.conf
+
+sudo rm /var/lib/mosquitto/mosquitto.db
 
 sudo systemctl restart mosquitto
 sudo systemctl stop gunicorn
