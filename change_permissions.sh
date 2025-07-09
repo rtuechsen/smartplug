@@ -31,8 +31,8 @@ sudo chmod 755 /etc/systemd/system/
 sudo chown -R root:root /etc/mosquitto
 sudo chmod -R 645 /etc/mosquitto
 
-sudo chown mosquitto: /etc/mosquitto/passwd
-sudo chmod 600 /etc/mosquitto/passwd
+# sudo chown mosquitto: /etc/mosquitto/passwd
+# sudo chmod 600 /etc/mosquitto/passwd
 
 
 # logs
