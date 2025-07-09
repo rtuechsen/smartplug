@@ -151,6 +151,7 @@ export function App(): JSX.Element {
 				clearInterval(intervalRef.current);
 			}
 		};
+
 	}, []);
 
 	const theme = createTheme({
