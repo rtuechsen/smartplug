@@ -31,6 +31,8 @@ cd ..
 
 cd backend
 
+source django-env/bin/activate
+
 printf "\n\n\x1B[33mStarting migration.\x1B[0m\n\n\n"
 
 sudo -E env PATH="$PATH" python manage.py clearsessions
