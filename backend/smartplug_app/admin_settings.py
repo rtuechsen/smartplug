@@ -20,7 +20,7 @@ USE_LDAP: bool = True
 
 ## The address of the server running active directory.\ It should start with
 ## 'ldap://' and end with ':389' (the port for LDAP).
-LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.133.42:389"
+LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.58.42:389"
 
 ## The time in seconds after which a request to the Active Directory server is
 ## considered a timeout.
