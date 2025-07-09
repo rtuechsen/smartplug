@@ -6,9 +6,9 @@ Set the username of your Ubunutu device to `default` and set a password for this
 
 Install git using `sudo apt -y install git`.  
 
-Clone this repo using: `git clone https://gitlab.com/proi3/smartplug-dirigent.git`  
+Clone this repo using: `git clone https://gitlab.com/proi3/smartplug-dirigent.git /opt`  
 
-Enter project folder with `cd smartplug-dirigent`.  
+Enter project folder with `cd /opt/smartplug-dirigent`.  
 Run `bash install.sh` to install the project.  
 VSCode should find the python virtual environment automatically ONCE you have opened a python file. For existing terminals VSCode will ask you to reload them. In terminals outside of vscode use `source backend/django-env/bin/activate` to activate the virtual environment for python before running other scripts. If a script fails with `no module found named django` the cause is often that the virtual environment was not activated. If the error still shows up after activating the virtual environment try running `bash update_dependencies.sh`.  
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
@@ -35,7 +35,7 @@ You can verify the syntax of `nginx.conf` by calling `sudo nginx -t` __AFTER__ d
 
 ## Backend
 
-After adding dependencies to the backend via pip, one has to manually add them to `/backend/requirements.txt` to include them in future installations. The dependency should allow patches (`>=`) but not switch to higher feature versions (`,<`).  
+After adding dependencies to the backend via pip, one has to manually add them to `backend/requirements.txt` to include them in future installations. The dependency should allow patches (`>=`) but not switch to higher feature versions (`,<`).  
 Requires the extension `Black Formatter` for formatting in VSCode.  
 
 

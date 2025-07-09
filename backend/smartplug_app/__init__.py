@@ -31,7 +31,7 @@
 ## ### Files and places
 ##
 ## The projects files used for development are located in a folder
-## `smartplug-dirigent` in the ubuntu systems user folder. This folder is
+## `smartplug-dirigent` in `/opt`. This folder is
 ## managed via git for development.
 ## Inside this folder there are two main folders, one for the backend and one
 ## for the frontend. Additionally a `.vscode` folder is present to unify vscode

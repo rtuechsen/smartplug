@@ -80,3 +80,4 @@ sudo openssl req -new -x509 \
 
 sudo apt -y install doxygen
 
+bash change_permissions.sh
