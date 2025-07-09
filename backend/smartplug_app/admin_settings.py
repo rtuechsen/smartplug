@@ -16,7 +16,7 @@ INRUSH_CURRENT_DELAY_SECONDS: float = 0.5
 ## / LDAP to verify a users identity.\ If disabled any pair of username and
 ## password matching the pattern configured in openapi.\yaml is accepted, the
 ## display name of the user in this case is always 'Max Mustermann'.
-USE_LDAP: bool = False
+USE_LDAP: bool = True
 
 ## The address of the server running active directory.\ It should start with
 ## 'ldap://' and end with ':389' (the port for LDAP).
@@ -29,7 +29,7 @@ LDAP_TIMEOUT_SECONDS: int = 5
 ## Variable used for Development: allows to disable sending MQTT messages.\
 ## When making switch requests these will be treated as successful and return a
 ## matching response from the MQTTClient.
-USE_MQTT: bool = False
+USE_MQTT: bool = True
 
 ## The secret key used for development builds. Used by Django as a seed for
 ## cryptographic functions.
