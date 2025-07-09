@@ -151,19 +151,6 @@ export function App(): JSX.Element {
 				clearInterval(intervalRef.current);
 			}
 		};
-
-		// TODO: remove, code for security checks
-		// This is a test to see if API requests before authentication work
-		// fetch('/api/gettree/', {
-		// 	method: 'GET',
-		// 	credentials: 'include',
-		// 	mode: 'same-origin',
-		// });
-
-		// This is a test to see if API requests before authentication work
-		// new EventSource('/api/events/', {
-		// 	withCredentials: true
-		// });
 	}, []);
 
 	const theme = createTheme({
@@ -186,44 +173,44 @@ export function App(): JSX.Element {
 			</Paper>
 			<Box sx={{ padding: "1.5rem" }}>
 				{remainingSessionTimeSeconds ===
-				undefined ? undefined : remainingSessionTimeSeconds > 0 ? (
-					<Stack
-						direction="row"
-						justifyContent="space-between"
-						spacing={"1rem"}
-					>
-						<DeviceTreeView displayError={displayError} />
-
+					undefined ? undefined : remainingSessionTimeSeconds > 0 ? (
 						<Stack
-							direction="column"
-							justifyContent="top"
-							spacing={"2rem"}
+							direction="row"
+							justifyContent="space-between"
+							spacing={"1rem"}
 						>
-							<Stack
-								direction="row"
-								sx={{ alignSelf: "end", mr: "2rem" }}
-							>
-								<CountdownTimer
-									initialTimeSeconds={
-										remainingSessionTimeSecondsRef.current
-											? remainingSessionTimeSecondsRef.current
-											: 0
-									}
-									sx={{ mr: "1rem" }}
-								/>
-								<LoadingButton
-									onClick={logout}
-									variant="contained"
-									sx={{ minWidth: "fit-content" }}
-								>
-									sign out
-								</LoadingButton>
-							</Stack>
+							<DeviceTreeView displayError={displayError} />
 
-							<UserList displayError={displayError} />
+							<Stack
+								direction="column"
+								justifyContent="top"
+								spacing={"2rem"}
+							>
+								<Stack
+									direction="row"
+									sx={{ alignSelf: "end", mr: "2rem" }}
+								>
+									<CountdownTimer
+										initialTimeSeconds={
+											remainingSessionTimeSecondsRef.current
+												? remainingSessionTimeSecondsRef.current
+												: 0
+										}
+										sx={{ mr: "1rem" }}
+									/>
+									<LoadingButton
+										onClick={logout}
+										variant="contained"
+										sx={{ minWidth: "fit-content" }}
+									>
+										sign out
+									</LoadingButton>
+								</Stack>
+
+								<UserList displayError={displayError} />
+							</Stack>
 						</Stack>
-					</Stack>
-				) : (
+					) : (
 					<Login
 						onLoginSuccess={onLoginSuccess}
 						displayError={displayError}

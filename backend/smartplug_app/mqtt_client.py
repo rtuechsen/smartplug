@@ -26,9 +26,6 @@ class MQTTClient:
         the main application.
         """
 
-        # TODO: add docstrings for class members (see other files), use \ when
-        # using multiple sentences
-
         self._logger: Logger = Logger()
 
         self._broker_ip: str = "localhost"
@@ -37,14 +34,15 @@ class MQTTClient:
         self._sub_topic: str = "/rpc"
         self._client: mqtt.Client = mqtt.Client()
 
-        # TLS --------------------------------------
-        with open("../mosquitto_passwd.json") as f:
+        # After every Install you must update the mosquitto_passwd.json
+        with open("/etc/mosquitto/mosquitto_passwd.json") as f:
             config = json.load(f)
             self._username = config["mqtt_username"]
             self._password = config["mqtt_password"]
 
+        # TLS --------------------------------------
         # TODO: generate / add certificates when installing / starting
-        # or add them to git and copy them when installing / starting ???
+        # or add them to git and copy them when installing / starting
 
         # self._client.tls_set(
         #     ca_certs="/var/lib/mosquitto/ssl/server.crt",
@@ -53,9 +51,8 @@ class MQTTClient:
         # )
 
         # self._client.tls_insecure_set(True)
-        self._client.username_pw_set(self._username, self._password)
-
         # -------------------------------------------
+        self._client.username_pw_set(self._username, self._password)
 
         self._connect()
         self._on_update_callback: Callable[[str, str, bool], None] = (
@@ -139,7 +136,7 @@ class MQTTClient:
                     output = rpc_response.get("output")
 
                     # Notify the application about the switch status
-                    self._on_update_callback(deviceId, "isOn", rpcSwitchOutput)
+                    self._on_update_callback(deviceId, "isOn", output)
 
             except json.JSONDecodeError as e:
                 self._logger.error(
