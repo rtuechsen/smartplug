@@ -57,4 +57,4 @@ FRONTEND_ORIGINS: list[str] = [
 
 ## A list of strings representing the host/domain names that this Django site
 ## can serve.\ This is a security measure to prevent HTTP Host header attacks.
-ALLOWED_HOSTS_LIST: list[str] = ["localhost", "127.0.0.1", "192.168.58.255"]
+ALLOWED_HOSTS_LIST: list[str] = ["localhost", "127.0.0.1", "192.168.58.41"]
