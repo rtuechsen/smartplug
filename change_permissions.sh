@@ -6,8 +6,8 @@
 # sudo chown root:root /etc/nginx/nginx.conf
 # sudo chmod 640 /etc/nginx/nginx.conf
 
-sudo chown root:root /etc/nginx/nginx.conf
-sudo chmod 644 /etc/nginx/nginx.conf
+sudo chown -R root:root /etc/nginx/
+sudo chmod -R 644 /etc/nginx/
 
 sudo chown -R root:root /etc/nginx/ssl/
 sudo chmod -R 640 /etc/nginx/ssl/
@@ -16,8 +16,8 @@ sudo chmod -R 640 /etc/nginx/ssl/
 
 # service
 
-sudo chown root:root /etc/systemd/system/gunicorn.service
-sudo chmod 644 /etc/systemd/system/gunicorn.service
+sudo chown root:root /etc/systemd/system/
+sudo chmod 755 /etc/systemd/system/
 
 
 # mosquitto
@@ -53,8 +53,8 @@ sudo chmod -R 645 /var/log/smartplug_app/
 sudo chown -R root:root /var/www/html/
 sudo chmod -R 755 /var/www/html/
 
-sudo chown root:root /etc/logrotate.d/smartplug_app
-sudo chmod 644 /etc/logrotate.d/smartplug_app
+sudo chown root:root /etc/logrotate.d/
+sudo chmod 755 /etc/logrotate.d/
 
 sudo chown -R root:www-data /opt/smartplug-dirigent/
 sudo chmod -R 775 /opt/smartplug-dirigent/
