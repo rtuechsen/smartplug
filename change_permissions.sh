@@ -57,7 +57,7 @@ sudo chown root:root /etc/logrotate.d/smartplug_app
 sudo chmod 644 /etc/logrotate.d/smartplug_app
 
 sudo chown -R root:root /opt/smartplug-dirigent/
-sudo chmod -R 755 /opt/smartplug-dirigent/
+sudo chmod -R 775 /opt/smartplug-dirigent/
 
 
 
