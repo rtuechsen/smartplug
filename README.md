@@ -9,7 +9,7 @@ Install git using `sudo apt -y install git`.
 Clone this repo using: `sudo git clone https://gitlab.com/proi3/smartplug-dirigent.git /opt/smartplug-dirigent`  
 
 Enter project folder with `cd /opt/smartplug-dirigent`.  
-Run `bash install.sh` to install the project.  
+Run `sudo bash install.sh` to install the project.  
 VSCode should find the python virtual environment automatically ONCE you have opened a python file. For existing terminals VSCode will ask you to reload them. In terminals outside of vscode use `source backend/django-env/bin/activate` to activate the virtual environment for python before running other scripts. If a script fails with `no module found named django` the cause is often that the virtual environment was not activated. If the error still shows up after activating the virtual environment try running `bash update_dependencies.sh`.  
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
 When using breakpoints in VSCode for the __frontend__, instead of simply opening the browser, go to the debug tab in VSCode (on the left) and launch `Frontend Debug (Chrome)`.  

@@ -20,7 +20,7 @@ sudo apt -y install nginx
 cd backend
 
 sudo apt -y install python3-venv
-sudo python3 -m venv django-env
+python3 -m venv django-env
 source django-env/bin/activate
 
 sudo apt -y install python3-pip
