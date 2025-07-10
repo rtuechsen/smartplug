@@ -266,10 +266,19 @@ class SmartplugApp(AppConfig):
                 # the device refer to this device.
                 SmartplugApp.switch(self, listener_device.ids[0], False)
 
-    def filer_devices_switched_recently(
+    def _filer_devices_switched_recently(
         self, device_list: list[TreeItemDevice]
     ) -> list[TreeItemDevice]:
-        """TODO: Handle the individual switching delay of the device."""
+        """Function that filters devices from a list if switching them would
+        violate their individual switching delay.
+
+        Takes into account the inrush current delay, assuming the devices will
+        be switched in the order of the list.
+
+        @param: device_list The list of devices to filter.
+
+        @return The list of filtered devices.
+        """
 
         device_list_filtered: list[TreeItemDevice] = []
 
@@ -313,18 +322,17 @@ class SmartplugApp(AppConfig):
                 "Specified id does not exist.",
             )
 
-        devices_to_switch: list[TreeItemDevice] = (
-            self._choose_devices_to_switch(tree_item, desired_isOn)
-        )
-
         # We keep track if requests are dropped in order to comply with the
         # switching delay of that device.
         were_requests_dropped: bool = False
+        devices_to_switch: list[TreeItemDevice] = []
+
+        devices_to_switch, were_requests_dropped = (
+            self._choose_devices_to_switch(tree_item, desired_isOn)
+        )
 
         for device in devices_to_switch:
-
-            if self._try_switching_device(device, desired_isOn) is True:
-                were_requests_dropped = True
+            self._try_switching_device(device, desired_isOn)
 
         if were_requests_dropped:
             raise BackendError(
@@ -339,29 +347,23 @@ class SmartplugApp(AppConfig):
 
     def _try_switching_device(
         self, device: TreeItemDevice, desired_isOn: bool
-    ) -> bool:
+    ) -> None:
         """Function to request a device to switch. Ensures switching delays are
         respected.
 
         To comply with the inrush current delay the switching of the device is
         delayed.
-        To comply with the individual switching delay of the device the device
-        the switch request for this device will be discarded if the device
-        would switch too early.
 
         @param device The device to switch.
 
         @param desired_isOn A boolean indicating if the item should be turned
         ON (True) or OFF (False).
-
-        @return A boolean indicating if the request was dropped for this device
-        (True) or not (False).
         """
 
         # used for debugging only
         if USE_SWITCHING_DELAYS is False:
             SmartplugApp._mqtt_client.switch(device.deviceId, desired_isOn)
-            return False
+            return
 
         with SmartplugApp._device_tree_mutex:
 
@@ -396,25 +398,27 @@ class SmartplugApp(AppConfig):
 
         SmartplugApp._mqtt_client.switch(device.deviceId, desired_isOn)
 
-        return False
-
     def _choose_devices_to_switch(
         self, tree_item: TreeItem, desired_isOn: bool
-    ) -> list[TreeItemDevice]:
+    ) -> tuple[list[TreeItemDevice], bool]:
         """Function to choose devices to switch given a certain tree item and a
         desired state.
 
         If the tree item is a group this will colect all devices in that group.
         If switching a device would violate the device dependencies that device
         is skipped.
+        To comply with the individual switching delay of the devices a switch
+        request for a device will be discarded if the device would switch too
+        early.
 
         @param tree_item The tree item to switch. May be a group or a device.
 
         @param desired_isOn A boolean indicating if the item should be turned
         ON (True) or OFF (False).
 
-        @return The list of devices that should switch and are allowed to do
-        so.
+        @return A tuple containing the list of devices that should switch and
+        are allowed to do so and a boolean indicating if a request for a device
+        was dropped (True) or not (False) because it was switched recently.
         """
 
         def get_devices(tree_item: TreeItem):
@@ -436,9 +440,17 @@ class SmartplugApp(AppConfig):
             if device.get_isOn() is not desired_isOn
         ]
 
-        devices_to_switch = self.filer_devices_switched_recently(
+        # The user will get a notification in the GUI informing about devices
+        # not being switched because they were switched recently
+        were_requests_dropped: bool = False
+        number_of_devices_requested_to_switch: int = len(devices_to_switch)
+
+        devices_to_switch = self._filer_devices_switched_recently(
             devices_to_switch
         )
+
+        if len(devices_to_switch) < number_of_devices_requested_to_switch:
+            were_requests_dropped = True
 
         if desired_isOn is True:
             devices_to_switch: list[TreeItemDevice] = (
@@ -447,4 +459,4 @@ class SmartplugApp(AppConfig):
                 )
             )
 
-        return devices_to_switch
+        return devices_to_switch, were_requests_dropped
