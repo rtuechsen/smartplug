@@ -183,22 +183,17 @@ class Logger:
         log.time = now.strftime("%H:%M:%S.%f")
 
         try:
+            if Logger._log_queue.qsize() >= Logger.QUEUE_MAX_SIZE * 0.9:
+                log.message = (
+                    f"ERROR: The logging queue has nearly reached its maximum"
+                    f"size of {Logger.QUEUE_MAX_SIZE}, incomming logs cannot"
+                    f"be logged and will be discarded."
+                )
+
             Logger._log_queue.put(log)
+
         except Full:
-            print("BAD QUEUE ERROR !!!")
-
-        # try:
-        #     if Logger._log_queue.qsize() >= Logger.QUEUE_MAX_SIZE * 0.9:
-        #         log.message = (
-        #             f"ERROR: The logging queue has nearly reached its maximum"
-        #             f"size of {Logger.QUEUE_MAX_SIZE}, incomming logs cannot"
-        #             f"be logged and will be discarded."
-        #         )
-
-        #     Logger._log_queue.put(log)
-
-        # except Full:
-        #     pass
+            pass
 
     def _write_queue_to_file(self) -> None:
         """Function for the worker thread to write logs to file.
@@ -206,8 +201,6 @@ class Logger:
         Takes incoming logs from the log_queue and writes them to the
         log file.
         """
-
-        return
 
         try:
             with open(
