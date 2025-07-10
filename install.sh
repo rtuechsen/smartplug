@@ -29,8 +29,8 @@ python -m pip install -r ./requirements.txt
 
 ## logrotate
 
-sudo cp -p ./smartplug_app /etc/logrotate.d/smartplug_app
-sudo touch 
+sudo mkdir /etc/logrotate.d/smartplug_app
+sudo cp ./smartplug_app /etc/logrotate.d/smartplug_app
 
 ## LDAP
 
