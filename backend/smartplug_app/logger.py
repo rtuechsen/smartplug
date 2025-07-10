@@ -190,7 +190,7 @@ class Logger:
                     f"be logged and will be discarded."
                 )
 
-            Logger._log_queue.put(log)
+            Logger._log_queue.put(log, block=False)
 
         except Full:
             pass
