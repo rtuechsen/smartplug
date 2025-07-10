@@ -37,14 +37,16 @@ sudo chmod -R 645 /etc/mosquitto
 
 # logs
 
+# 655
+
 sudo chown -R root:root /var/log/nginx/
-sudo chmod -R 665 /var/log/nginx/
+sudo chmod -R 777 /var/log/nginx/
 
 sudo chown -R root:root /var/log/mosquitto/
-sudo chmod -R 665 /var/log/mosquitto/
+sudo chmod -R 777 /var/log/mosquitto/
 
 sudo chown -R root:root /var/log/smartplug_app/
-sudo chmod -R 665 /var/log/smartplug_app/
+sudo chmod -R 777 /var/log/smartplug_app/
 
 
 
