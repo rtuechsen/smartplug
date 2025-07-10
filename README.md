@@ -17,7 +17,7 @@ When using breakpoints in VSCode for the __backend__, instead of running `develo
 For Debugging React Components in a browser the [React Developer Tools](https://react.dev/learn/react-developer-tools) might be helpful.  
 Run `sudo bash deploy_production.sh` to deploy using nginx. Currently one has to open [](https://localhost:80).  
 The scripts for starting the server in development or production mode can be stopped using `Ctrl+C`. If clients are still connected (i.e. SSE is connected), aborting might not happen immediately.  
-In production the webserver is run as systemctl under the name `gunicorn`. If any conflicts occur during debugging, you can check the status using `sudo systemctl status gunicorn` and stop the service using `sudo systemctl stop gunicorn`.
+In production the webserver is run as systemctl under the name `gunicorn`. If any conflicts occur during debugging, you can check the status using `sudo systemctl status gunicorn --no-pager --full` and stop the service using `sudo systemctl stop gunicorn`.
 
 
 ## WSL
