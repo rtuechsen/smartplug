@@ -266,6 +266,33 @@ class SmartplugApp(AppConfig):
                 # the device refer to this device.
                 SmartplugApp.switch(self, listener_device.ids[0], False)
 
+    def filer_devices_switched_recently(
+        self, device_list: list[TreeItemDevice]
+    ) -> list[TreeItemDevice]:
+        """TODO: Handle the individual switching delay of the device."""
+
+        device_list_filtered: list[TreeItemDevice] = []
+
+        inrush_current_delay_timedelta: timedelta = timedelta(
+            seconds=INRUSH_CURRENT_DELAY_SECONDS
+        )
+        switching_time: datetime = datetime.now()
+
+        for device in device_list:
+
+            time_passed_since_last_switch_of_current_item: timedelta = (
+                switching_time - device.time_last_switched
+            )
+
+            if time_passed_since_last_switch_of_current_item >= timedelta(
+                seconds=SWITCHING_TOGGLE_DELAY_SECONDS
+            ):
+                device_list_filtered.append(device)
+
+            switching_time += inrush_current_delay_timedelta
+
+        return device_list_filtered
+
     def switch(self, id: str, desired_isOn: bool) -> None:
         """Function to answer a clients call to /switch, it turns devices and
         groups ON/OFF according to the request.
@@ -343,7 +370,7 @@ class SmartplugApp(AppConfig):
                 # needed.
                 return
 
-            now = datetime.now()
+            now: datetime = datetime.now()
 
             # Handle the inrush current delay (only needed if switching ON).
             if desired_isOn:
@@ -364,17 +391,6 @@ class SmartplugApp(AppConfig):
                         )
 
                     SmartplugApp._last_switch_on_date_time = datetime.now()
-
-            # Handle the individual switching delay of the device.
-            now = datetime.now()
-            time_passed_since_last_switch_of_current_item: timedelta = (
-                now - device.time_last_switched
-            )
-
-            if time_passed_since_last_switch_of_current_item < timedelta(
-                seconds=SWITCHING_TOGGLE_DELAY_SECONDS
-            ):
-                return True
 
             device.time_last_switched = now
 
@@ -419,6 +435,10 @@ class SmartplugApp(AppConfig):
             for device in all_devices
             if device.get_isOn() is not desired_isOn
         ]
+
+        devices_to_switch = self.filer_devices_switched_recently(
+            devices_to_switch
+        )
 
         if desired_isOn is True:
             devices_to_switch: list[TreeItemDevice] = (
