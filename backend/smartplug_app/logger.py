@@ -1,6 +1,6 @@
 """Contains classes for logging events and errors."""
 
-from queue import Queue
+from queue import Queue, Full
 import threading
 import datetime
 from pathlib import Path
@@ -31,6 +31,8 @@ class Logger:
     Because the class is a singleton its attributes are all class
     attributes.
 
+    TODO: add comment about 90% full -> discard
+
     Log files are stored in '/var/log/smartplug_app/' with a file per
     day. The linux tool 'logroate' is used in this project to switch the
     log file and remove old log files regularly.
@@ -39,9 +41,12 @@ class Logger:
     ## The (only) instance of this class.
     _instance: "Logger" = None
 
+    ## The maximal size of the queue.
+    QUEUE_MAX_SIZE: int = 100
+
     ## A thread safe queue that stores the logs.\ The size of the queue is set
     ## arbitrarily to 100.
-    _log_queue: Queue = Queue(maxsize=100)
+    _log_queue: Queue = Queue(maxsize=QUEUE_MAX_SIZE)
 
     ## The output folder of log files. Set fixed to
     ## '/var/log/smartplug_app/'.
@@ -179,12 +184,27 @@ class Logger:
 
         Logger._log_queue.put(log)
 
+        # try:
+        #     if Logger._log_queue.qsize() >= Logger.QUEUE_MAX_SIZE * 0.9:
+        #         log.message = (
+        #             f"ERROR: The logging queue has nearly reached its maximum"
+        #             f"size of {Logger.QUEUE_MAX_SIZE}, incomming logs cannot"
+        #             f"be logged and will be discarded."
+        #         )
+
+        #     Logger._log_queue.put(log)
+
+        # except Full:
+        #     pass
+
     def _write_queue_to_file(self) -> None:
         """Function for the worker thread to write logs to file.
 
         Takes incoming logs from the log_queue and writes them to the
         log file.
         """
+
+        return
 
         try:
             with open(
