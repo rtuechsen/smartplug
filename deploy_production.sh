@@ -22,11 +22,10 @@ sudo systemctl enable gunicorn
 
 cd frontend
 
-# TODO: enable building frontend again, was dsiabled to speed up deployment
-# npm run build
+npm run build
 
-# sudo rm -r /var/www/html/*
-# sudo cp -r -p ./dist/* /var/www/html/
+sudo rm -r /var/www/html/*
+sudo cp -r -p ./dist/* /var/www/html/
 
 cd ..
 
@@ -43,6 +42,8 @@ sudo -E env PATH="$PATH" python manage.py clearsessions
 sudo -E env PATH="$PATH" python manage.py makemigrations
 
 sudo -E env PATH="$PATH" python manage.py migrate
+
+sudo -E env PATH="$PATH" python manage.py clear_all_sessions
 
 printf "\n\n\x1B[33mMigration finished.\x1B[0m\n\n\n"
 

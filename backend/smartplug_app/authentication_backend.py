@@ -67,11 +67,13 @@ class AuthenticationBackend(BaseBackend):
 
         # We store some data about the user in the session. This is later used
         # to detect cookie theft.
-        request.session["HTTP_USER_AGENT"] = request.META["HTTP_USER_AGENT"]
-        request.session["HTTP_ACCEPT_LANGUAGE"] = request.META[
-            "HTTP_ACCEPT_LANGUAGE"
-        ]
-        request.session["REMOTE_ADDR"] = request.META["REMOTE_ADDR"]
+        request.session["HTTP_USER_AGENT"] = request.META.get(
+            "HTTP_USER_AGENT", None
+        )
+        request.session["HTTP_ACCEPT_LANGUAGE"] = request.META.get(
+            "HTTP_ACCEPT_LANGUAGE", None
+        )
+        request.session["REMOTE_ADDR"] = request.META.get("REMOTE_ADDR", None)
 
         return user
 
