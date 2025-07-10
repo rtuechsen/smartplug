@@ -52,6 +52,10 @@ class MQTTClient:
                 f"Error while reading the file mosquitto_passwd.json at "
                 f"{path_to_username_password}."
             ) from e
+        except json.JSONDecodeError as e:
+            raise BackendError(
+                f"Error while parsing mosquitto_passwd.json:{e}."
+            ) from e
 
         # TLS --------------------------------------
         # TODO: generate / add certificates when installing / starting
