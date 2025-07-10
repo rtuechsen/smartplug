@@ -45,7 +45,7 @@ class AuthenticationBackend(BaseBackend):
             raise BackendError(
                 message=f"User tried to start a second session: {username}.",
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                user_message="A session is already active, you can only have"
+                user_message="A session is already active, you can only have "
                 "one session at a time.",
             )
 
