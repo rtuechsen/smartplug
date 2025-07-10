@@ -22,6 +22,9 @@ sudo chmod -R 645 /etc/mosquitto
 sudo chown root:www-data /etc/mosquitto/mosquitto_passwd.json
 sudo chmod 660 /etc/mosquitto/mosquitto_passwd.json
 
+sudo chown mosquitto: /etc/mosquitto/passwd
+sudo chmod 600 /etc/mosquitto/passwd
+
 # logs
 
 sudo chown -R root:root /var/log/nginx/
