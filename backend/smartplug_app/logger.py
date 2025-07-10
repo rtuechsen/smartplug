@@ -182,7 +182,10 @@ class Logger:
         log.date = now.strftime("%Y-%m-%d")
         log.time = now.strftime("%H:%M:%S.%f")
 
-        Logger._log_queue.put(log)
+        try:
+            Logger._log_queue.put(log)
+        except Full:
+            print("BAD QUEUE ERROR !!!")
 
         # try:
         #     if Logger._log_queue.qsize() >= Logger.QUEUE_MAX_SIZE * 0.9:
