@@ -9,19 +9,18 @@ sudo chmod -R 645 /etc/nginx/
 sudo chown -R root:root /etc/nginx/ssl/
 sudo chmod -R 640 /etc/nginx/ssl/
 
-
-
 # service
 
 sudo chown root:root /etc/systemd/system/
 sudo chmod 755 /etc/systemd/system/
-
 
 # mosquitto
 
 sudo chown -R root:root /etc/mosquitto
 sudo chmod -R 645 /etc/mosquitto
 
+sudo chown root:www-data /etc/mosquitto/mosquitto_passwd.json
+sudo chmod 660 /etc/mosquitto/mosquitto_passwd.json
 
 # logs
 
@@ -33,8 +32,6 @@ sudo chmod -R 755 /var/log/mosquitto/
 
 sudo chown -R www-data:www-data /var/log/smartplug_app/
 sudo chmod -R 755 /var/log/smartplug_app/
-
-
 
 # static web files
 

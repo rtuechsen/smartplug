@@ -146,3 +146,11 @@ CORS_ALLOWED_ORIGINS = FRONTEND_ORIGINS
 # A list of strings representing the host/domain names that this Django site
 # can serve. This is a security measure to prevent HTTP Host header attacks.
 ALLOWED_HOSTS = ALLOWED_HOSTS_LIST
+
+# Disable rendering for REST endpoint dev page.
+# Source: https://stackoverflow.com/q/42829782
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
