@@ -4,7 +4,7 @@
 # nginx
 
 sudo chown -R root:root /etc/nginx/
-sudo chmod -R 644 /etc/nginx/
+sudo chmod -R 645 /etc/nginx/
 
 sudo chown -R root:root /etc/nginx/ssl/
 sudo chmod -R 640 /etc/nginx/ssl/
