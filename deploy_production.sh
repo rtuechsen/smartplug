@@ -3,6 +3,8 @@ export DJANGO_PIPELINE=production
 
 sudo systemctl stop nginx
 
+sudo bash change_permissions.sh
+
 sudo rm -r /etc/nginx/nginx.conf
 sudo cp ./nginx.conf /etc/nginx/nginx.conf
 
