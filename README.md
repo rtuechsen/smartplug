@@ -10,7 +10,7 @@ Clone this repo using: `sudo git clone https://gitlab.com/proi3/smartplug-dirige
 
 Enter project folder with `cd /opt/smartplug-dirigent`.  
 Run `sudo bash install.sh` to install the project.  
-During the installation script, you will be asked to enter a password. This password must be set on all smart plugs and stored in a JSON file located at /etc/mosquitto/mosquitto_passwd.json. The file must have the following format:
+During the installation script, you will be asked to enter a password. This password must be set on all smart plugs and stored in a JSON file located at `/etc/mosquitto/mosquitto_passwd.json`. The file must have the following format:
 ```
 {
     "mqtt_username": "mqttuser",
