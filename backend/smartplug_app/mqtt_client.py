@@ -34,11 +34,24 @@ class MQTTClient:
         self._sub_topic: str = "/rpc"
         self._client: mqtt.Client = mqtt.Client()
 
-        # After every Install you must update the mosquitto_passwd.json
-        with open("/etc/mosquitto/mosquitto_passwd.json") as f:
-            config = json.load(f)
-            self._username = config["mqtt_username"]
-            self._password = config["mqtt_password"]
+        # After every install you must update the mosquitto_passwd.json
+
+        path_to_username_password: str = "/etc/mosquitto/mosquitto_passwd.json"
+        try:
+            with open(path_to_username_password, "r", encoding="UTF-8") as f:
+                config = json.load(f)
+                self._username = config["mqtt_username"]
+                self._password = config["mqtt_password"]
+        except FileNotFoundError as e:
+            raise BackendError(
+                f"Could not find the file mosquitto_passwd.json at "
+                f"{path_to_username_password}."
+            ) from e
+        except IOError as e:
+            raise BackendError(
+                f"Error while reading the file mosquitto_passwd.json at "
+                f"{path_to_username_password}."
+            ) from e
 
         # TLS --------------------------------------
         # TODO: generate / add certificates when installing / starting
