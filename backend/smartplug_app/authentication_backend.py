@@ -41,9 +41,6 @@ class AuthenticationBackend(BaseBackend):
         session_manager: SessionManager = SessionManager()
         active_user_names: list[str] = session_manager.get_active_usernames()
 
-        print("active_user_names", active_user_names)
-        print("username", username)
-
         if username in active_user_names:
             raise BackendError(
                 message=f"User tried to start a second session: {username}.",
