@@ -99,7 +99,7 @@ class MQTTClient:
     ) -> None:
         """Processes incomming MQTT messages and triggers the update callback.
 
-        Extracts device ID and state information from the topic and payload.
+        Extracts deviceId and state information from the topic and payload.
 
         @param client The instance of mqtt.Client to use.
 
