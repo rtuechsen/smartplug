@@ -123,7 +123,7 @@ class SmartplugApp(AppConfig):
         # The idea is to traverse the dependencies backwards: first the leafs
         # with no own deps, then their listeners and so on.
 
-        print("devices_to_switch", devices_to_switch)
+        SmartplugApp._logger.info(f"devices_to_switch: {devices_to_switch}")
 
         def will_be_on(device: TreeItemDevice) -> bool:
             """This function returns the resolved state of a given device.
@@ -154,9 +154,8 @@ class SmartplugApp(AppConfig):
             # still fail to switch ON if all its dependencies are OFF.
 
             if device.deviceId == "shellyplugsg3-b08184a5b0e0":
-                print(
-                    "device.turn_off_if_all_in_list_are_off",
-                    device.turn_off_if_all_in_list_are_off,
+                SmartplugApp._logger.info(
+                    f"device.turn_off_if_all_in_list_are_off: {device.turn_off_if_all_in_list_are_off}"
                 )
 
             # If the device has no dependencies there is no reason not to
@@ -174,7 +173,7 @@ class SmartplugApp(AppConfig):
             ]
 
             if device.deviceId == "shellyplugsg3-b08184a5b0e0":
-                print("trigger_states", trigger_states)
+                SmartplugApp._logger.info(f"trigger_states: {trigger_states}")
 
             if all(state is False for state in trigger_states):
                 # Do not allow to switch ON if all dependencies are OFF.
