@@ -69,6 +69,7 @@ class MQTTClient:
 
         # self._client.tls_insecure_set(True)
         # -------------------------------------------
+        
         self._client.username_pw_set(self._username, self._password)
 
         self._connect()
@@ -101,7 +102,9 @@ class MQTTClient:
         Extracts device ID and state information from the topic and payload.
 
         @param client The instance of mqtt.Client to use.
+
         @param userdata Additional user data, not used here.
+
         @param msg The received message.
         """
 
@@ -172,7 +175,7 @@ class MQTTClient:
     def _request_status(self, device_id: str) -> None:
         """Sends a Switch.GetStatus RPC request to a specific device.
 
-        This requests the current switch status (on/off) from the device.
+        This requests the current switch status (ON/OFF) from the device.
 
         @param device_id The ID of the target device.
         """
@@ -194,10 +197,10 @@ class MQTTClient:
 
         Publishes a Switch.Set RPC command to the device with the desired state.
 
-
         @param deviceId The ID of the target device.
-        @param desired_isOn Desired state of the switch (True for on, False
-        for off).
+
+        @param desired_isOn Desired state of the switch (True for ON, False
+        for OFF).
         """
         # used for debugging only
         if not USE_MQTT:
