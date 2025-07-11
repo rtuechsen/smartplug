@@ -140,7 +140,8 @@ class SmartplugApp(AppConfig):
             # No further actions needed if the device is alreay ON.
             if device.get_isOn() is True:
                 resolved_states_per_deviceId[device.deviceId] = True
-                SmartplugApp._logger.info("case 1")
+                if device.deviceId == "shellyplugsg3-b08184a4b8e4":
+                    SmartplugApp._logger.info("case 1")
                 return True
 
             # The device is OFF -> the only way it might be ON afterwards is,
@@ -161,7 +162,8 @@ class SmartplugApp(AppConfig):
             # switch ON.
             if len(device.turn_off_if_all_in_list_are_off) == 0:
                 resolved_states_per_deviceId[device.deviceId] = True
-                SmartplugApp._logger.info("case 2")
+                if device.deviceId == "shellyplugsg3-b08184a4b8e4":
+                    SmartplugApp._logger.info("case 2")
                 return True
 
             # At this point we need to recursively check all the device's
@@ -181,7 +183,8 @@ class SmartplugApp(AppConfig):
                 return False
 
             resolved_states_per_deviceId[device.deviceId] = True
-            SmartplugApp._logger.info("case 3")
+            if device.deviceId == "shellyplugsg3-b08184a4b8e4":
+                SmartplugApp._logger.info("case 3")
             return True
 
         devices_allowed_to_switch_on = []
