@@ -27,11 +27,6 @@ sudo apt -y install python3-pip
 
 python -m pip install -r ./requirements.txt
 
-## logrotate
-
-sudo mkdir /etc/logrotate.d/smartplug_app
-sudo cp ./smartplug_app /etc/logrotate.d/smartplug_app
-
 ## LDAP
 
 sudo apt install -y libsasl2-dev python3-dev libldap2-dev libssl-dev ldap-utils
@@ -83,3 +78,8 @@ sudo openssl req -new -x509 \
 sudo apt -y install doxygen
 
 sudo bash change_permissions.sh
+
+## logrotate
+
+sudo mkdir /etc/logrotate.d/smartplug_app
+sudo cp ./smartplug_app /etc/logrotate.d/smartplug_app
