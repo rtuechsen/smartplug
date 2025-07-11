@@ -36,13 +36,11 @@ source django-env/bin/activate
 
 printf "\n\n\x1B[33mStarting migration.\x1B[0m\n\n\n"
 
-sudo -E env PATH="$PATH" python manage.py clearsessions
+sudo -E env PATH="$PATH" python manage.py clear_all_sessions
 
 sudo -E env PATH="$PATH" python manage.py makemigrations
 
 sudo -E env PATH="$PATH" python manage.py migrate
-
-sudo -E env PATH="$PATH" python manage.py clear_all_sessions
 
 printf "\n\n\x1B[33mMigration finished.\x1B[0m\n\n\n"
 
