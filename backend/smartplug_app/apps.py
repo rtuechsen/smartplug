@@ -140,8 +140,6 @@ class SmartplugApp(AppConfig):
             # No further actions needed if the device is alreay ON.
             if device.get_isOn() is True:
                 resolved_states_per_deviceId[device.deviceId] = True
-                if device.deviceId == "shellyplugsg3-b08184a4b8e4":
-                    SmartplugApp._logger.info("case 1")
                 return True
 
             # If a device cannot be reached we will not be able to turn it ON.
@@ -157,17 +155,10 @@ class SmartplugApp(AppConfig):
             # The device is OFF, but is scheduled to be switched ON -> can
             # still fail to switch ON if all its dependencies are OFF.
 
-            if device.deviceId == "shellyplugsg3-b08184a4b8e4":
-                SmartplugApp._logger.info(
-                    f"device.turn_off_if_all_in_list_are_off: {[d.deviceId for d in device.turn_off_if_all_in_list_are_off]}"
-                )
-
             # If the device has no dependencies there is no reason not to
             # switch ON.
             if len(device.turn_off_if_all_in_list_are_off) == 0:
                 resolved_states_per_deviceId[device.deviceId] = True
-                if device.deviceId == "shellyplugsg3-b08184a4b8e4":
-                    SmartplugApp._logger.info("case 2")
                 return True
 
             # At this point we need to recursively check all the device's
@@ -178,17 +169,12 @@ class SmartplugApp(AppConfig):
                 for trigger_device in device.turn_off_if_all_in_list_are_off
             ]
 
-            if device.deviceId == "shellyplugsg3-b08184a4b8e4":
-                SmartplugApp._logger.info(f"trigger_states: {trigger_states}")
-
             if all(state is False for state in trigger_states):
                 # Do not allow to switch ON if all dependencies are OFF.
                 resolved_states_per_deviceId[device.deviceId] = False
                 return False
 
             resolved_states_per_deviceId[device.deviceId] = True
-            if device.deviceId == "shellyplugsg3-b08184a4b8e4":
-                SmartplugApp._logger.info("case 3")
             return True
 
         devices_allowed_to_switch_on = []
