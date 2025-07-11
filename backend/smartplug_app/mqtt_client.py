@@ -124,6 +124,9 @@ class MQTTClient:
             if state:
                 # If device is online, request its current status
                 self._request_status(deviceId)
+            else:
+                # If device is offline, assume switch is off
+                self._on_update_callback(deviceId, "isOn", False)
 
         # Handle messages when topic ends with "/status/switch:0" indicating
         # switch status update.
