@@ -95,7 +95,7 @@
 ##
 ## ### Files and places
 ##
-## The backend folder contains the the folder smartplug_app, which holds most
+## The backend folder contains the the folder `smartplug_app`, which holds most
 ## of the source code. It also contains a `Doxyfile` used as configuration for
 ## the doxygen generator, a `manage.py` required by Django and
 ## `requirements.txt` which holds the python dependencies for the backend used
@@ -111,6 +111,10 @@
 ## uses the database in connection with Djangos build-in user management.
 ## The file `admin_settings.py` is intended for settings an admin might want to
 ## tweak without touching the overall implementation.
+## Also inside the folder `smartplug_app` is a folder `management` and inside
+## it a folder `commands`. Here commands can be implemented which can be run
+## using `manage.py`. Currently only a command to delete all user sessions
+## exits here.
 ##
 ## When running the script `deploy_production.sh` various files of this project
 ## are copied to the required places, e.g. to folders known to nginx or to
