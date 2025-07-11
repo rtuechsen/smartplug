@@ -79,9 +79,7 @@ class MQTTClient:
         self._client.loop_start()
 
     def _connect(self) -> None:
-        """Connects to the MQTT broker and subscribes to all topics.
-        Raises BackendError if connection fails.
-        """
+        """Connects to the MQTT broker and subscribes to all topics."""
 
         def on_connect(client: mqtt.Client, userdata, flags, rc: int):
             if rc == 0:
@@ -105,9 +103,6 @@ class MQTTClient:
         @param client The instance of mqtt.Client to use.
         @param userdata Additional user data, not used here.
         @param msg The received message.
-
-        @raises BackendError if the payload contains invalid JSON or other
-        errors occur.
         """
 
         topic = msg.topic
