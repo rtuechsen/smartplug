@@ -6,7 +6,7 @@
 		},
 		{
 			"label": "PC 1 (real)",
-			"deviceId": "shellyplugsg3-b08184a5b0e0"
+			"deviceId": "shellyplugsg3-b08184a48764"
 		},
 		{
 			"label": "PC 2 (real)",
@@ -14,7 +14,7 @@
 		},
 		{
 			"label": "Monitor 1 (real)",
-			"deviceId": "shellyplugsg3-b08184a48764",
+			"deviceId": "shellyplugsg3-b08184a5b0e0",
 			"turn_off_if_all_in_list_are_off": [
 				"shellyplugsg3-b08184a4b8e4"
 			]
@@ -149,7 +149,7 @@
 						"deviceId": "shellyplugsg3-b08184a654b8"
 					},
 					{
-						"deviceId": "shellyplugsg3-b08184a5b0e0"
+						"deviceId": "shellyplugsg3-b08184a48764"
 					},
 					{
 						"label": "Anlage 1",
@@ -164,7 +164,7 @@
 												"deviceId": "shellyplugsg3-b08184a4b8e4"
 											},
 											{
-												"deviceId": "shellyplugsg3-b08184a48764"
+												"deviceId": "shellyplugsg3-b08184a5b0e0"
 											},
 											{
 												"deviceId": "shellyplugsg3-8cbfea90f128"
@@ -356,7 +356,7 @@
 				"label": "Monitore",
 				"children": [
 					{
-						"deviceId": "shellyplugsg3-b08184a48764"
+						"deviceId": "shellyplugsg3-b08184a5b0e0"
 					},
 					{
 						"deviceId": "shellyplugsg3-8cbfea90f128"

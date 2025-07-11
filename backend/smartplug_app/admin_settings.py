@@ -41,7 +41,7 @@ SECRET_KEY_PRODUCTION: str = "G5pT23&5hDpS6ArMK2*ohC4B9&B!Ts$R"
 
 ## The time in seconds after which a user is signed out if no activity was
 ## registered.
-SESSION_TIMEOUT_SECONDS: int = 120
+SESSION_TIMEOUT_SECONDS: int = 1200
 
 ## The list of addresses (including protocoll and port) the frontend can have.\
 ## Using http here is okay, since http requests will be forwarded to https by
