@@ -134,8 +134,6 @@ class SmartplugApp(AppConfig):
             executing the switch.
             """
 
-            if device.deviceId == "shellyplugsg3-b08184a5b0e0":
-
             # Check if the device has already been checked, return that value
             # in that case.
             if device.deviceId in resolved_states_per_deviceId:
@@ -155,7 +153,11 @@ class SmartplugApp(AppConfig):
             # The device is OFF, but is scheduled to be switched ON -> can
             # still fail to switch ON if all its dependencies are OFF.
 
-            print("device.turn_off_if_all_in_list_are_off", device.turn_off_if_all_in_list_are_off)
+            if device.deviceId == "shellyplugsg3-b08184a5b0e0":
+                print(
+                    "device.turn_off_if_all_in_list_are_off",
+                    device.turn_off_if_all_in_list_are_off,
+                )
 
             # If the device has no dependencies there is no reason not to
             # switch ON.
@@ -171,7 +173,8 @@ class SmartplugApp(AppConfig):
                 for trigger_device in device.turn_off_if_all_in_list_are_off
             ]
 
-            print("trigger_states", trigger_states)
+            if device.deviceId == "shellyplugsg3-b08184a5b0e0":
+                print("trigger_states", trigger_states)
 
             if all(state is False for state in trigger_states):
                 # Do not allow to switch ON if all dependencies are OFF.
