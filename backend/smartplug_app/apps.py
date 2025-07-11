@@ -144,6 +144,9 @@ class SmartplugApp(AppConfig):
                     SmartplugApp._logger.info("case 1")
                 return True
 
+            if device.get_isAvailable() is False:
+                return False
+
             # The device is OFF -> the only way it might be ON afterwards is,
             # if it is amoung devices_to_switch.
             if device not in devices_to_switch:
