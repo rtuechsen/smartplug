@@ -144,6 +144,7 @@ class SmartplugApp(AppConfig):
                     SmartplugApp._logger.info("case 1")
                 return True
 
+            # If a device cannot be reached we will not be able to turn it ON.
             if device.get_isAvailable() is False:
                 return False
 
@@ -349,7 +350,7 @@ class SmartplugApp(AppConfig):
         )
 
         for device in devices_to_switch:
-            self._try_switching_device(device, desired_isOn)
+            self._switch_device_delayed(device, desired_isOn)
 
         if were_requests_dropped:
             raise BackendError(
@@ -362,14 +363,11 @@ class SmartplugApp(AppConfig):
                 f"{SWITCHING_TOGGLE_DELAY_SECONDS} seconds.",
             )
 
-    def _try_switching_device(
+    def _switch_device_delayed(
         self, device: TreeItemDevice, desired_isOn: bool
     ) -> None:
-        """Function to request a device to switch. Ensures switching delays are
-        respected.
-
-        To comply with the inrush current delay the switching of the device is
-        delayed.
+        """Function to request a device to switch. To comply with the inrush
+        current delay the switching of the device is delayed.
 
         @param device The device to switch.
 
