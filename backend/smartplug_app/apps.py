@@ -120,8 +120,10 @@ class SmartplugApp(AppConfig):
         # We only need to make sure that all the devices are allowed to switch,
         # e.g. not switching monitor ON without PC ON
 
-        # The idea is to traverse the dependencies backwards: first the leaves
+        # The idea is to traverse the dependencies backwards: first the leafs
         # with no own deps, then their listeners and so on.
+
+        print("devices_to_switch", devices_to_switch)
 
         def will_be_on(device: TreeItemDevice) -> bool:
             """This function returns the resolved state of a given device.
@@ -131,6 +133,8 @@ class SmartplugApp(AppConfig):
             @return The state of isOn that the given device should have after
             executing the switch.
             """
+
+            if device.deviceId == "shellyplugsg3-b08184a5b0e0":
 
             # Check if the device has already been checked, return that value
             # in that case.
@@ -151,6 +155,8 @@ class SmartplugApp(AppConfig):
             # The device is OFF, but is scheduled to be switched ON -> can
             # still fail to switch ON if all its dependencies are OFF.
 
+            print("device.turn_off_if_all_in_list_are_off", device.turn_off_if_all_in_list_are_off)
+
             # If the device has no dependencies there is no reason not to
             # switch ON.
             if len(device.turn_off_if_all_in_list_are_off) == 0:
@@ -164,6 +170,8 @@ class SmartplugApp(AppConfig):
                 will_be_on(trigger_device)
                 for trigger_device in device.turn_off_if_all_in_list_are_off
             ]
+
+            print("trigger_states", trigger_states)
 
             if all(state is False for state in trigger_states):
                 # Do not allow to switch ON if all dependencies are OFF.
