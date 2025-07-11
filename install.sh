@@ -81,5 +81,7 @@ sudo bash change_permissions.sh
 
 ## logrotate
 
-sudo mkdir /etc/logrotate.d/smartplug_app
+if ! [ -f /etc/logrotate.d/smartplug_app ]; then
+	sudo rm /etc/logrotate.d/smartplug_app
+fi
 sudo cp ./smartplug_app /etc/logrotate.d/smartplug_app
