@@ -5,12 +5,8 @@ Install Ubuntu 24.04 as virtual machine or WSL.
 Set the username of your Ubunutu device to `default` and set a password for this user.  
 
 Install git using `sudo apt -y install git`.  
-
 Clone this repo using: `sudo git clone https://gitlab.com/proi3/smartplug-dirigent.git /opt/smartplug-dirigent`  
-
 Enter project folder with `cd /opt/smartplug-dirigent`.  
-
-
 
 During the installation script, you will be asked to enter a password for the Mosquitto Broker.  
 This password must be set on all smart plugs and stored in a JSON file located at `/etc/mosquitto/mosquitto_passwd.json`.  
@@ -88,6 +84,7 @@ After building the documentation using `sudo bash generate_documentation.sh` the
 
 The API is not documented using html but as an OpenAPI document in YAML format:
 - API: [./openapi.yaml](./openapi.yaml)
+
 
 ## Active Directory
 

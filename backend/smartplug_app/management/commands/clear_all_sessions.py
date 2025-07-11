@@ -3,6 +3,9 @@
 from django.core.management.base import BaseCommand
 from django.contrib.sessions.models import Session
 
+# TODO: add docstring, document file and folders
+
+
 class Command(BaseCommand):
     help = "Delete all sessions, including active ones."
 

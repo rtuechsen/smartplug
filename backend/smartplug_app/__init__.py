@@ -47,6 +47,7 @@
 ##   - nginx.conf: configuration for the nginx web server
 ##   - openapi.yaml: documents the REST API of the backend
 ##   - smartplug_app: configuration file for the logrotate tool on ubuntu
+##   - gunicorn.service: unit file that defines the service used for production
 ## - a number of scripts:
 ##   - deploy_production.sh: the script used to start the system for production
 ##   - develop_backend.sh / develeop_frontend.sh: the scripts to start the
@@ -57,6 +58,8 @@
 ## installing the whole project again
 ##   - generate_documentation.sh: used to generate the HTML documentation for
 ## the backend and frontend
+##   - change_permissions.sh: used to apply appropriate permissions to a number
+## of relevant files to prevent changing them without permission
 ##
 ## ## Backend
 ##
