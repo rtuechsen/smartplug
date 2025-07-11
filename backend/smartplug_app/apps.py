@@ -123,8 +123,6 @@ class SmartplugApp(AppConfig):
         # The idea is to traverse the dependencies backwards: first the leafs
         # with no own deps, then their listeners and so on.
 
-        SmartplugApp._logger.info(f"devices_to_switch: {devices_to_switch}")
-
         def will_be_on(device: TreeItemDevice) -> bool:
             """This function returns the resolved state of a given device.
 
@@ -142,6 +140,7 @@ class SmartplugApp(AppConfig):
             # No further actions needed if the device is alreay ON.
             if device.get_isOn() is True:
                 resolved_states_per_deviceId[device.deviceId] = True
+                SmartplugApp._logger.info("case 1")
                 return True
 
             # The device is OFF -> the only way it might be ON afterwards is,
@@ -153,15 +152,16 @@ class SmartplugApp(AppConfig):
             # The device is OFF, but is scheduled to be switched ON -> can
             # still fail to switch ON if all its dependencies are OFF.
 
-            if device.deviceId == "shellyplugsg3-b08184a5b0e0":
+            if device.deviceId == "shellyplugsg3-b08184a4b8e4":
                 SmartplugApp._logger.info(
-                    f"device.turn_off_if_all_in_list_are_off: {device.turn_off_if_all_in_list_are_off}"
+                    f"device.turn_off_if_all_in_list_are_off: {[d.deviceId for d in device.turn_off_if_all_in_list_are_off]}"
                 )
 
             # If the device has no dependencies there is no reason not to
             # switch ON.
             if len(device.turn_off_if_all_in_list_are_off) == 0:
                 resolved_states_per_deviceId[device.deviceId] = True
+                SmartplugApp._logger.info("case 2")
                 return True
 
             # At this point we need to recursively check all the device's
@@ -172,7 +172,7 @@ class SmartplugApp(AppConfig):
                 for trigger_device in device.turn_off_if_all_in_list_are_off
             ]
 
-            if device.deviceId == "shellyplugsg3-b08184a5b0e0":
+            if device.deviceId == "shellyplugsg3-b08184a4b8e4":
                 SmartplugApp._logger.info(f"trigger_states: {trigger_states}")
 
             if all(state is False for state in trigger_states):
@@ -181,6 +181,7 @@ class SmartplugApp(AppConfig):
                 return False
 
             resolved_states_per_deviceId[device.deviceId] = True
+            SmartplugApp._logger.info("case 3")
             return True
 
         devices_allowed_to_switch_on = []
