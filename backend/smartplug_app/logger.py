@@ -31,7 +31,14 @@ class Logger:
     Because the class is a singleton its attributes are all class
     attributes.
 
-    TODO: add comment about 90% full -> discard
+    If the queue is approximately 90% full, the incoming logs will be REPLACED
+    with a warning that the queue is about to be full. The warning replaces
+    the actual log because adding both would add to the problem. An
+    approximation of 90% is used as the queue only gives an approximation about
+    the number of entries it contains at a point in time. So only adding a
+    warning one log before the queue is full might already be too late.
+    If the queue is completely full, incoming logs will be discarded, no
+    warnings will (and can) be written.
 
     Log files are stored in '/var/log/smartplug_app/' with a file per
     day. The linux tool 'logroate' is used in this project to switch the
