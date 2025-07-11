@@ -69,7 +69,7 @@ class MQTTClient:
 
         # self._client.tls_insecure_set(True)
         # -------------------------------------------
-        
+
         self._client.username_pw_set(self._username, self._password)
 
         self._connect()
@@ -133,10 +133,10 @@ class MQTTClient:
             try:
                 data = json.loads(payload)
                 # Get the switch output state (True or False)
-                rpcSwitchOutput = data.get("output")
+                rpc_switch_output = data.get("output")
 
                 # Notify the application about the switch status
-                self._on_update_callback(deviceId, "isOn", rpcSwitchOutput)
+                self._on_update_callback(deviceId, "isOn", rpc_switch_output)
 
             except json.JSONDecodeError as e:
                 raise BackendError(
