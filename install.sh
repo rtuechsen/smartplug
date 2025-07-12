@@ -45,6 +45,8 @@ sudo systemctl stop mosquitto
 sudo mosquitto_passwd -c /etc/mosquitto/passwd mqttuser
 
 # TODO: call generate_secrets.py to generate secrets for django for development and production
+sudo mkdir /etc/django/
+sudo python ./backend/smartplug_app/generate_secrets.py
 
 cd ..
 
