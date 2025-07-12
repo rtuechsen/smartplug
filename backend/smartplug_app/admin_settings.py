@@ -35,7 +35,7 @@ USE_MQTT: bool = True
 ## cryptographic functions.
 SECRET_KEY_DEVELOPMENT: str = "gzo3N4aSjR39V$Tbxf*!#q%4du53MfU2"
 
-with open("/etc/django/secret_key_development", "w", encoding="UTF-8") as f:
+with open("/etc/django/secret_key_development", "r", encoding="UTF-8") as f:
     SECRET_KEY_DEVELOPMENT: str = f.read()
     print(SECRET_KEY_DEVELOPMENT)
 
