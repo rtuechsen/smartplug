@@ -7,10 +7,3 @@ settings_base.py.
 from .settings_base import *
 
 DEBUG = True
-
-# SECRET_KEY = "aadfj<nfefghöafffq"
-
-# with open(
-#     "/etc/django_secret_key_development.txt", "r", encoding="UTF-8"
-# ) as f:
-#     SECRET_KEY = f.read().strip()
