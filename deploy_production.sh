@@ -20,10 +20,11 @@ sudo systemctl enable gunicorn
 
 cd frontend
 
-npm run build
+# TODO: Enable again :)
+#npm run build
 
-sudo rm -r /var/www/html/*
-sudo cp -r -p ./dist/* /var/www/html/
+#sudo rm -r /var/www/html/*
+#sudo cp -r -p ./dist/* /var/www/html/
 
 cd ..
 
@@ -35,7 +36,7 @@ source django-env/bin/activate
 
 printf "\n\n\x1B[33mStarting migration.\x1B[0m\n\n\n"
 
-sudo -E env PATH="$PATH" python manage.py clearsessions
+sudo -E env PATH="$PATH" python manage.py clear_all_sessions
 
 sudo -E env PATH="$PATH" python manage.py makemigrations
 
@@ -59,3 +60,4 @@ sudo systemctl reload nginx
 
 cd ..
 
+sudo bash change_permissions.sh

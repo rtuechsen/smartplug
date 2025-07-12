@@ -34,11 +34,28 @@ class MQTTClient:
         self._sub_topic: str = "/rpc"
         self._client: mqtt.Client = mqtt.Client()
 
-        # After every Install you must update the mosquitto_passwd.json
-        with open("/etc/mosquitto/mosquitto_passwd.json") as f:
-            config = json.load(f)
-            self._username = config["mqtt_username"]
-            self._password = config["mqtt_password"]
+        # After every install you must update the mosquitto_passwd.json
+
+        path_to_username_password: str = "/etc/mosquitto/mosquitto_passwd.json"
+        try:
+            with open(path_to_username_password, "r", encoding="UTF-8") as f:
+                config = json.load(f)
+                self._username = config["mqtt_username"]
+                self._password = config["mqtt_password"]
+        except FileNotFoundError as e:
+            raise BackendError(
+                f"Could not find the file mosquitto_passwd.json at "
+                f"{path_to_username_password}."
+            ) from e
+        except IOError as e:
+            raise BackendError(
+                f"Error while reading the file mosquitto_passwd.json at "
+                f"{path_to_username_password}."
+            ) from e
+        except json.JSONDecodeError as e:
+            raise BackendError(
+                f"Error while parsing mosquitto_passwd.json:{e}."
+            ) from e
 
         # TLS --------------------------------------
         # TODO: generate / add certificates when installing / starting
@@ -52,6 +69,7 @@ class MQTTClient:
 
         # self._client.tls_insecure_set(True)
         # -------------------------------------------
+
         self._client.username_pw_set(self._username, self._password)
 
         self._connect()
@@ -62,9 +80,7 @@ class MQTTClient:
         self._client.loop_start()
 
     def _connect(self) -> None:
-        """Connects to the MQTT broker and subscribes to all topics.
-        Raises BackendError if connection fails.
-        """
+        """Connects to the MQTT broker and subscribes to all topics."""
 
         def on_connect(client: mqtt.Client, userdata, flags, rc: int):
             if rc == 0:
@@ -83,19 +99,20 @@ class MQTTClient:
     ) -> None:
         """Processes incomming MQTT messages and triggers the update callback.
 
-        Extracts device ID and state information from the topic and payload.
+        Extracts deviceId and state information from the topic and payload.
 
         @param client The instance of mqtt.Client to use.
-        @param userdata Additional user data, not used here.
-        @param msg The received message.
 
-        @raises BackendError if the payload contains invalid JSON or other errors occur.
+        @param userdata Additional user data, not used here.
+
+        @param msg The received message.
         """
 
         topic = msg.topic
         payload = msg.payload.decode()
 
-        # Handles a message when the topic end swith "/online" indicating the availability
+        # Handles a message when the topic end swith "/online" indicating the
+        # availability.
         if topic.endswith("/online"):
             deviceId = topic.split("/")[0]
             state = payload.strip().lower() == "true"
@@ -105,17 +122,21 @@ class MQTTClient:
             if state:
                 # If device is online, request its current status
                 self._request_status(deviceId)
+            else:
+                # If device is offline, assume switch is off
+                self._on_update_callback(deviceId, "isOn", False)
 
-        # Handle messages when topic ends with "/status/switch:0" indicating switch status update
+        # Handle messages when topic ends with "/status/switch:0" indicating
+        # switch status update.
         elif topic.endswith("/status/switch:0"):
             deviceId = topic.split("/")[0]
             try:
                 data = json.loads(payload)
                 # Get the switch output state (True or False)
-                rpcSwitchOutput = data.get("output")
+                rpc_switch_output = data.get("output")
 
                 # Notify the application about the switch status
-                self._on_update_callback(deviceId, "isOn", rpcSwitchOutput)
+                self._on_update_callback(deviceId, "isOn", rpc_switch_output)
 
             except json.JSONDecodeError as e:
                 raise BackendError(
@@ -123,7 +144,8 @@ class MQTTClient:
                     f"{topic}: {payload}"
                 ) from e
 
-        # Handle messages when the topic ends with "/rpc" indicating an RPC response
+        # Handle messages when the topic ends with "/rpc" indicating an RPC
+        # response.
         elif topic.endswith("/rpc"):
             deviceId = topic.split("/")[0]
             try:
@@ -131,7 +153,8 @@ class MQTTClient:
                 deviceId = data.get("src")
                 rpc_response = data.get("result")
 
-                # Check if RPC result contains the Information of the switch status.
+                # Check if RPC result contains the Information of the switch
+                # status.
                 if isinstance(rpc_response, dict) and "output" in rpc_response:
                     output = rpc_response.get("output")
 
@@ -152,7 +175,7 @@ class MQTTClient:
     def _request_status(self, device_id: str) -> None:
         """Sends a Switch.GetStatus RPC request to a specific device.
 
-        This requests the current switch status (on/off) from the device.
+        This requests the current switch status (ON/OFF) from the device.
 
         @param device_id The ID of the target device.
         """
@@ -174,10 +197,10 @@ class MQTTClient:
 
         Publishes a Switch.Set RPC command to the device with the desired state.
 
-
         @param deviceId The ID of the target device.
-        @param desired_isOn Desired state of the switch (True for on, False
-        for off).
+
+        @param desired_isOn Desired state of the switch (True for ON, False
+        for OFF).
         """
         # used for debugging only
         if not USE_MQTT:

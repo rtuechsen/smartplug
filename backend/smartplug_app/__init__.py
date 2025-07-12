@@ -31,7 +31,7 @@
 ## ### Files and places
 ##
 ## The projects files used for development are located in a folder
-## `smartplug-dirigent` in the ubuntu systems user folder. This folder is
+## `smartplug-dirigent` in `/opt`. This folder is
 ## managed via git for development.
 ## Inside this folder there are two main folders, one for the backend and one
 ## for the frontend. Additionally a `.vscode` folder is present to unify vscode
@@ -47,6 +47,7 @@
 ##   - nginx.conf: configuration for the nginx web server
 ##   - openapi.yaml: documents the REST API of the backend
 ##   - smartplug_app: configuration file for the logrotate tool on ubuntu
+##   - gunicorn.service: unit file that defines the service used for production
 ## - a number of scripts:
 ##   - deploy_production.sh: the script used to start the system for production
 ##   - develop_backend.sh / develeop_frontend.sh: the scripts to start the
@@ -57,6 +58,8 @@
 ## installing the whole project again
 ##   - generate_documentation.sh: used to generate the HTML documentation for
 ## the backend and frontend
+##   - change_permissions.sh: used to apply appropriate permissions to a number
+## of relevant files to prevent changing them without permission
 ##
 ## ## Backend
 ##
@@ -92,7 +95,7 @@
 ##
 ## ### Files and places
 ##
-## The backend folder contains the the folder smartplug_app, which holds most
+## The backend folder contains the the folder `smartplug_app`, which holds most
 ## of the source code. It also contains a `Doxyfile` used as configuration for
 ## the doxygen generator, a `manage.py` required by Django and
 ## `requirements.txt` which holds the python dependencies for the backend used
@@ -108,6 +111,10 @@
 ## uses the database in connection with Djangos build-in user management.
 ## The file `admin_settings.py` is intended for settings an admin might want to
 ## tweak without touching the overall implementation.
+## Also inside the folder `smartplug_app` is a folder `management` and inside
+## it a folder `commands`. Here commands can be implemented which can be run
+## using `manage.py`. Currently only a command to delete all user sessions
+## exits here.
 ##
 ## When running the script `deploy_production.sh` various files of this project
 ## are copied to the required places, e.g. to folders known to nginx or to

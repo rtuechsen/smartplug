@@ -27,10 +27,6 @@ sudo apt -y install python3-pip
 
 python -m pip install -r ./requirements.txt
 
-## logrotate
-
-sudo cp -p ./smartplug_app /etc/logrotate.d/smartplug_app
-
 ## LDAP
 
 sudo apt install -y libsasl2-dev python3-dev libldap2-dev libssl-dev ldap-utils
@@ -44,12 +40,9 @@ sudo apt install -y pylint
 sudo apt install -y mosquitto mosquitto-clients
 sudo systemctl stop mosquitto
 
-##set mosquitto Password
+# set mosquitto password
 
 sudo mosquitto_passwd -c /etc/mosquitto/passwd mqttuser
-sudo chmod 600 /etc/mosquitto/passwd
-sudo chown mosquitto: /etc/mosquitto/passwd
-
 
 # TODO: call generate_secrets.py to generate secrets for django for development and production
 
@@ -86,3 +79,11 @@ sudo openssl req -new -x509 \
 
 sudo apt -y install doxygen
 
+sudo bash change_permissions.sh
+
+## logrotate
+
+if ! [ -f /etc/logrotate.d/smartplug_app ]; then
+	sudo rm /etc/logrotate.d/smartplug_app
+fi
+sudo cp ./smartplug_app /etc/logrotate.d/smartplug_app

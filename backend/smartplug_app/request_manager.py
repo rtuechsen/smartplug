@@ -222,7 +222,7 @@ class RequestManager:
         """
 
         self._logger.info(
-            "A /gettree request has been received.",
+            "A /get-tree request has been received.",
             request.META["REMOTE_ADDR"],
             (
                 request.session["USERNAME"]
@@ -331,7 +331,7 @@ class RequestManager:
         """
 
         self._logger.info(
-            "A /getusers request has been received.",
+            "A /get-active-users request has been received.",
             request.META["REMOTE_ADDR"],
             (
                 request.session["USERNAME"]
@@ -384,7 +384,7 @@ class RequestManager:
         """
 
         self._logger.info(
-            "A /getusers request has been received.",
+            "A /get-session-expiry-date request has been received.",
             request.META["REMOTE_ADDR"],
             (
                 request.session["USERNAME"]

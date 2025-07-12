@@ -20,7 +20,7 @@ USE_LDAP: bool = False
 
 ## The address of the server running active directory.\ It should start with
 ## 'ldap://' and end with ':389' (the port for LDAP).
-LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.133.42:389"
+LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.58.42:389"
 
 ## The time in seconds after which a request to the Active Directory server is
 ## considered a timeout.
@@ -29,7 +29,7 @@ LDAP_TIMEOUT_SECONDS: int = 5
 ## Variable used for Development: allows to disable sending MQTT messages.\
 ## When making switch requests these will be treated as successful and return a
 ## matching response from the MQTTClient.
-USE_MQTT: bool = False
+USE_MQTT: bool = True
 
 ## The secret key used for production builds. Used by Django as a seed for
 ## cryptographic functions.
@@ -53,4 +53,4 @@ FRONTEND_ORIGINS: list[str] = [
 
 ## A list of strings representing the host/domain names that this Django site
 ## can serve.\ This is a security measure to prevent HTTP Host header attacks.
-ALLOWED_HOSTS_LIST: list[str] = ["localhost", "127.0.0.1", "192.168.133.195"]
+ALLOWED_HOSTS_LIST: list[str] = ["localhost", "127.0.0.1", "192.168.5.136"]

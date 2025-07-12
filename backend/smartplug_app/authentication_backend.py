@@ -41,14 +41,11 @@ class AuthenticationBackend(BaseBackend):
         session_manager: SessionManager = SessionManager()
         active_user_names: list[str] = session_manager.get_active_usernames()
 
-        print("active_user_names", active_user_names)
-        print("username", username)
-
         if username in active_user_names:
             raise BackendError(
                 message=f"User tried to start a second session: {username}.",
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                user_message="A session is already active, you can only have"
+                user_message="A session is already active, you can only have "
                 "one session at a time.",
             )
 
@@ -70,11 +67,13 @@ class AuthenticationBackend(BaseBackend):
 
         # We store some data about the user in the session. This is later used
         # to detect cookie theft.
-        request.session["HTTP_USER_AGENT"] = request.META["HTTP_USER_AGENT"]
-        request.session["HTTP_ACCEPT_LANGUAGE"] = request.META[
-            "HTTP_ACCEPT_LANGUAGE"
-        ]
-        request.session["REMOTE_ADDR"] = request.META["REMOTE_ADDR"]
+        request.session["HTTP_USER_AGENT"] = request.META.get(
+            "HTTP_USER_AGENT", None
+        )
+        request.session["HTTP_ACCEPT_LANGUAGE"] = request.META.get(
+            "HTTP_ACCEPT_LANGUAGE", None
+        )
+        request.session["REMOTE_ADDR"] = request.META.get("REMOTE_ADDR", None)
 
         return user
 
