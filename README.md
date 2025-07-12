@@ -2,21 +2,27 @@
 # Instructions
 
 Install Ubuntu 24.04 as virtual machine or WSL.  
-Set a user name and a password.  
+Set the username of your Ubunutu device to `default` and set a password for this user.  
 
 Install git using `sudo apt -y install git`.  
 
 Clone this repo using: `git clone https://gitlab.com/proi3/smartplug-dirigent.git`  
 
 Enter project folder with `cd smartplug-dirigent`.  
-Run `bash install.sh` to install the project. When prompted for an LDAP password enter one (preferably use the one in Proton Pass under 'Windows-Server-2019').  
-VSCode should find the python virtual environment automatically ONCE you have opened a python file. For existing terminals VSCode will ask you to reload them.  
+Run `bash install.sh` to install the project.
+During the installation script, you will be asked to enter a password. This password must be set on all smart plugs and stored in a JSON file located at /etc/mosquitto/mosquitto_passwd.json. The file must have the following format:
+```{
+    "mqtt_username": "mqttuser",
+    "mqtt_password": "Password"
+}```
+VSCode should find the python virtual environment automatically ONCE you have opened a python file. For existing terminals VSCode will ask you to reload them. In terminals outside of vscode use `source backend/django-env/bin/activate` to activate the virtual environment for python before running other scripts. If a script fails with `no module found named django` the cause is often that the virtual environment was not activated. If the error still shows up after activating the virtual environment try running `bash update_dependencies.sh`.  
 Run `bash develop_backend.sh` and `bash develop_frontend.sh` (in separate terminals) to run without deployment.  
 When using breakpoints in VSCode for the __frontend__, instead of simply opening the browser, go to the debug tab in VSCode (on the left) and launch `Frontend Debug (Chrome)`.  
 When using breakpoints in VSCode for the __backend__, instead of running `develop_backend.sh`, go to the debug tab in VSCode (on the left) and launch `Backend Debug (Django ASGI Uvicorn)`.  
 For Debugging React Components in a browser the [React Developer Tools](https://react.dev/learn/react-developer-tools) might be helpful.  
 Run `bash deploy_production.sh` to deploy using nginx. Currently one has to open [](https://localhost:80).  
 The scripts for starting the server in development or production mode can be stopped using `Ctrl+C`. If clients are still connected (i.e. SSE is connected), aborting might not happen immediately.  
+In production the webserver is run as systemctl under the name `gunicorn`. If any conflicts occur during debugging, you can check the status using `sudo systemctl status gunicorn` and stop the service using `sudo systemctl stop gunicorn`.
 
 
 ## WSL

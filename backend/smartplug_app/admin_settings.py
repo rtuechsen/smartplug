@@ -26,8 +26,8 @@ LDAP_SERVER_ADDRESS_AND_PORT: str = "ldap://192.168.133.42:389"
 ## considered a timeout.
 LDAP_TIMEOUT_SECONDS: int = 5
 
-## Variable used for Development: allows to disable sending MQTT messages.\ When
-## making switch requests these will be treated as successful and return a
+## Variable used for Development: allows to disable sending MQTT messages.\
+## When making switch requests these will be treated as successful and return a
 ## matching response from the MQTTClient.
 USE_MQTT: bool = False
 
