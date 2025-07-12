@@ -24,7 +24,7 @@ sudo chmod -R 645 /etc/mosquitto
 sudo chown root:www-data /etc/mosquitto/mosquitto_passwd.json
 sudo chmod 660 /etc/mosquitto/mosquitto_passwd.json		# other users = 0 so that they cannot read the secret
 
-sudo chown root:mosquitto /etc/mosquitto/passwd
+sudo chown root:root /etc/mosquitto/passwd
 sudo chmod 660 /etc/mosquitto/passwd					# other users = 0 so that they cannot read the secret
 
 # logs
