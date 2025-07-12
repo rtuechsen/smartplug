@@ -48,7 +48,7 @@ sudo mosquitto_passwd -c /etc/mosquitto/passwd mqttuser
 if ! [ -d /etc/django/ ]; then
 	sudo mkdir /etc/django/
 fi
-sudo -E env PATH="$PATH" python ./backend/smartplug_app/generate_secrets.py
+sudo -E env PATH="$PATH" python ./smartplug_app/generate_secrets.py
 
 cd ..
 
