@@ -37,7 +37,11 @@ SECRET_KEY_DEVELOPMENT: str = "gzo3N4aSjR39V$Tbxf*!#q%4du53MfU2"
 
 with open("/etc/django/secret_key_development", "r", encoding="UTF-8") as f:
     SECRET_KEY_DEVELOPMENT: str = f.read()
-    print(SECRET_KEY_DEVELOPMENT)
+
+with open(
+    "/etc/django/secret_key_development_vrfy", "w", encoding="UTF-8"
+) as f:
+    f.write(SECRET_KEY_DEVELOPMENT)
 
 ## The secret key used for production builds. Used by Django as a seed for
 ## cryptographic functions.
