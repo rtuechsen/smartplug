@@ -198,7 +198,8 @@ class SessionManager:
         Only users that are signed in will be included. The username is the
         identificator used on sign in.
 
-        @return The list containing the usernames of all active users as string.
+        @return The list containing the usernames of all active users as
+        string.
         """
 
         session_model = apps.get_model("sessions", "Session")
@@ -229,7 +230,8 @@ class SessionManager:
 
         if not request.user.is_authenticated:
             raise BackendError(
-                message="A request has been made by a user who is not signed in.",
+                message="A request has been made by a user who is not signed"
+                "in.",
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 user_message="Authentication failed. Are you signed in?",
             )
@@ -275,8 +277,8 @@ class SessionManager:
         """
 
         try:
-            # This data has been set on login and will be checked when verifying
-            # the request origin.
+            # This data has been set on login and will be checked when
+            # verifying the request origin.
             headers = [
                 "HTTP_USER_AGENT",
                 "HTTP_ACCEPT_LANGUAGE",
@@ -287,9 +289,11 @@ class SessionManager:
             for header in headers:
                 if request.session[header] != request.META.get(header):
                     raise BackendError(
-                        message=f"Request origin mismatch, {header} did not match.",
+                        message=f"Request origin mismatch, {header} did not"
+                        "match.",
                         status_code=status.HTTP_401_UNAUTHORIZED,
-                        user_message="Authentication failed. Are you signed in?",
+                        user_message="Authentication failed. Are you signed"
+                        "in?",
                     )
 
         # KeyError occurs when the request is missing necessary data for
