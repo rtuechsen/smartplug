@@ -1,9 +1,9 @@
 """Contains a utility script to generate a secure token."""
 
-import secrets
+from django.core.management.utils import get_random_secret_key
 
 with open("/etc/django/secret_key_development", "w", encoding="UTF-8") as f:
-    f.write(secrets.token_urlsafe(32))
+    f.write(get_random_secret_key())
 
 with open("/etc/django/secret_key_production", "w", encoding="UTF-8") as f:
-    f.write(secrets.token_urlsafe(32))
+    f.write(get_random_secret_key())

@@ -8,7 +8,7 @@ from .settings_base import *
 
 DEBUG = True
 
-SECRET_KEY = "aadfj<nfefghöafffq"
+# SECRET_KEY = "aadfj<nfefghöafffq"
 
 # with open(
 #     "/etc/django_secret_key_development.txt", "r", encoding="UTF-8"
