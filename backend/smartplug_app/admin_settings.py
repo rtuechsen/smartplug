@@ -31,14 +31,6 @@ LDAP_TIMEOUT_SECONDS: int = 5
 ## matching response from the MQTTClient.
 USE_MQTT: bool = True
 
-## The secret key used for development builds. Used by Django as a seed for
-## cryptographic functions.
-SECRET_KEY_DEVELOPMENT: str = "gzo3N4aSjR39V$Tbxf*!#q%4du53MfU2"
-
-## The secret key used for production builds. Used by Django as a seed for
-## cryptographic functions.
-SECRET_KEY_PRODUCTION: str = "G5pT23&5hDpS6ArMK2*ohC4B9&B!Ts$R"
-
 ## The time in seconds after which a user is signed out if no activity was
 ## registered.
 SESSION_TIMEOUT_SECONDS: int = 120

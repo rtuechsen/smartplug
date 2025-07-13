@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from django.core.management.utils import get_random_secret_key
 from ..admin_settings import (
     SESSION_TIMEOUT_SECONDS,
     FRONTEND_ORIGINS,
@@ -150,7 +151,7 @@ ALLOWED_HOSTS = ALLOWED_HOSTS_LIST
 # Disable rendering for REST endpoint dev page.
 # Source: https://stackoverflow.com/q/42829782
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    )
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",)
 }
+
+SECRET_KEY = get_random_secret_key()
