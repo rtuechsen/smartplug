@@ -42,6 +42,7 @@ sudo systemctl stop mosquitto
 
 # set mosquitto password
 
+printf "\n\n\x1B[33mNext enter a password for the Mosquitto Broker.\x1B[0m\n\n\n"
 sudo mosquitto_passwd -c /etc/mosquitto/passwd mqttuser
 
 cd ..
