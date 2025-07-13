@@ -120,7 +120,7 @@ class SmartplugApp(AppConfig):
         # We only need to make sure that all the devices are allowed to switch,
         # e.g. not switching monitor ON without PC ON
 
-        # The idea is to traverse the dependencies backwards: first the leaves
+        # The idea is to traverse the dependencies backwards: first the leafs
         # with no own deps, then their listeners and so on.
 
         def will_be_on(device: TreeItemDevice) -> bool:
@@ -141,6 +141,10 @@ class SmartplugApp(AppConfig):
             if device.get_isOn() is True:
                 resolved_states_per_deviceId[device.deviceId] = True
                 return True
+
+            # If a device cannot be reached we will not be able to turn it ON.
+            if device.get_isAvailable() is False:
+                return False
 
             # The device is OFF -> the only way it might be ON afterwards is,
             # if it is amoung devices_to_switch.
@@ -332,7 +336,7 @@ class SmartplugApp(AppConfig):
         )
 
         for device in devices_to_switch:
-            self._try_switching_device(device, desired_isOn)
+            self._switch_device_delayed(device, desired_isOn)
 
         if were_requests_dropped:
             raise BackendError(
@@ -345,14 +349,11 @@ class SmartplugApp(AppConfig):
                 f"{SWITCHING_TOGGLE_DELAY_SECONDS} seconds.",
             )
 
-    def _try_switching_device(
+    def _switch_device_delayed(
         self, device: TreeItemDevice, desired_isOn: bool
     ) -> None:
-        """Function to request a device to switch. Ensures switching delays are
-        respected.
-
-        To comply with the inrush current delay the switching of the device is
-        delayed.
+        """Function to request a device to switch. To comply with the inrush
+        current delay the switching of the device is delayed.
 
         @param device The device to switch.
 
