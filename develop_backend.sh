@@ -21,7 +21,7 @@ sudo -E env PATH="$PATH" python manage.py clearsessions
 
 sudo -E env PATH="$PATH" python manage.py makemigrations
 
-sudo -E env PATH="$PATH" python manage.py migrate
+sudo -E env PATH="$PATH" python manage.py migrate --settings=smartplug_app.settings.settings_development
 
 printf "\n\n\x1B[33mMigration finished.\x1B[0m\n\n\n"
 

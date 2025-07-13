@@ -6,7 +6,7 @@ StartLimitIntervalSec=0
 [Service]
 Type=simple
 WorkingDirectory=/opt/smartplug-dirigent/backend/
-Environment="PATH=/opt/venv/bin"
+Environment="DJANGO_PIPELINE=production"
 ExecStart=/opt/smartplug-dirigent/backend/django-env/bin/gunicorn \
     --bind 127.0.0.1:8000 \
     smartplug_app.asgi:application \

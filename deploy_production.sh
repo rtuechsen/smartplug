@@ -21,10 +21,10 @@ sudo systemctl enable gunicorn
 cd frontend
 
 # TODO: Enable again :)
-#npm run build
+npm run build
 
-#sudo rm -r /var/www/html/*
-#sudo cp -r -p ./dist/* /var/www/html/
+sudo rm -r /var/www/html/*
+sudo cp -r -p ./dist/* /var/www/html/
 
 cd ..
 
