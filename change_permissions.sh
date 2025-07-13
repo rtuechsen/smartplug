@@ -1,6 +1,6 @@
 
 # This script changes the permissions of files and directories relevant to the smartplug-dirigent
-# such that the default user of the ubuntu system cannot modify or delete them without providing
+# such that the normal user of the ubuntu system cannot modify or delete them without providing
 # a password. The permissions have to be low enough to allow the system to work.
 
 # nginx

@@ -2,7 +2,7 @@
 # Instructions for setting up the project
 
 Install Ubuntu 24.04 as virtual machine or WSL.  
-Set the username of your Ubunutu device to `default` and set a password for this user.  
+Set the username and password of the user.  
 
 Install git using `sudo apt -y install git`.  
 Clone this repo using: `sudo git clone https://gitlab.com/proi3/smartplug-dirigent.git /opt/smartplug-dirigent`  
