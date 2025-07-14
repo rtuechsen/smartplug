@@ -268,7 +268,10 @@ class SmartplugApp(AppConfig):
                 # Note regarding listener_device.ids[0]: simply choosing index
                 # 0 when selecting an id for the device is okay, as all ids of
                 # the device refer to this device.
-                SmartplugApp.switch(self, listener_device.ids[0], False)
+                try:
+                    SmartplugApp.switch(self, listener_device.ids[0], False)
+                except BackendError:
+                    pass
 
     def _filer_devices_switched_recently(
         self, device_list: list[TreeItemDevice]
