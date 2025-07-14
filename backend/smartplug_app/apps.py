@@ -271,6 +271,11 @@ class SmartplugApp(AppConfig):
                 try:
                     SmartplugApp.switch(self, listener_device.ids[0], False)
                 except BackendError:
+                    # SmartplugApp.switch() can raise Backenderrors. Usually
+                    # those are propagated to the API request that caused it.
+                    # In this case the switch is not caused by an API request,
+                    # so we cannot report the problem back to the user. So we
+                    # drop the error.
                     pass
 
     def _filer_devices_switched_recently(
